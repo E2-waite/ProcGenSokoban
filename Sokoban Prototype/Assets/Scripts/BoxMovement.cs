@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using enums;
 public class BoxMovement : MonoBehaviour
 {
     public float move_speed = 2;
@@ -31,7 +31,7 @@ public class BoxMovement : MonoBehaviour
     }
 
     public bool MoveBox(int x_dir, int y_dir)
-    {       
+    {
         if (grid_scr.CheckEdge(x_pos + x_dir, y_pos + y_dir))
         {
             if (grid_scr.GetTile(x_pos + x_dir, y_pos + y_dir).transform.childCount == 0 ||

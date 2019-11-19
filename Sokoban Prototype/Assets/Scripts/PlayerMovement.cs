@@ -43,6 +43,10 @@ public class PlayerMovement : MonoBehaviour
         {
             grid_scr.RefreshGame();
         }
+        if (Input.GetKeyUp("escape"))
+        {
+            Application.Quit();
+        }
 
         if (moving)
         {

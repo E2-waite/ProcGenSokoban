@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d388ada01428e3b49b44c9bd37f8dc60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size_x: 0
+  size_x: 4
   size_y: 4
   tile_prefab: {fileID: 7122823098654675571, guid: 6a87892b53620dc4491aaa5c9a91c083,
     type: 3}
@@ -53,3 +53,6 @@ MonoBehaviour:
     type: 3}
   button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
     type: 3}
+  wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
+    type: 3}
+  game_won: 0
