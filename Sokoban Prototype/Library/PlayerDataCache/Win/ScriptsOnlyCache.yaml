@@ -2,6 +2,7 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - BoxMovement
+    - CamFollow
     - GridSetup
     - PlayerMovement
     UnityEditor.Graphs.dll:
@@ -12,7 +13,6 @@ ScriptsOnlyBuild:
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
-    - UnityEditor.TestTools.TestRunner.TestListCacheData
   sceneClasses:
     Assets/Scenes/SampleScene.unity:
     - Class: 1
@@ -49,6 +49,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 10014}
     - Class: 114
       Script: {instanceID: 11234}
+    - Class: 114
+      Script: {instanceID: 11302}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 157
@@ -82,7 +84,7 @@ ScriptsOnlyBuild:
     className: TMP_Dropdown
   - hash:
       serializedVersion: 2
-      Hash: 883da96573e0f6404f3aec28b620e936
+      Hash: 78c1d50a9bf7c64b496a5a8b250bd10f
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GridSetup
@@ -442,6 +444,12 @@ ScriptsOnlyBuild:
     className: TMP_SubMesh
   - hash:
       serializedVersion: 2
+      Hash: 1025a6909f35ac2a1c87b6b03d55f7d6
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CamFollow
+  - hash:
+      serializedVersion: 2
       Hash: 7090bc1e5ccaec2a9d0d1335ed8cee99
     assemblyName: UnityEngine.TestRunner.dll
     namespaceName: UnityEngine.TestTools.TestRunner
@@ -491,4 +499,5 @@ ScriptsOnlyBuild:
   platform: 5
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Hazar/Desktop/SokobanBuild/Sokoban Prototype.exe
+  playerPath: C:/Users/Hazar/Documents/University Work/Year 3/CTP/ProcGenSokoban/Sokoban
+    Build/Sokoban Prototype.exe

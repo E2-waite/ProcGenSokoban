@@ -164,14 +164,6 @@ public class GridSetup : MonoBehaviour
             buttons.Clear();
         }
 
-        // Setup player in a random position
-        pl_pos = new Vector3(Random.Range(0, size_x), 0.5f, Random.Range(0, size_y));
-        player = Instantiate(player_prefab, pl_pos, Quaternion.identity);
-        player.transform.parent = tiles[Mathf.RoundToInt(pl_pos.x), Mathf.RoundToInt(pl_pos.z)].transform;
-        PlayerMovement player_scr = player.GetComponent<PlayerMovement>();
-        player_scr.x_pos = Mathf.RoundToInt(pl_pos.x);
-        player_scr.y_pos = Mathf.RoundToInt(pl_pos.z);
-
         num_walls = Random.Range(num_tiles / 10, num_tiles / 5);
         walls = new GameObject[num_walls];
         wall_pos = new Vector3[num_walls];
@@ -198,6 +190,22 @@ public class GridSetup : MonoBehaviour
 
         if (boxes.Count >= num_boxes)
         {
+            // Setup player in a random position
+            bool player_placed = false;
+            while (!player_placed)
+            {
+                pl_pos = new Vector3(Random.Range(0, size_x), 0.5f, Random.Range(0, size_y));
+                if (tiles[Mathf.RoundToInt(pl_pos.x), Mathf.RoundToInt(pl_pos.x)].transform.childCount == 0)
+                {
+                    player = Instantiate(player_prefab, pl_pos, Quaternion.identity);
+                    player.transform.parent = tiles[Mathf.RoundToInt(pl_pos.x), Mathf.RoundToInt(pl_pos.z)].transform;
+                    PlayerMovement player_scr = player.GetComponent<PlayerMovement>();
+                    player_scr.x_pos = Mathf.RoundToInt(pl_pos.x);
+                    player_scr.y_pos = Mathf.RoundToInt(pl_pos.z);
+                    player_placed = true;
+                }
+                yield return null;
+            }
             set_up = true;
         }
         else
