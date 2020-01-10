@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Assets\CamFollow.cs" />
     <Compile Include="Assets\Scripts\BoxMovement.cs" />
+    <Compile Include="Assets\Scripts\CheckSurrounding.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
     <Compile Include="Assets\Scripts\GridSetup.cs" />
