@@ -4,18 +4,30 @@ using UnityEngine;
 
 public class CheckSurrounding : MonoBehaviour
 {
-    public void CheckAdjascent (List<GameObject> floor_tiles, GameObject grid)
+    public bool CheckAdjascentWalls(List<GameObject> tiles)
+    {
+        int num_walls = 0;
+        foreach (GameObject obj in tiles)
+        {
+            if (obj.tag == "Wall" && Vector3.Distance(transform.position, obj.transform.position) < 1.5f)
+            {
+                num_walls++;                
+            }
+        }
+
+        if (num_walls > 2) return true;
+        else return false;
+    }
+    public void CheckAdjascentFloor (List<GameObject> floor_tiles, GameObject grid)
     {
         GenerateGrid grid_script = grid.GetComponent<GenerateGrid>();
         foreach (GameObject obj in floor_tiles)
         {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-
-            if (distance == 1 && !grid_script.checked_floors.Contains(obj))
+            if (Vector3.Distance(transform.position, obj.transform.position) == 1 && !grid_script.checked_floors.Contains(obj))
             {
                 grid_script.AddToChecked(obj);
                 CheckSurrounding next_check = obj.GetComponent<CheckSurrounding>();
-                next_check.CheckAdjascent(floor_tiles, grid);
+                next_check.CheckAdjascentFloor(floor_tiles, grid);
             }
         }
     }

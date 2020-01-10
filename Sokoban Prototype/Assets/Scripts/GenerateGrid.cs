@@ -6,8 +6,8 @@ public class GenerateGrid : MonoBehaviour
 {
     private int max_instances = 64;
     private int num_instances = 0;
-    public int size_x = 3;
-    public int size_y = 3;
+    public int size_x = 3, size_y = 3;
+    int grid_x = 0, grid_y = 0;
     public GameObject floor_prefab;
     public GameObject wall_prefab;
     private GridTemplate[,] template_grid;
@@ -15,9 +15,12 @@ public class GenerateGrid : MonoBehaviour
     private int[,] grid;
     private bool selected = false;
     private List<GameObject> floor_tiles = new List<GameObject>();
+    private List<GameObject> tiles = new List<GameObject>();
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
     public void Start()
     {
+        grid_x = (size_x * 3) + 2;
+        grid_y = (size_y * 3) + 2;
         StartCoroutine(SetupGrid());
     }
 
@@ -29,6 +32,7 @@ public class GenerateGrid : MonoBehaviour
         {
             floor_tiles.Clear();
             checked_floors.Clear();
+            tiles.Clear();
         }
 
         num_instances++;
@@ -42,8 +46,8 @@ public class GenerateGrid : MonoBehaviour
             }
         }
 
-        int[,] temp_grid = new int[size_x *3, size_y * 3];
-        int x_offset = -1, y_offset = -1;
+        int[,] temp_grid = new int[grid_x, grid_y];
+        int x_offset = 0, y_offset = 0;
 
         for (int y = 0; y < size_x; y++)
         {
@@ -55,16 +59,23 @@ public class GenerateGrid : MonoBehaviour
                     {
                         int check_x = x_offset + ix;
                         int check_y = y_offset + iy;
-                        if (check_x >= 0 && check_y >= 0 && check_x < size_x * 3 && check_y < size_y * 3)
+                        if (check_x >= 0 && check_y >= 0 && check_x < grid_x && check_y < grid_y)
                         {
-                            if (temp_grid[check_x, check_y] == 0)
-                            {                                
-                                temp_grid[check_x, check_y] = template_grid[x, y].GetTemplate(ix, iy);
-                            }
-                            if (temp_grid[check_x, check_y] != template_grid[x, y].GetTemplate(ix, iy))
+                            if (check_x == 0 || check_y == 0 || check_x == grid_x - 1 || check_y == grid_y - 1)
                             {
-                                // Restart
-                                StartCoroutine(SetupGrid());
+                                temp_grid[check_x, check_y] = 2;
+                            }
+                            else
+                            {
+                                if (temp_grid[check_x, check_y] == 0)
+                                {
+                                    temp_grid[check_x, check_y] = template_grid[x, y].GetTemplate(ix, iy);
+                                }
+                                if (temp_grid[check_x, check_y] != template_grid[x, y].GetTemplate(ix, iy))
+                                {
+                                    // Restart
+                                    StartCoroutine(SetupGrid());
+                                }
                             }
                         }
                         yield return null;
@@ -72,7 +83,7 @@ public class GenerateGrid : MonoBehaviour
                 }
                 x_offset += 3;
             }
-            x_offset = -1;
+            x_offset = 0;
             y_offset += 3;
         }
 
@@ -100,18 +111,21 @@ public class GenerateGrid : MonoBehaviour
             }
         }
 
-        object_grid = new GameObject[size_x * 3, size_y * 3];
-        for (int x = 0; x < size_x * 3; x++)
+        object_grid = new GameObject[grid_x, grid_y];
+        for (int x = 0; x < grid_x; x++)
         {
-            for (int y = 0; y < size_y * 3; y++)
+            for (int y = 0; y < grid_y; y++)
             {
                 if (grid[x, y] == 1)
                 {
-                    floor_tiles.Add(object_grid[x,y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity));
+                    object_grid[x,y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity);
+                    floor_tiles.Add(object_grid[x, y]);
+                    tiles.Add(object_grid[x, y]);
                 }
                 else if (grid[x, y] == 2)
                 {
                     object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x, 1, y), Quaternion.identity);
+                    tiles.Add(object_grid[x, y]);
                 }
             }
         }
@@ -123,20 +137,36 @@ public class GenerateGrid : MonoBehaviour
     IEnumerator StartFloorChecks()
     {
         CheckSurrounding floor_check = floor_tiles[0].GetComponent<CheckSurrounding>();
-        floor_check.CheckAdjascent(floor_tiles, this.gameObject);
+        floor_check.CheckAdjascentFloor(floor_tiles, this.gameObject);
         yield return new WaitForSeconds(0.1f);
         if (checked_floors.Count < floor_tiles.Count)
         {
-            Debug.Log("Floor Not Continuous - Discarding Layout...");
+            //Debug.Log("Floor Not Continuous - Discarding Layout...");
             selected = false;
             num_instances = 0;
             StartCoroutine(SetupGrid());
         }
         else
         {
-            Debug.Log("Continuous Floor");
-            // Continue to next layout check
+            //Debug.Log("Continuous Floor");
+            StartCoroutine(StartWallChecks());
+        }    
+    }
+
+    IEnumerator StartWallChecks()
+    {
+        for (int i = 0; i < floor_tiles.Count; i++)
+        {
+            if (floor_tiles[i].GetComponent<CheckSurrounding>().CheckAdjascentWalls(tiles))
+            {
+                selected = false;
+                num_instances = 0;
+                StartCoroutine(SetupGrid());
+                yield break;
+            }
+            yield return null;
         }
+        Debug.Log("No Dead States Detected");
     }
 
     public void AddToChecked(GameObject tile)
