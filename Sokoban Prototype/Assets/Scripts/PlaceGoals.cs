@@ -49,7 +49,7 @@ public class PlaceGoals : MonoBehaviour
             yield return null;
         }
 
-        if (moves_made > min_moves)
+        if (moves_made > min_moves && boxes.Length == num_boxes)
         {
             Debug.Log("ALL BOXES ABOVE MIN MOVES THRESHOLD, KEEPING LAYOUT");
             StopAllCoroutines();
@@ -214,7 +214,8 @@ public class PlaceGoals : MonoBehaviour
     private IEnumerator MoveInDirection(int x, int y, int dir, int num_steps, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
         // If the tile is free and box hasn't already been placed on tile, place the box on desired tile
-        if (num_steps > 0 && !prev_tiles.Contains(GetComponent<GenerateGrid>().GetTile(x,y)))
+        if (num_steps > 0 && !prev_tiles.Contains(GetComponent<GenerateGrid>().GetTile(x,y)) && 
+            GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount == 0)
         {
             // Reset directions checked and apply oposite to direction to prevent moving to previous space
             dir_checked = new bool[4];
@@ -225,7 +226,6 @@ public class PlaceGoals : MonoBehaviour
 
             // Move box to new position
             //Debug.Log((box_num + 1).ToString() + " Could Move in Direction: " + (DIRECTION)dir + " " + num_steps.ToString() + " Times");
-            yield return new WaitForSeconds(0.1f);
             if (boxes[box_num] == null)
             {
                 //StartCoroutine(Refresh());
