@@ -8,29 +8,85 @@ public class PlaceGoals : MonoBehaviour
     public GameObject player_prefab, box_prefab, button_prefab;
     private GameObject[] boxes, buttons;
     private GameObject player;
-    public int num_boxes = 2, max_attempts = 10, max_configs = 10, min_moves = 3;
-    
+    public int num_boxes = 2,  max_attempts = 10,  max_configs = 10, min_moves = 3;
+    private int num_attempts = 0, num_configs = 0, boxes_checked = 0, moves_made = 0;
+    int [] highest_moves;
     public void StartPlacing()
     {
+        highest_moves = new int[num_boxes];
         StartCoroutine(PlaceObjects());
     }
 
-    void Restart()
+    private void DiscardLayout()
     {
-
+        StopAllCoroutines();
+        num_attempts = 0; num_configs = 0; boxes_checked = 0;
+        GetComponent<GenerateGrid>().Restart();
     }
 
-    IEnumerator PlaceObjects()
+    private void Update()
+    {
+        if (boxes_checked >= num_boxes)
+        {
+            boxes_checked = 0;
+            StartCoroutine(CheckHighestMoves());
+        }
+    }
+
+    private IEnumerator CheckHighestMoves()
+    {
+        bool above_threshold = false;
+        for (int i = 0; i < num_boxes; i++)
+        {
+            if (highest_moves[i] > min_moves)
+            {
+                above_threshold = true;
+            }
+            else
+            {
+                break;
+            }
+            yield return null;
+        }
+
+        if (moves_made > min_moves)
+        {
+            Debug.Log("ALL BOXES ABOVE MIN MOVES THRESHOLD, KEEPING LAYOUT");
+            StopAllCoroutines();
+        }
+        else
+        {
+            moves_made = 0;
+            if (num_configs < max_configs)
+            {
+                if (num_attempts < max_attempts)
+                {
+                    StartCoroutine(Reset());
+                }
+                else
+                {
+                    StartCoroutine(Refresh());
+                }
+            }
+            else
+            {
+                Debug.Log("MAX CONFIGS REACHED, DISCARDING LAYOUT");
+                DiscardLayout();           
+            }
+        }
+    }
+
+    private IEnumerator PlaceObjects()
     {
         GenerateGrid grid = GetComponent<GenerateGrid>();
         boxes = new GameObject[num_boxes];
         buttons = new GameObject[num_boxes];
         for (int i = 0; i < num_boxes; i++)
         {
-            bool placed = false;
-            int rand = Random.Range(0, grid.floor_tiles.Count);
+            bool placed = false;        
             while (!placed)
             {
+                int rand = Random.Range(0, grid.floor_tiles.Count);
                 if (grid.floor_tiles[rand].transform.childCount == 0)
                 {
                     buttons[i] = Instantiate(button_prefab, new Vector3(grid.floor_tiles[rand].transform.position.x, 0.5f, grid.floor_tiles[rand].transform.position.z), Quaternion.identity);
@@ -43,15 +99,42 @@ public class PlaceGoals : MonoBehaviour
                 yield return null;
             }                  
         }
-        for (int i = 0; i < max_configs; i++)
-        {
-            StartCoroutine(StartAttempt());
-            yield return null;
-        }     
+
+        StartCoroutine(StartAttempt()); 
     }
 
-    IEnumerator StartAttempt()
+
+
+    private IEnumerator Reset()
     {
+        num_attempts++;
+        highest_moves = new int[num_boxes];
+        for (int i = 0; i < num_boxes; i++)
+        {
+            boxes[i].transform.position = buttons[i].transform.position;
+            boxes[i].transform.parent = GetComponent<GenerateGrid>().GetTile((int)transform.position.x, (int)transform.position.z).transform;
+            yield return null;
+        }
+        StartCoroutine(StartAttempt());
+    }
+
+    private IEnumerator Refresh()
+    {
+        num_configs++;
+        highest_moves = new int[num_boxes];
+        for (int i = 0; i < num_boxes; i++)
+        {
+            Destroy(buttons[i]);
+            Destroy(boxes[i]);
+            yield return null;
+        }
+        yield return new WaitUntil(() => boxes.Length == 0);
+        StartCoroutine(PlaceObjects());
+    }
+
+    private IEnumerator StartAttempt()
+    {
+        //Debug.Log("STARTING ATTEMPT");
         for (int i = 0; i < num_boxes; i++)
         {
             StartCoroutine(AttemptPlacement(i));
@@ -59,19 +142,27 @@ public class PlaceGoals : MonoBehaviour
         }  
     }
 
-    IEnumerator AttemptPlacement(int box_num)
+    private IEnumerator AttemptPlacement(int box_num)
     {
-        int x = (int)boxes[box_num].transform.position.x, y = (int)boxes[box_num].transform.position.z;
-        for (int i = 0; i < max_attempts; i++)
+        if (boxes[box_num] != null)
         {
-            bool[] dir_checked = new bool[4];
-            int  num_moves = 0;
-            StartCoroutine(CheckDirection(x, y, 0, box_num, num_moves, dir_checked));          
-            yield return null;
+            int x = (int)boxes[box_num].transform.position.x, y = (int)boxes[box_num].transform.position.z;
+            for (int i = 0; i < max_attempts; i++)
+            {
+                bool[] dir_checked = new bool[4];
+                int num_moves = 0;
+                List<GameObject> prev_tiles = new List<GameObject>();
+                StartCoroutine(CheckDirection(x, y, 0, box_num, num_moves, dir_checked, prev_tiles));
+                yield return null;
+            }
+        }
+        else
+        {
+            DiscardLayout();
         }
     }
 
-    IEnumerator CheckDirection(int x, int y, int dir, int box_num, int num_moves, bool[] dir_checked)
+    private IEnumerator CheckDirection(int x, int y, int dir, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
         int num_steps = 0, x_dir = 0, y_dir = 0;
         bool can_move = false, dir_selected = false;
@@ -116,12 +207,13 @@ public class PlaceGoals : MonoBehaviour
             yield return null;
         }
 
-        StartCoroutine(MoveInDirection(x, y, dir, num_steps, box_num, num_moves, dir_checked));
+        StartCoroutine(MoveInDirection(x, y, dir, num_steps, box_num, num_moves, dir_checked, prev_tiles));
     }
 
-    IEnumerator MoveInDirection(int x, int y, int dir, int num_steps, int box_num, int num_moves, bool[] dir_checked)
+    private IEnumerator MoveInDirection(int x, int y, int dir, int num_steps, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
-        if (num_steps > 0)
+        // If the tile is free and box hasn't already been placed on tile, place the box on desired tile
+        if (num_steps > 0 && !prev_tiles.Contains(GetComponent<GenerateGrid>().GetTile(x,y)))
         {
             // Reset directions checked and apply oposite to direction to prevent moving to previous space
             dir_checked = new bool[4];
@@ -131,16 +223,22 @@ public class PlaceGoals : MonoBehaviour
             else if (dir == (int)DIRECTION.left) dir_checked[(int)DIRECTION.right] = true;
 
             // Move box to new position
-            Debug.Log((box_num + 1).ToString() + " Could Move in Direction: " + (DIRECTION)dir + " " + num_steps.ToString() + " Times");
-            yield return new WaitForSeconds(0.2f);
-            boxes[box_num].transform.position = new Vector3(x, 0.5f, y);
-            num_moves++;
-            dir = Random.Range(0, 4);
-            StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked));
+            //Debug.Log((box_num + 1).ToString() + " Could Move in Direction: " + (DIRECTION)dir + " " + num_steps.ToString() + " Times");
+            yield return new WaitForSeconds(0.1f);
+            if (boxes[box_num] == null) yield break;
+            else
+            {
+                boxes[box_num].transform.position = new Vector3(x, 0.5f, y);
+                boxes[box_num].transform.parent = GetComponent<GenerateGrid>().GetTile(x, y).transform;
+                prev_tiles.Add(boxes[box_num].transform.parent.gameObject);
+                num_moves++;
+                dir = Random.Range(0, 4);
+                StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked, prev_tiles));
+            }
         }
         else
         {
-            Debug.Log((box_num + 1).ToString() + " Could Not Move in Direction: " + (DIRECTION)dir + "(" + num_moves.ToString() + " Moves Completed)");
+            //Debug.Log((box_num + 1).ToString() + " Could Not Move in Direction: " + (DIRECTION)dir + "(" + num_moves.ToString() + " Moves Completed)");
             dir_checked[dir] = true;
             bool all_checked = false;
             for (int i = 0; i < 4; i++)
@@ -159,23 +257,29 @@ public class PlaceGoals : MonoBehaviour
 
             if (all_checked)
             {
-                Debug.Log((box_num + 1).ToString() + " Could Not Move in Any Direction");               
+                boxes_checked++;
+                moves_made += num_moves;
+                //Debug.Log((box_num + 1).ToString() + " Could Not Move in Any Direction");               
             }
             else
             {
                 // If all of the directions have not been checked, check another direction
-                StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked));
+                StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked, prev_tiles));
                 yield break;
             }
         }
     }
 
-    bool CanMove(int x, int x_dir, int y, int y_dir)
+    private bool CanMove(int x, int x_dir, int y, int y_dir)
     {
         if (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).tag == "Floor" &&
             GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).tag == "Floor" &&
-            GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 &&
-            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0)
+            (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 ||
+             (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 1 &&
+             GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.GetChild(0).gameObject.tag == "Button")) &&
+            (GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0 ||
+             (GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 1 &&
+             GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.GetChild(0).gameObject.tag == "Button")))
         {
             return true;
         }

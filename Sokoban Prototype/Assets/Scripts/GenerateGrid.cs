@@ -17,8 +17,17 @@ public class GenerateGrid : MonoBehaviour
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
     public void Start()
     {
+        QualitySettings.vSyncCount = 0;
         grid_x = (size_x * 3) + 2;
         grid_y = (size_y * 3) + 2;
+        StartCoroutine(SetupGrid());
+    }
+
+    public void Restart()
+    {
+        //Debug.Log("RESTARTING");
+        selected = false;
+        num_instances = 0;
         StartCoroutine(SetupGrid());
     }
 
@@ -146,7 +155,7 @@ public class GenerateGrid : MonoBehaviour
         }
         else
         {
-            Debug.Log("Continuous Floor");
+            //Debug.Log("Continuous Floor");
             //StartCoroutine(StartWallChecks());
             GetComponent<PlaceGoals>().StartPlacing();
         }    

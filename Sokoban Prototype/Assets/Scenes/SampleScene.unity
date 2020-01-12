@@ -201,10 +201,10 @@ MonoBehaviour:
     type: 3}
   button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
     type: 3}
-  num_boxes: 3
-  max_attempts: 1
-  max_configs: 1
-  min_moves: 3
+  num_boxes: 2
+  max_attempts: 64
+  max_configs: 64
+  min_moves: 64
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
