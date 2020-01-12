@@ -4,17 +4,15 @@ using UnityEngine;
 
 public class GenerateGrid : MonoBehaviour
 {
-    private int max_instances = 64;
-    private int num_instances = 0;
-    public int size_x = 3, size_y = 3;
+    private int max_instances = 64, num_instances = 0;
+    public const int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0;
-    public GameObject floor_prefab;
-    public GameObject wall_prefab;
+    public GameObject floor_prefab, wall_prefab;
     private GridTemplate[,] template_grid;
     private GameObject[,] object_grid;
     private int[,] grid;
     private bool selected = false;
-    private List<GameObject> floor_tiles = new List<GameObject>();
+    public List<GameObject> floor_tiles = new List<GameObject>();
     private List<GameObject> tiles = new List<GameObject>();
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
     public void Start()
@@ -148,8 +146,9 @@ public class GenerateGrid : MonoBehaviour
         }
         else
         {
-            //Debug.Log("Continuous Floor");
-            StartCoroutine(StartWallChecks());
+            Debug.Log("Continuous Floor");
+            //StartCoroutine(StartWallChecks());
+            GetComponent<PlaceGoals>().StartPlacing();
         }    
     }
 
@@ -172,5 +171,10 @@ public class GenerateGrid : MonoBehaviour
     public void AddToChecked(GameObject tile)
     {
         checked_floors.Add(tile);
+    }
+
+    public GameObject GetTile(int x, int y)
+    {
+        return object_grid[x, y];
     }
 }

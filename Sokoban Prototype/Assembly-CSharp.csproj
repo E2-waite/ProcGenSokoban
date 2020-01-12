@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
     <Compile Include="Assets\Scripts\GridSetup.cs" />
     <Compile Include="Assets\Scripts\GridTemplate.cs" />
+    <Compile Include="Assets\Scripts\PlaceGoals.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
     <Reference Include="Unity.Timeline.Editor">
