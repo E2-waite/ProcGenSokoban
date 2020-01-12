@@ -92,6 +92,7 @@ public class PlaceGoals : MonoBehaviour
                     buttons[i] = Instantiate(button_prefab, new Vector3(grid.floor_tiles[rand].transform.position.x, 0.5f, grid.floor_tiles[rand].transform.position.z), Quaternion.identity);
                     boxes[i] = Instantiate(box_prefab, new Vector3(grid.floor_tiles[rand].transform.position.x, 0.5f, grid.floor_tiles[rand].transform.position.z), Quaternion.identity);
                     buttons[i].transform.parent = grid.floor_tiles[rand].transform;
+                    buttons[i].name = "Button " + (i + 1).ToString();
                     boxes[i].transform.parent = grid.floor_tiles[rand].transform;
                     boxes[i].name = "Box " + (i + 1).ToString();
                     placed = true;
@@ -128,7 +129,7 @@ public class PlaceGoals : MonoBehaviour
             Destroy(boxes[i]);
             yield return null;
         }
-        yield return new WaitUntil(() => boxes.Length == 0);
+ 
         StartCoroutine(PlaceObjects());
     }
 
@@ -225,7 +226,11 @@ public class PlaceGoals : MonoBehaviour
             // Move box to new position
             //Debug.Log((box_num + 1).ToString() + " Could Move in Direction: " + (DIRECTION)dir + " " + num_steps.ToString() + " Times");
             yield return new WaitForSeconds(0.1f);
-            if (boxes[box_num] == null) yield break;
+            if (boxes[box_num] == null)
+            {
+                //StartCoroutine(Refresh());
+                yield break;
+            }
             else
             {
                 boxes[box_num].transform.position = new Vector3(x, 0.5f, y);
@@ -274,12 +279,8 @@ public class PlaceGoals : MonoBehaviour
     {
         if (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).tag == "Floor" &&
             GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).tag == "Floor" &&
-            (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 ||
-             (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 1 &&
-             GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.GetChild(0).gameObject.tag == "Button")) &&
-            (GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0 ||
-             (GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 1 &&
-             GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.GetChild(0).gameObject.tag == "Button")))
+            GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 &&
+            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0)
         {
             return true;
         }

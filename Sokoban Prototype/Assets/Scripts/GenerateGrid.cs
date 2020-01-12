@@ -5,7 +5,7 @@ using UnityEngine;
 public class GenerateGrid : MonoBehaviour
 {
     private int max_instances = 64, num_instances = 0;
-    public const int size_x = 3, size_y = 3;
+    public int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0;
     public GameObject floor_prefab, wall_prefab;
     private GridTemplate[,] template_grid;
