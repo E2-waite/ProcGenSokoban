@@ -6,7 +6,6 @@ using System.IO;
 public class GridTemplate
 {
     private int[,] template;
-    private int grid_num;
     public GridTemplate(GameObject grid)
     {
         int grid_num = Random.Range(0, 17);
@@ -25,8 +24,7 @@ public class GridTemplate
     {
         int num_rotations = Random.Range(0, 4);
         int amount_rotated = 0;
-        int[,] temp_template = new int[5, 5];
-        temp_template = template;
+        int[,] temp_template = template;
 
         for (int i = 0; i < num_rotations; i++)
         {

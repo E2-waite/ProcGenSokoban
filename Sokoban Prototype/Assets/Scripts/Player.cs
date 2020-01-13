@@ -20,7 +20,6 @@ public class Player : MonoBehaviour
         if (Input.GetKeyUp("left") && !moving) MovePlayer(-1, 0);
         if (Input.GetKeyUp("down") && !moving) MovePlayer(0, -1);
         if (Input.GetKeyUp("right") && !moving) MovePlayer(1, 0);
-
         if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;
     }

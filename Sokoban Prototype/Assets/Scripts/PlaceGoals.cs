@@ -8,6 +8,8 @@ public class PlaceGoals : MonoBehaviour
     public GameObject player_prefab, box_prefab, button_prefab;
     private GameObject[] boxes, buttons;
     private GameObject player;
+    private Vector2[] box_pos;
+    private Vector2 player_pos;
     public int num_boxes = 2, max_attempts = 10, max_configs = 32, min_moves = 3;
     private int num_attempts = 0, num_configs = 0;
     int[] highest_moves;
@@ -31,6 +33,8 @@ public class PlaceGoals : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyUp("r")) StartCoroutine(Reload());
+
         if (all_complete)
         {
             completed = new bool[num_boxes];
@@ -41,6 +45,7 @@ public class PlaceGoals : MonoBehaviour
 
     IEnumerator CheckComplete()
     {
+        // Checks if all boxes have tried, and failed to move in all directions
         bool complete = false;
         for (int i = 0; i < num_boxes; i++)
         {
@@ -57,7 +62,7 @@ public class PlaceGoals : MonoBehaviour
         else
         {
             all_complete = false;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.01f);
             StartCoroutine(CheckComplete());
         }
     }
@@ -227,6 +232,12 @@ public class PlaceGoals : MonoBehaviour
         {
             player.transform.parent = final_tile.transform;
             player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
+            box_pos = new Vector2[num_boxes];
+            for (int i = 0; i < num_boxes; i++)
+            {
+                box_pos[i] = new Vector2(boxes[i].transform.position.x, boxes[i].transform.position.z);
+            }
+            player_pos = new Vector2(player.transform.position.x, player.transform.position.z);
             GetComponent<CheckWin>().BeginChecking();
         }
         else
@@ -276,6 +287,19 @@ public class PlaceGoals : MonoBehaviour
         }
 
         StartCoroutine(StartAttempt()); 
+    }
+
+    public IEnumerator Reload()
+    {
+        GenerateGrid grid = GetComponent<GenerateGrid>();
+        player.transform.parent = grid.GetTile((int)player_pos.x, (int)player_pos.y).transform;
+        player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
+        for (int i = 0; i < num_boxes; i++)
+        {
+            boxes[i].transform.parent = grid.GetTile((int)box_pos[i].x, (int)box_pos[i].y).transform;
+            boxes[i].transform.position = new Vector3(boxes[i].transform.parent.position.x, 0.5f, boxes[i].transform.parent.position.z);
+            yield return null;
+        }
     }
 
     private IEnumerator Restart()
