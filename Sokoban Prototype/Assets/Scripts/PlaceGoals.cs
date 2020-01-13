@@ -208,6 +208,7 @@ public class PlaceGoals : MonoBehaviour
             yield return null;
         }
 
+        yield return new WaitForSeconds(0.1f);
         StartCoroutine(MoveInDirection(x, y, dir, num_steps, box_num, num_moves, dir_checked, prev_tiles));
     }
 
@@ -233,8 +234,9 @@ public class PlaceGoals : MonoBehaviour
             }
             else
             {
-                boxes[box_num].transform.position = new Vector3(x, 0.5f, y);
                 boxes[box_num].transform.parent = GetComponent<GenerateGrid>().GetTile(x, y).transform;
+                yield return new WaitForSeconds(0.1f);
+                boxes[box_num].transform.position = boxes[box_num].transform.parent.position;
                 prev_tiles.Add(boxes[box_num].transform.parent.gameObject);
                 num_moves++;
                 dir = Random.Range(0, 4);

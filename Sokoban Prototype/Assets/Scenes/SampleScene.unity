@@ -206,7 +206,7 @@ MonoBehaviour:
   num_boxes: 3
   max_attempts: 64
   max_configs: 64
-  min_moves: 32
+  min_moves: 16
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
