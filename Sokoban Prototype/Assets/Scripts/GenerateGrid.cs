@@ -80,7 +80,6 @@ public class GenerateGrid : MonoBehaviour
                                 }
                                 if (temp_grid[check_x, check_y] != template_grid[x, y].GetTemplate(ix, iy))
                                 {
-                                    // Restart
                                     StartCoroutine(SetupGrid());
                                 }
                             }
@@ -102,6 +101,45 @@ public class GenerateGrid : MonoBehaviour
 
         selected = true;
         grid = temp_grid;
+        StartCoroutine(FillGaps());
+    }
+
+    IEnumerator FillGaps()
+    {
+        // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
+        int max_passes = 8;
+        for (int i = 0; i < max_passes; i++)
+        {
+            int highest_walls = 0;
+            for (int x = 0; x < grid_x; x++)
+            {
+                for (int y = 0; y < grid_y; y++)
+                {
+                    int surrounding_walls = 0;
+                    if (grid[x, y] == 1)
+                    {
+                        if (grid[x + 1, y] == 2) surrounding_walls++;
+                        if (grid[x - 1, y] == 2) surrounding_walls++;
+                        if (grid[x, y + 1] == 2) surrounding_walls++;
+                        if (grid[x, y - 1] == 2) surrounding_walls++;
+
+                        if (surrounding_walls > highest_walls) highest_walls = surrounding_walls;
+
+                        if (surrounding_walls >= 3)
+                        {
+                            grid[x, y] = 2;
+                        }
+                    }
+                    yield return null;
+                }
+            }
+
+            if (highest_walls < 3)
+            {
+                CreateGrid();
+                yield break;
+            }
+        }
         CreateGrid();
     }
 
@@ -148,33 +186,14 @@ public class GenerateGrid : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         if (checked_floors.Count < floor_tiles.Count)
         {
-            //Debug.Log("Floor Not Continuous - Discarding Layout...");
             selected = false;
             num_instances = 0;
             StartCoroutine(SetupGrid());
         }
         else
         {
-            //Debug.Log("Continuous Floor");
-            //StartCoroutine(StartWallChecks());
             GetComponent<PlaceGoals>().StartPlacing();
         }    
-    }
-
-    IEnumerator StartWallChecks()
-    {
-        for (int i = 0; i < floor_tiles.Count; i++)
-        {
-            if (floor_tiles[i].GetComponent<CheckSurrounding>().CheckAdjascentWalls(tiles))
-            {
-                selected = false;
-                num_instances = 0;
-                StartCoroutine(SetupGrid());
-                yield break;
-            }
-            yield return null;
-        }
-        Debug.Log("No Dead States Detected");
     }
 
     public void AddToChecked(GameObject tile)
