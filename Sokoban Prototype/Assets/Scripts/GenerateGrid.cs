@@ -25,7 +25,6 @@ public class GenerateGrid : MonoBehaviour
 
     public void Restart()
     {
-        //Debug.Log("RESTARTING");
         selected = false;
         num_instances = 0;
         StartCoroutine(SetupGrid());

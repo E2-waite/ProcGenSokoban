@@ -16,10 +16,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyUp("up")) MovePlayer(0, 1);
-        if (Input.GetKeyUp("left")) MovePlayer(-1, 0);
-        if (Input.GetKeyUp("down")) MovePlayer(0, -1);
-        if (Input.GetKeyUp("right")) MovePlayer(1, 0);
+        if (Input.GetKeyUp("up") && !moving) MovePlayer(0, 1);
+        if (Input.GetKeyUp("left") && !moving) MovePlayer(-1, 0);
+        if (Input.GetKeyUp("down") && !moving) MovePlayer(0, -1);
+        if (Input.GetKeyUp("right") && !moving) MovePlayer(1, 0);
 
         if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;
@@ -44,7 +44,7 @@ public class Player : MonoBehaviour
                     if (tile.transform.childCount == 1) Move(tile);
                     else
                     {
-                        Box box = tile.transform.GetChild(0).GetComponent<Box>();
+                        Box box = tile.transform.GetChild(1).GetComponent<Box>();
                         if (box.Move(x_dir, y_dir)) Move(tile);
                     }
                 }

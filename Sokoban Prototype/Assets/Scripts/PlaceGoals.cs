@@ -108,7 +108,7 @@ public class PlaceGoals : MonoBehaviour
         // Keeps looping until wall is reached, if a button is in line with a box the level is discarded
         for (int i = 0; i < num_boxes; i++)
         {
-            boxes[i].transform.position = boxes[i].transform.parent.position;
+            boxes[i].transform.position = new Vector3(boxes[i].transform.parent.position.x, 0.5f, boxes[i].transform.parent.position.z);
             for (int j = 0; j < 4; j++)
             {
                 int x = (int)boxes[i].transform.position.x, y = (int)boxes[i].transform.position.z;

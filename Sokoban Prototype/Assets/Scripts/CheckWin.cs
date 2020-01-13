@@ -37,6 +37,8 @@ public class CheckWin : MonoBehaviour
         {
             checking = false;
             Debug.Log("GAME WON");
+            yield return new WaitForSeconds(0.5f);
+            GetComponent<GenerateGrid>().Restart();
         }
         else
         {

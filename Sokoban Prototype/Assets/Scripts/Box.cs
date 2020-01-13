@@ -38,7 +38,7 @@ public class Box : MonoBehaviour
         {
             transform.parent = null;
             transform.parent = tile.transform;
-            target = new Vector3(transform.parent.position.x, 0.6f, transform.parent.position.z);
+            target = new Vector3(transform.parent.position.x, 0.5f, transform.parent.position.z);
             moving = true;
             return true;
         }

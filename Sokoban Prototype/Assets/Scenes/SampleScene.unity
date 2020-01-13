@@ -207,7 +207,7 @@ MonoBehaviour:
   num_boxes: 3
   max_attempts: 5
   max_configs: 32
-  min_moves: 5
+  min_moves: 3
   all_complete: 0
 --- !u!114 &318576930
 MonoBehaviour:
