@@ -11,10 +11,14 @@ public class PlaceGoals : MonoBehaviour
     public int num_boxes = 2, max_attempts = 10, max_configs = 10, min_moves = 3;
     private int num_attempts = 0, num_configs = 0, boxes_checked = 0;
     int[] highest_moves;
+    bool[] completed;
+    public bool all_complete = false;
     DIRECTION last_dir;
     public void StartPlacing()
     {
+        completed = new bool[num_boxes];
         highest_moves = new int[num_boxes];
+        StartCoroutine(CheckComplete());
         StartCoroutine(PlaceObjects());
     }
 
@@ -27,10 +31,34 @@ public class PlaceGoals : MonoBehaviour
 
     private void Update()
     {
-        if (boxes_checked >= num_boxes)
+        if (all_complete)
         {
-            boxes_checked = 0;
+            completed = new bool[num_boxes];
+            all_complete = false;
             StartCoroutine(CheckHighestMoves());
+        }
+    }
+
+    IEnumerator CheckComplete()
+    {
+        bool complete = false;
+        for (int i = 0; i < num_boxes; i++)
+        {
+            if (completed[i]) complete = true;
+            else
+            {
+                complete = false;
+                break;
+            }
+            yield return null;
+        }
+
+        if (complete) all_complete = true;
+        else
+        {
+            all_complete = false;
+            yield return new WaitForSeconds(0.1f);
+            StartCoroutine(CheckComplete());
         }
     }
 
@@ -50,7 +78,7 @@ public class PlaceGoals : MonoBehaviour
             yield return null;
         }
 
-        if (above_threshold && boxes.Length == num_boxes)
+        if (above_threshold)
         {
             StopAllCoroutines();
             StartCoroutine(FinalCheck());
@@ -64,11 +92,12 @@ public class PlaceGoals : MonoBehaviour
     void NextAttempt()
     {
         StopAllCoroutines();
+        StartCoroutine(CheckComplete());
         if (num_configs < max_configs)
         {
             if (num_attempts < max_attempts)
             {
-                StartCoroutine(Reset());
+                StartCoroutine(Restart());
             }
             else
             {
@@ -203,7 +232,6 @@ public class PlaceGoals : MonoBehaviour
 
         if (final_tile != null)
         {
-            Debug.Log("PLACING PLAYER " + highest_moves.ToString() + " MOVES AWAY");
             player.transform.parent = final_tile.transform;
             player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
         }
@@ -255,7 +283,7 @@ public class PlaceGoals : MonoBehaviour
         StartCoroutine(StartAttempt()); 
     }
 
-    private IEnumerator Reset()
+    private IEnumerator Restart()
     {
         // Starts new attempt to find furthest state from generated configuration
         num_attempts++;
@@ -287,35 +315,30 @@ public class PlaceGoals : MonoBehaviour
 
     private IEnumerator StartAttempt()
     {
-        for (int i = 0; i < num_boxes; i++)
-        {
-            StartCoroutine(AttemptPlacement(i));
-            yield return null;
-        }  
+        //for (int i = 0; i < max_attempts; i++)
+        //{
+            for (int j = 0; j < num_boxes; j++)
+            {
+                StartCoroutine(AttemptPlacement(j));
+                yield return null;
+            }
+        //}
     }
 
     private IEnumerator AttemptPlacement(int box_num)
     {
-        if (boxes[box_num] != null)
-        {
-            int x = (int)boxes[box_num].transform.position.x, y = (int)boxes[box_num].transform.position.z;
-            for (int i = 0; i < max_attempts; i++)
-            {
-                bool[] dir_checked = new bool[4];
-                int num_moves = 0;
-                List<GameObject> prev_tiles = new List<GameObject>();
-                StartCoroutine(CheckDirection(x, y, 0, num_moves, dir_checked, prev_tiles));
-                yield return null;
-            }
-        }
-        else
-        {
-            DiscardLayout();
-        }
+        int x = (int)boxes[box_num].transform.position.x, y = (int)boxes[box_num].transform.position.z;
+        bool[] dir_checked = new bool[4];
+        int num_moves = 0;
+        List<GameObject> prev_tiles = new List<GameObject>();
+        StartCoroutine(CheckDirection(x, y, box_num, num_moves, dir_checked, prev_tiles));
+
+        yield return null;
     }
 
     private IEnumerator CheckDirection(int x, int y, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
+        
         int num_steps = 0, x_dir = 0, y_dir = 0;
         bool can_move, dir_selected = false;
 
@@ -411,7 +434,8 @@ public class PlaceGoals : MonoBehaviour
 
             if (all_checked)
             {
-                boxes_checked++;  
+                completed[box_num] = true;
+                yield break;
             }
             else
             {
