@@ -9,7 +9,7 @@ public class PlaceGoals : MonoBehaviour
     private GameObject[] boxes, buttons;
     private GameObject player;
     public int num_boxes = 2, max_attempts = 10, max_configs = 32, min_moves = 3;
-    private int num_attempts = 0, num_configs = 0, boxes_checked = 0;
+    private int num_attempts = 0, num_configs = 0;
     int[] highest_moves;
     bool[] completed;
     public bool all_complete = false;
@@ -25,7 +25,7 @@ public class PlaceGoals : MonoBehaviour
     private void DiscardLayout()
     {
         StopAllCoroutines();
-        num_attempts = 0; num_configs = 0; boxes_checked = 0;
+        num_attempts = 0; num_configs = 0;
         GetComponent<GenerateGrid>().Restart();
     }
 
@@ -227,12 +227,14 @@ public class PlaceGoals : MonoBehaviour
         {
             player.transform.parent = final_tile.transform;
             player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
+            GetComponent<CheckWin>().BeginChecking();
         }
         else
         {
             NextAttempt();
         }
     }
+
     GameObject GetTile(int x, int y, DIRECTION dir)
     {
         if (dir == DIRECTION.up) y++;
@@ -452,5 +454,17 @@ public class PlaceGoals : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public List<GameObject> GetButtons()
+    {
+        List<GameObject> button_list = new List<GameObject>();
+
+        foreach (GameObject obj in buttons)
+        {
+            button_list.Add(obj);
+        }
+
+        return button_list;
     }
 }
