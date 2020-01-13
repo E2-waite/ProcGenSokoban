@@ -182,20 +182,27 @@ public class GenerateGrid : MonoBehaviour
         checked_floors.Clear();
         floor_check.CheckAdjascentFloor(floor_tiles, this.gameObject);
         yield return new WaitForSeconds(0.1f);
+        PlaceGoals goals = GetComponent<PlaceGoals>();
         if (checked_floors.Count < floor_tiles.Count - num_boxes)
         {
             selected = false;
             num_instances = 0;
-            if (boxes_placed) Debug.Log("Failed post-box floor check (impossible layout)" + checked_floors.Count.ToString());
-            StartCoroutine(SetupGrid());
+            if (boxes_placed)
+            {
+                Debug.Log("Failed post-box floor check (impossible layout)" + checked_floors.Count.ToString());
+                goals.NextAttempt();
+                yield break;
+            }
+            else StartCoroutine(SetupGrid());
         }
         else
         {
-            PlaceGoals goals = GetComponent<PlaceGoals>();
+            
             if (boxes_placed)
             {
                 Debug.Log("Passed post-box floor check " + checked_floors.Count.ToString());
                 goals.StartCoroutine(goals.PlacePlayer());
+                yield break;
             }
             else goals.StartPlacing();
         }    
@@ -208,6 +215,7 @@ public class GenerateGrid : MonoBehaviour
 
     public GameObject GetTile(int x, int y)
     {
-        return object_grid[x, y];
+        if (object_grid != null) return object_grid[x, y];
+        else return null;
     }
 }

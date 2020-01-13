@@ -101,7 +101,7 @@ public class PlaceGoals : MonoBehaviour
         }
     }
 
-    void NextAttempt()
+    public void NextAttempt()
     {
         StopAllCoroutines();
         StartCoroutine(CheckComplete());
@@ -417,26 +417,21 @@ public class PlaceGoals : MonoBehaviour
             grid.GetTile(x, y).CompareTag("Floor"))
         {
             // Reset directions checked and apply oposite to direction to prevent moving to previous space
+
+            boxes[box_num].transform.parent = grid.GetTile(x, y).transform;
+            prev_tiles.Add(boxes[box_num].transform.parent.gameObject);
+
             dir_checked = new bool[4];
             if (dir == (int)DIRECTION.up) dir_checked[(int)DIRECTION.down] = true;
             else if (dir == (int)DIRECTION.right) dir_checked[(int)DIRECTION.left] = true;
             else if (dir == (int)DIRECTION.down) dir_checked[(int)DIRECTION.up] = true;
             else if (dir == (int)DIRECTION.left) dir_checked[(int)DIRECTION.right] = true;
 
-            // Move box to new position
-            if (boxes[box_num] == null)
-            {
-                yield break;
-            }
-            else
-            {
-                boxes[box_num].transform.parent = grid.GetTile(x, y).transform;
-                prev_tiles.Add(boxes[box_num].transform.parent.gameObject);
-                highest_moves[box_num]++;
-                dir = Random.Range(0, 4);
-                last_dir = (DIRECTION)dir;
-                StartCoroutine(CheckDirection(x, y, box_num, num_moves, dir_checked, prev_tiles));
-            }
+            highest_moves[box_num]++;
+            dir = Random.Range(0, 4);
+            last_dir = (DIRECTION)dir;
+            StartCoroutine(CheckDirection(x, y, box_num, num_moves, dir_checked, prev_tiles));
+            
         }
         else
         {
