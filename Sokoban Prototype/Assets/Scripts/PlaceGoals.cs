@@ -9,7 +9,7 @@ public class PlaceGoals : MonoBehaviour
     private GameObject[] boxes, buttons;
     private GameObject player;
     public int num_boxes = 2, max_attempts = 10, max_configs = 10, min_moves = 3;
-    private int num_attempts = 0, num_configs = 0, boxes_checked = 0, moves_made = 0;
+    private int num_attempts = 0, num_configs = 0, boxes_checked = 0;
     int[] highest_moves;
     DIRECTION last_dir;
     public void StartPlacing()
@@ -98,14 +98,14 @@ public class PlaceGoals : MonoBehaviour
                     else if (j == 2) y--;
                     else if (j == 3) x--;
 
-                    if (GetComponent<GenerateGrid>().GetTile(x, y).tag == "Wall")
+                    if (GetComponent<GenerateGrid>().GetTile(x, y).CompareTag("Wall"))
                     {
                         // If it reaches wall, begin checking next direction
                         break;
                     }
 
                     if (GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount > 0 &&
-                        GetComponent<GenerateGrid>().GetTile(x, y).transform.GetChild(0).tag == "Button")
+                        GetComponent<GenerateGrid>().GetTile(x, y).transform.GetChild(0).CompareTag("Button"))
                     {
                         NextAttempt();
                         yield break;
@@ -130,14 +130,101 @@ public class PlaceGoals : MonoBehaviour
         if (GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount == 0)
         {
             player = Instantiate(player_prefab, GetComponent<GenerateGrid>().GetTile(x, y).transform);
-            player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
         }
         else
         {
             NextAttempt();
             yield break;
         }
-        yield return null;
+
+        StartCoroutine(FurthestPlayerState(x, y));
+    }
+
+    IEnumerator FurthestPlayerState(int x, int y)
+    {
+        int highest_moves = 0;
+        GameObject final_tile = null;
+        for (int i = 0; i < 10; i++)
+        {
+            List<GameObject> checked_tiles = new List<GameObject>();
+            bool[] dir_checked = new bool[4];
+            int x_pos = x, y_pos = y, num_moves = 0;
+            for (int j = 0; j < 10; j++)
+            {
+                bool all_checked = false;
+                for (int k = 0; k < 4; k++)
+                {
+                    if (dir_checked[k])
+                    {
+                        all_checked = true;
+                    }
+                    else
+                    {
+                        all_checked = false;
+                        break;
+                    }
+                    yield return null;
+                }
+
+                if (all_checked)
+                {
+                    break;
+                }
+                else
+                {
+                    DIRECTION dir = (DIRECTION)Random.Range(0, 4);
+                    GameObject tile = GetTile(x_pos, y_pos, dir);
+                    if (CheckTile(tile, checked_tiles))
+                    {
+                        num_moves++;
+                        if (num_moves > 1 && num_moves > highest_moves)
+                        {
+                            highest_moves = num_moves;
+                            final_tile = tile;
+                        }
+                        checked_tiles.Add(tile);
+                        x_pos = (int)tile.transform.position.x;
+                        y_pos = (int)tile.transform.position.z;
+
+                        dir_checked = new bool[4];
+                        if (dir == DIRECTION.up) dir_checked[(int)DIRECTION.down] = true;
+                        else if (dir == DIRECTION.right) dir_checked[(int)DIRECTION.left] = true;
+                        else if (dir == DIRECTION.down) dir_checked[(int)DIRECTION.up] = true;
+                        else if (dir == DIRECTION.left) dir_checked[(int)DIRECTION.right] = true;
+                    }
+                    else
+                    {
+                        dir_checked[(int)dir] = true;
+                    }
+                }
+                yield return null;
+            }
+        }
+
+        if (final_tile != null)
+        {
+            Debug.Log("PLACING PLAYER " + highest_moves.ToString() + " MOVES AWAY");
+            player.transform.parent = final_tile.transform;
+            player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
+        }
+        else
+        {
+            NextAttempt();
+        }
+    }
+    GameObject GetTile(int x, int y, DIRECTION dir)
+    {
+        if (dir == DIRECTION.up) y++;
+        if (dir == DIRECTION.right) x++;
+        if (dir == DIRECTION.down) y--;
+        if (dir == DIRECTION.left) x--;
+        return GetComponent<GenerateGrid>().GetTile(x, y);
+    }
+
+    bool CheckTile(GameObject tile, List<GameObject>checked_tiles)
+    {
+        if (tile.transform.childCount == 0 && tile.CompareTag("Floor") && !checked_tiles.Contains(tile)) return true;
+        else return false;
     }
 
     private IEnumerator PlaceObjects()
@@ -191,6 +278,7 @@ public class PlaceGoals : MonoBehaviour
         {
             Destroy(buttons[i]);
             Destroy(boxes[i]);
+            Destroy(player);
             yield return null;
         }
  
@@ -216,7 +304,7 @@ public class PlaceGoals : MonoBehaviour
                 bool[] dir_checked = new bool[4];
                 int num_moves = 0;
                 List<GameObject> prev_tiles = new List<GameObject>();
-                StartCoroutine(CheckDirection(x, y, 0, box_num, num_moves, dir_checked, prev_tiles));
+                StartCoroutine(CheckDirection(x, y, 0, num_moves, dir_checked, prev_tiles));
                 yield return null;
             }
         }
@@ -226,13 +314,13 @@ public class PlaceGoals : MonoBehaviour
         }
     }
 
-    private IEnumerator CheckDirection(int x, int y, int dir, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
+    private IEnumerator CheckDirection(int x, int y, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
         int num_steps = 0, x_dir = 0, y_dir = 0;
-        bool can_move = false, dir_selected = false;
+        bool can_move, dir_selected = false;
 
         // Randomly select direction until unchecked direction is selected
-        dir = Random.Range(0, 4);
+        int dir = Random.Range(0, 4);
         while (!dir_selected)
         {
             if (dir_checked[dir]) dir = Random.Range(0, 4);
@@ -265,8 +353,8 @@ public class PlaceGoals : MonoBehaviour
         while (can_move)
         {
             num_steps++;
-            x = x + x_dir;
-            y = y + y_dir;
+            x += x_dir;
+            y += y_dir;
             can_move = CanMove(x, x_dir, y, y_dir);
             yield return null;
         }
@@ -279,7 +367,7 @@ public class PlaceGoals : MonoBehaviour
         // If the tile is free and box hasn't already been placed on tile, place the box on desired tile
         if (num_steps > 0 && !prev_tiles.Contains(GetComponent<GenerateGrid>().GetTile(x,y)) && 
             GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount == 0 &&
-            GetComponent<GenerateGrid>().GetTile(x, y).tag == "Floor")
+            GetComponent<GenerateGrid>().GetTile(x, y).CompareTag("Floor"))
         {
             // Reset directions checked and apply oposite to direction to prevent moving to previous space
             dir_checked = new bool[4];
@@ -300,7 +388,7 @@ public class PlaceGoals : MonoBehaviour
                 highest_moves[box_num]++;
                 dir = Random.Range(0, 4);
                 last_dir = (DIRECTION)dir;
-                StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked, prev_tiles));
+                StartCoroutine(CheckDirection(x, y, box_num, num_moves, dir_checked, prev_tiles));
             }
         }
         else
@@ -323,13 +411,12 @@ public class PlaceGoals : MonoBehaviour
 
             if (all_checked)
             {
-                boxes_checked++;
-                moves_made += num_moves;    
+                boxes_checked++;  
             }
             else
             {
                 // If all of the directions have not been checked, check another direction
-                StartCoroutine(CheckDirection(x, y, dir, box_num, num_moves, dir_checked, prev_tiles));
+                StartCoroutine(CheckDirection(x, y, box_num, num_moves, dir_checked, prev_tiles));
                 yield break;
             }
         }
@@ -337,8 +424,8 @@ public class PlaceGoals : MonoBehaviour
 
     private bool CanMove(int x, int x_dir, int y, int y_dir)
     {
-        if (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).tag == "Floor" &&
-            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).tag == "Floor" &&
+        if (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).CompareTag("Floor") &&
+            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).CompareTag("Floor") &&
             GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 &&
             GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0)
         {

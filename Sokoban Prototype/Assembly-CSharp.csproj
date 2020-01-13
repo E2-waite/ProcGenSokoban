@@ -64,14 +64,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\CamFollow.cs" />
-    <Compile Include="Assets\Scripts\BoxMovement.cs" />
+    <Compile Include="Assets\Scripts\Box.cs" />
     <Compile Include="Assets\Scripts\CheckSurrounding.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
-    <Compile Include="Assets\Scripts\GridSetup.cs" />
     <Compile Include="Assets\Scripts\GridTemplate.cs" />
     <Compile Include="Assets\Scripts\PlaceGoals.cs" />
-    <Compile Include="Assets\Scripts\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Files/University Work/Year 3/CTP/ProcGenSokoban/Sokoban Prototype/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

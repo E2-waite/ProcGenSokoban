@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class GenerateGrid : MonoBehaviour
 {
-    private int max_instances = 64, num_instances = 0;
+    private readonly int max_instances = 64;
+    private int num_instances = 0;
     public int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0;
     public GameObject floor_prefab, wall_prefab;
@@ -13,7 +14,6 @@ public class GenerateGrid : MonoBehaviour
     private int[,] grid;
     private bool selected = false;
     public List<GameObject> floor_tiles = new List<GameObject>();
-    private List<GameObject> tiles = new List<GameObject>();
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
     public void Start()
     {
@@ -39,7 +39,6 @@ public class GenerateGrid : MonoBehaviour
         {
             floor_tiles.Clear();
             checked_floors.Clear();
-            tiles.Clear();
         }
 
         num_instances++;
@@ -165,12 +164,10 @@ public class GenerateGrid : MonoBehaviour
                 {
                     object_grid[x,y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity);
                     floor_tiles.Add(object_grid[x, y]);
-                    tiles.Add(object_grid[x, y]);
                 }
                 else if (grid[x, y] == 2)
                 {
                     object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x, 1, y), Quaternion.identity);
-                    tiles.Add(object_grid[x, y]);
                 }
             }
         }
