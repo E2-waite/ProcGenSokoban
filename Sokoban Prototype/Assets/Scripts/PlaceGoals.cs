@@ -8,7 +8,7 @@ public class PlaceGoals : MonoBehaviour
     public GameObject player_prefab, box_prefab, button_prefab;
     private GameObject[] boxes, buttons;
     private GameObject player;
-    public int num_boxes = 2, max_attempts = 10, max_configs = 10, min_moves = 3;
+    public int num_boxes = 2, max_attempts = 10, max_configs = 32, min_moves = 3;
     private int num_attempts = 0, num_configs = 0, boxes_checked = 0;
     int[] highest_moves;
     bool[] completed;
@@ -95,14 +95,7 @@ public class PlaceGoals : MonoBehaviour
         StartCoroutine(CheckComplete());
         if (num_configs < max_configs)
         {
-            if (num_attempts < max_attempts)
-            {
-                StartCoroutine(Restart());
-            }
-            else
-            {
-                StartCoroutine(Refresh());
-            }
+            StartCoroutine(Refresh());
         }
         else
         {

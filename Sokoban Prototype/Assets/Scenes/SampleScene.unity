@@ -205,8 +205,9 @@ MonoBehaviour:
     type: 3}
   num_boxes: 3
   max_attempts: 5
-  max_configs: 10
+  max_configs: 32
   min_moves: 5
+  all_complete: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
