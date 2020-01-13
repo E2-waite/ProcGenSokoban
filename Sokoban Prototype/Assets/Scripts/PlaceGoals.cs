@@ -16,6 +16,13 @@ public class PlaceGoals : MonoBehaviour
     bool[] completed;
     public bool all_complete = false;
     DIRECTION last_dir;
+    GenerateGrid grid;
+
+    private void Start()
+    {
+        grid = GetComponent<GenerateGrid>();
+    }
+
     public void StartPlacing()
     {
         completed = new bool[num_boxes];
@@ -28,7 +35,7 @@ public class PlaceGoals : MonoBehaviour
     {
         StopAllCoroutines();
         num_attempts = 0; num_configs = 0;
-        GetComponent<GenerateGrid>().Restart();
+        grid.Restart();
     }
 
     private void Update()
@@ -125,14 +132,14 @@ public class PlaceGoals : MonoBehaviour
                     else if (j == 2) y--;
                     else if (j == 3) x--;
 
-                    if (GetComponent<GenerateGrid>().GetTile(x, y).CompareTag("Wall"))
+                    if (grid.GetTile(x, y).CompareTag("Wall"))
                     {
                         // If it reaches wall, begin checking next direction
                         break;
                     }
 
-                    if (GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount > 0 &&
-                        GetComponent<GenerateGrid>().GetTile(x, y).transform.GetChild(0).CompareTag("Button"))
+                    if (grid.GetTile(x, y).transform.childCount > 0 &&
+                        grid.GetTile(x, y).transform.GetChild(0).CompareTag("Button"))
                     {
                         NextAttempt();
                         yield break;
@@ -142,10 +149,10 @@ public class PlaceGoals : MonoBehaviour
             }
         }
 
-        StartCoroutine(PlacePlayer());
+        grid.StartCoroutine(grid.StartFloorChecks(true, num_boxes));
     }
 
-    IEnumerator PlacePlayer()
+    public IEnumerator PlacePlayer()
     {
         int x = (int)boxes[num_boxes - 1].transform.position.x, y = (int)boxes[num_boxes - 1].transform.position.z;
 
@@ -154,9 +161,9 @@ public class PlaceGoals : MonoBehaviour
         else if (last_dir == DIRECTION.down) y++;
         else if (last_dir == DIRECTION.left) x++;
 
-        if (GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount == 0)
+        if (grid.GetTile(x, y).transform.childCount == 0)
         {
-            player = Instantiate(player_prefab, GetComponent<GenerateGrid>().GetTile(x, y).transform);
+            player = Instantiate(player_prefab, grid.GetTile(x, y).transform);
         }
         else
         {
@@ -252,7 +259,7 @@ public class PlaceGoals : MonoBehaviour
         if (dir == DIRECTION.right) x++;
         if (dir == DIRECTION.down) y--;
         if (dir == DIRECTION.left) x--;
-        return GetComponent<GenerateGrid>().GetTile(x, y);
+        return grid.GetTile(x, y);
     }
 
     bool CheckTile(GameObject tile, List<GameObject>checked_tiles)
@@ -263,7 +270,6 @@ public class PlaceGoals : MonoBehaviour
 
     private IEnumerator PlaceObjects()
     {
-        GenerateGrid grid = GetComponent<GenerateGrid>();
         boxes = new GameObject[num_boxes];
         buttons = new GameObject[num_boxes];
         for (int i = 0; i < num_boxes; i++)
@@ -291,7 +297,6 @@ public class PlaceGoals : MonoBehaviour
 
     public IEnumerator Reload()
     {
-        GenerateGrid grid = GetComponent<GenerateGrid>();
         player.transform.parent = grid.GetTile((int)player_pos.x, (int)player_pos.y).transform;
         player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
         for (int i = 0; i < num_boxes; i++)
@@ -309,7 +314,7 @@ public class PlaceGoals : MonoBehaviour
         highest_moves = new int[num_boxes];
         for (int i = 0; i < num_boxes; i++)
         {
-            boxes[i].transform.parent = GetComponent<GenerateGrid>().GetTile((int)transform.position.x, (int)transform.position.z).transform;
+            boxes[i].transform.parent = grid.GetTile((int)transform.position.x, (int)transform.position.z).transform;
             yield return null;
         }
         StartCoroutine(StartAttempt());
@@ -407,9 +412,9 @@ public class PlaceGoals : MonoBehaviour
     private IEnumerator MoveInDirection(int x, int y, int dir, int num_steps, int box_num, int num_moves, bool[] dir_checked, List<GameObject> prev_tiles)
     {
         // If the tile is free and box hasn't already been placed on tile, place the box on desired tile
-        if (num_steps > 0 && !prev_tiles.Contains(GetComponent<GenerateGrid>().GetTile(x,y)) && 
-            GetComponent<GenerateGrid>().GetTile(x, y).transform.childCount == 0 &&
-            GetComponent<GenerateGrid>().GetTile(x, y).CompareTag("Floor"))
+        if (num_steps > 0 && !prev_tiles.Contains(grid.GetTile(x,y)) && 
+            grid.GetTile(x, y).transform.childCount == 0 &&
+            grid.GetTile(x, y).CompareTag("Floor"))
         {
             // Reset directions checked and apply oposite to direction to prevent moving to previous space
             dir_checked = new bool[4];
@@ -425,7 +430,7 @@ public class PlaceGoals : MonoBehaviour
             }
             else
             {
-                boxes[box_num].transform.parent = GetComponent<GenerateGrid>().GetTile(x, y).transform;
+                boxes[box_num].transform.parent = grid.GetTile(x, y).transform;
                 prev_tiles.Add(boxes[box_num].transform.parent.gameObject);
                 highest_moves[box_num]++;
                 dir = Random.Range(0, 4);
@@ -467,10 +472,10 @@ public class PlaceGoals : MonoBehaviour
 
     private bool CanMove(int x, int x_dir, int y, int y_dir)
     {
-        if (GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).CompareTag("Floor") &&
-            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).CompareTag("Floor") &&
-            GetComponent<GenerateGrid>().GetTile(x + x_dir, y + y_dir).transform.childCount == 0 &&
-            GetComponent<GenerateGrid>().GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0)
+        if (grid.GetTile(x + x_dir, y + y_dir).CompareTag("Floor") &&
+            grid.GetTile(x + (x_dir * 2), y + (y_dir * 2)).CompareTag("Floor") &&
+            grid.GetTile(x + x_dir, y + y_dir).transform.childCount == 0 &&
+            grid.GetTile(x + (x_dir * 2), y + (y_dir * 2)).transform.childCount == 0)
         {
             return true;
         }

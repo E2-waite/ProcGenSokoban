@@ -23,7 +23,8 @@ public class CheckSurrounding : MonoBehaviour
         GenerateGrid grid_script = grid.GetComponent<GenerateGrid>();
         foreach (GameObject obj in floor_tiles)
         {
-            if (Vector3.Distance(transform.position, obj.transform.position) == 1 && !grid_script.checked_floors.Contains(obj))
+            if (Vector3.Distance(transform.position, obj.transform.position) == 1 && !grid_script.checked_floors.Contains(obj) && 
+                (obj.transform.childCount == 0 || !obj.transform.GetChild(0).CompareTag("Box")))
             {
                 grid_script.AddToChecked(obj);
                 CheckSurrounding next_check = obj.GetComponent<CheckSurrounding>();
