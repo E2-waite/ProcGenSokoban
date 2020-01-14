@@ -84,32 +84,33 @@ public class GenerateGrid : MonoBehaviour
                         {
                             grid[check_x, check_y] = templates[temp_num].GetTemplate(x, y);
                         }
-                        if (grid[check_x, check_y] != templates[temp_num].GetTemplate(x, y))
+                        else if (grid[check_x, check_y] != templates[temp_num].GetTemplate(x, y))
                         {
+                            Debug.Log("FAILED ON " + x.ToString() + " " + y.ToString());
                             SetupGrid();
                         }
                     }
                 }
                 yield return null;
-            }
+            } 
+        }
+         
+        if (x_offset == 3 * (size_x - 1))
+        {
+            x_offset = 0;
+            y_offset += 3;
+        }
+        else x_offset += 3;
 
-            if (x_offset == 3 * (size_x - 1))
-            {
-                x_offset = 0;
-                y_offset += 3;
-            }
-            else x_offset+= 3;
-
-            temp_num++;
-            if (temp_num >= num_templates - 1)
-            {
-                StartFilling();
-                yield break;
-            }
-            else
-            {
-                StartCoroutine(ApplyTemplate(temp_num, x_offset, y_offset, reset_count, templates));
-            }
+        yield return new WaitForSeconds(0.1f);
+        if (temp_num >= num_templates)
+        {
+            StartFilling();
+            yield break;
+        }
+        else
+        {
+            StartCoroutine(ApplyTemplate(temp_num + 1, x_offset, y_offset, reset_count, templates));
         }
     }
 
