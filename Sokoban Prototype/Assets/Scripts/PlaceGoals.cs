@@ -165,7 +165,7 @@ public class PlaceGoals : MonoBehaviour
         }
 
         yield return null;
-        grid.StartCoroutine(grid.StartFloorChecks(true, num_boxes));
+        grid.FloorCheck(true, num_boxes);
     }
 
     public IEnumerator PlacePlayer()

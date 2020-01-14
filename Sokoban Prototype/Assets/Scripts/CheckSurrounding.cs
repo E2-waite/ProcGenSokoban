@@ -18,17 +18,22 @@ public class CheckSurrounding : MonoBehaviour
         if (num_walls > 2) return true;
         else return false;
     }
-    public void CheckAdjascentFloor (List<GameObject> floor_tiles, GameObject grid)
+    public void CheckAdjascentFloor (GameObject[,] object_grid, GameObject grid, bool boxes_placed)
+    {
+        StartCoroutine(CheckFloor(object_grid, grid, boxes_placed));
+    }
+
+    IEnumerator CheckFloor(GameObject[,] object_grid, GameObject grid, bool boxes_placed)
     {
         GenerateGrid grid_script = grid.GetComponent<GenerateGrid>();
-        foreach (GameObject obj in floor_tiles)
+        foreach (GameObject obj in object_grid)
         {
-            if (Vector3.Distance(transform.position, obj.transform.position) == 1 && !grid_script.checked_floors.Contains(obj) && 
-                (obj.transform.childCount == 0 || !obj.transform.GetChild(0).CompareTag("Box")))
+            if (Vector3.Distance(transform.position, obj.transform.position) < 1.3f && obj.CompareTag("Floor"))
             {
-                grid_script.AddToChecked(obj);
+                grid_script.AddToChecked(obj);               
+                yield return new WaitForSeconds(0.01f);
                 CheckSurrounding next_check = obj.GetComponent<CheckSurrounding>();
-                next_check.CheckAdjascentFloor(floor_tiles, grid);
+                next_check.CheckAdjascentFloor(object_grid, grid, boxes_placed);
             }
         }
     }

@@ -4,19 +4,17 @@ using UnityEngine;
 
 public class GenerateGrid : MonoBehaviour
 {
-    private readonly int max_instances = 64;
-    private int num_instances = 0;
     public int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0;
-    public GameObject floor_prefab, wall_prefab;
-    private GridTemplate[,] template_grid;
-    //List<GridTemplate> templates = new List<GridTemplate>();
+    public int max_instances = 128;
+    int failed = 0;
+    public GameObject floor_prefab, wall_prefab, grid_prefab;
+    GameObject grid_obj;
     public int num_templates = 0;
     private GameObject[,] object_grid;
-    private int[,] grid;
-    private bool selected = false;
     public List<GameObject> floor_tiles = new List<GameObject>();
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
+    bool template_selected = false;
     public void Start()
     {
         num_templates = size_x * size_y;
@@ -26,46 +24,52 @@ public class GenerateGrid : MonoBehaviour
         SetupGrid();
     }
 
+    private void Update()
+    {
+        if (object_grid == null)
+        {
+            Debug.Log("IS NULL");
+        }
+        if (failed >= max_instances && !template_selected)
+        {
+            failed = 0;
+            SetupGrid();
+        }
+    }
+
     public void Restart()
     {
-        selected = false;
-        num_instances = 0;
         SetupGrid();
     }
 
     private void SetupGrid()
     {
+        Debug.Log("RESTARTING");
+        template_selected = false;
+        if (grid_obj != null) Destroy(grid_obj);
         StopAllCoroutines();
-        floor_tiles.Clear();
-        checked_floors.Clear();
+        failed = 0;
         StartCoroutine(LoadTemplates());
     }
 
     IEnumerator LoadTemplates()
     {
-        GridTemplate[] templates = new GridTemplate[num_templates];
-        for (int i = 0; i < num_templates; i++)
+        for (int i = 0; i < max_instances; i++)
         {
-            templates[i] = new GridTemplate(this.gameObject);
-            yield return null;
+            GridTemplate[] templates = new GridTemplate[num_templates];
+            for (int j = 0; j < num_templates; j++)
+            {
+                templates[j] = new GridTemplate(this.gameObject);
+                yield return null;
+            }
+
+            int[,] grid = new int[grid_x, grid_y];
+            StartCoroutine(ApplyTemplate(0, 0, 0, 0, templates, grid));
         }
-
-        yield return new WaitForSeconds(0.1f);
-        grid = new int[grid_x, grid_y];
-        StartApplying(templates);
     }
 
-    void StartApplying(GridTemplate[] templates)
+    IEnumerator ApplyTemplate(int temp_num, int x_offset, int y_offset, int reset_count, GridTemplate[] templates, int[,] grid)
     {
-        StopAllCoroutines();
-        StartCoroutine(ApplyTemplate(0, 0, 0, 0, templates));
-    }
-
-    IEnumerator ApplyTemplate(int temp_num, int x_offset, int y_offset, int reset_count, GridTemplate[] templates)
-    {
-        Debug.Log("TEMP NUM: " + temp_num.ToString() + ", NUM TEMPLATES: " + templates.Length.ToString());
-        Debug.Log("X_OFFSET: " + x_offset.ToString() + " Y_OFFSET: " + y_offset.ToString());
-
         for (int y = 0; y < 5; y++)
         {
             for (int x = 0; x < 5; x++)
@@ -84,10 +88,10 @@ public class GenerateGrid : MonoBehaviour
                         {
                             grid[check_x, check_y] = templates[temp_num].GetTemplate(x, y);
                         }
-                        else if (grid[check_x, check_y] != templates[temp_num].GetTemplate(x, y))
+                        else if (grid[check_x, check_y] != templates[temp_num].GetTemplate(x, y) && templates[temp_num].GetTemplate(x, y) != 0)
                         {
-                            Debug.Log("FAILED ON " + x.ToString() + " " + y.ToString());
-                            SetupGrid();
+                            failed++;
+                            yield break;
                         }
                     }
                 }
@@ -102,25 +106,25 @@ public class GenerateGrid : MonoBehaviour
         }
         else x_offset += 3;
 
-        yield return new WaitForSeconds(0.1f);
-        if (temp_num >= num_templates)
+        if (temp_num >= num_templates - 1)
         {
-            StartFilling();
+            StartFilling(grid);
             yield break;
         }
         else
         {
-            StartCoroutine(ApplyTemplate(temp_num + 1, x_offset, y_offset, reset_count, templates));
+            StartCoroutine(ApplyTemplate(temp_num + 1, x_offset, y_offset, reset_count, templates, grid));
         }
     }
 
-    void StartFilling()
+    void StartFilling(int[,] grid)
     {
+        template_selected = true;
         StopAllCoroutines();
-        StartCoroutine(FillGaps());
+        StartCoroutine(FillGaps(grid));
     }
 
-    IEnumerator FillGaps()
+    IEnumerator FillGaps(int[,] grid) 
     {
         Debug.Log("FILLING");
         // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
@@ -153,30 +157,29 @@ public class GenerateGrid : MonoBehaviour
 
             if (highest_walls < 3)
             {
-                StartCoroutine(CreateGrid());
+                StartGenerating(grid);
                 yield break;
             }
             yield return null;
         }
-        StartCoroutine(CreateGrid());
+        StartGenerating(grid);
     }
 
-    IEnumerator CreateGrid()
+    void StartGenerating(int[,] grid)
     {
-        if (object_grid != null)
+        StopAllCoroutines();
+        StartCoroutine(CreateGrid(grid));
+    }
+
+    IEnumerator CreateGrid(int[,] grid)
+    {
+        if (grid_obj == null)
         {
-            for (int i = 0; i < object_grid.GetLength(0); i++)
-            {
-                for (int j = 0; j < object_grid.GetLength(1); j++)
-                {
-                    Destroy(object_grid[i, j]);
-                    yield return null;
-                }
-            }
+            grid_obj = Instantiate(grid_prefab, transform);
         }
 
         yield return new WaitForSeconds(0.1f);
-
+        floor_tiles.Clear();
         object_grid = new GameObject[grid_x, grid_y];
         for (int x = 0; x < grid_x; x++)
         {
@@ -185,32 +188,39 @@ public class GenerateGrid : MonoBehaviour
                 if (grid[x, y] == 1)
                 {
                     object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity);
+                    object_grid[x, y].transform.parent = grid_obj.transform;
                     floor_tiles.Add(object_grid[x, y]);
                 }
                 else if (grid[x, y] == 2)
                 {
                     object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x, 1, y), Quaternion.identity);
+                    object_grid[x, y].transform.parent = grid_obj.transform;
                 }
                 yield return null;
             }
         }
 
         yield return new WaitForSeconds(0.1f);
-        StartCoroutine(StartFloorChecks(false, 0));
+        FloorCheck(false, 0);
     }
 
-    public IEnumerator StartFloorChecks(bool boxes_placed, int num_boxes)
+    public void FloorCheck(bool boxes_placed, int num_boxes)
+    {
+        StopAllCoroutines();
+        checked_floors.Clear();
+        StartCoroutine(StartFloorChecks(boxes_placed, num_boxes));
+    }
+
+    IEnumerator StartFloorChecks(bool boxes_placed, int num_boxes)
     {
         if (boxes_placed) Debug.Log("Started post-box floor check" + floor_tiles.Count.ToString());
         CheckSurrounding floor_check = floor_tiles[0].GetComponent<CheckSurrounding>();
-        checked_floors.Clear();
-        floor_check.CheckAdjascentFloor(floor_tiles, this.gameObject);
-        yield return new WaitForSeconds(0.1f);
+        floor_check.CheckAdjascentFloor(object_grid, this.gameObject, boxes_placed);
+        yield return new WaitForSeconds(0.5f);
         PlaceGoals goals = GetComponent<PlaceGoals>();
         if (checked_floors.Count < floor_tiles.Count - num_boxes)
         {
-            selected = false;
-            num_instances = 0;
+            Debug.Log("FLOOR CHECK FAILED, FLOOR TILES: " + floor_tiles.Count.ToString() + ", CHECKED FLOORS: " + checked_floors.Count.ToString());
             if (boxes_placed)
             {
                 goals.NextAttempt();
@@ -220,7 +230,6 @@ public class GenerateGrid : MonoBehaviour
         }
         else
         {
-            
             if (boxes_placed)
             {
                 goals.StartCoroutine(goals.PlacePlayer());
@@ -232,7 +241,7 @@ public class GenerateGrid : MonoBehaviour
 
     public void AddToChecked(GameObject tile)
     {
-        checked_floors.Add(tile);
+        if (!checked_floors.Contains(tile)) checked_floors.Add(tile);
     }
 
     public GameObject GetTile(int x, int y)

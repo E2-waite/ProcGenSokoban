@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        grid = GameObject.FindWithTag("Grid").GetComponent<GenerateGrid>();
+        grid = GameObject.FindWithTag("GameController").GetComponent<GenerateGrid>();
     }
 
     private void Update()
