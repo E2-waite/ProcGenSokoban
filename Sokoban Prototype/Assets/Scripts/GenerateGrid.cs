@@ -189,7 +189,6 @@ public class GenerateGrid : MonoBehaviour
             num_instances = 0;
             if (boxes_placed)
             {
-                Debug.Log("Failed post-box floor check (impossible layout)" + checked_floors.Count.ToString());
                 goals.NextAttempt();
                 yield break;
             }
@@ -200,7 +199,6 @@ public class GenerateGrid : MonoBehaviour
             
             if (boxes_placed)
             {
-                Debug.Log("Passed post-box floor check " + checked_floors.Count.ToString());
                 goals.StartCoroutine(goals.PlacePlayer());
                 yield break;
             }

@@ -149,6 +149,22 @@ public class PlaceGoals : MonoBehaviour
             }
         }
 
+        StartCoroutine(CheckButtons());
+    }
+
+    IEnumerator CheckButtons()
+    {
+        // Do a check once boxes are placed to ensure that none are placed on top of a button (fixes bug)
+        for (int i = 0; i < num_boxes; i++)
+        {
+            if (buttons[i].transform.parent.childCount > 1)
+            {
+                NextAttempt();
+                yield break;
+            }
+        }
+
+        yield return null;
         grid.StartCoroutine(grid.StartFloorChecks(true, num_boxes));
     }
 
@@ -239,6 +255,7 @@ public class PlaceGoals : MonoBehaviour
         {
             player.transform.parent = final_tile.transform;
             player.transform.position = new Vector3(player.transform.parent.position.x, 0.5f, player.transform.parent.position.z);
+            GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CamFollow>().SetPlayer(player);
             box_pos = new Vector2[num_boxes];
             for (int i = 0; i < num_boxes; i++)
             {

@@ -6,18 +6,17 @@ public class CamFollow : MonoBehaviour
 {
     GameObject player = null;
     public float height = 10;
-    // Start is called before the first frame update
-    void Start()
+
+    public void SetPlayer(GameObject obj)
     {
-        
+        player = obj;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (player == null)
         {
-            player = GameObject.FindWithTag("Player");
+            transform.position = new Vector3(5, height, 5);
         }
         else
         {
