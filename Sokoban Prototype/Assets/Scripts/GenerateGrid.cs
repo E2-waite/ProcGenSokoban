@@ -10,6 +10,8 @@ public class GenerateGrid : MonoBehaviour
     int grid_x = 0, grid_y = 0;
     public GameObject floor_prefab, wall_prefab;
     private GridTemplate[,] template_grid;
+    List<GridTemplate> templates = new List<GridTemplate>();
+    public int num_templates = 0;
     private GameObject[,] object_grid;
     private int[,] grid;
     private bool selected = false;
@@ -17,93 +19,101 @@ public class GenerateGrid : MonoBehaviour
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
     public void Start()
     {
+        num_templates = size_x * size_y;
         QualitySettings.vSyncCount = 0;
         grid_x = (size_x * 3) + 2;
         grid_y = (size_y * 3) + 2;
-        StartCoroutine(SetupGrid());
+        SetupGrid();
     }
 
     public void Restart()
     {
         selected = false;
         num_instances = 0;
-        StartCoroutine(SetupGrid());
+        SetupGrid();
     }
 
-    private IEnumerator SetupGrid()
+    private void SetupGrid()
     {
-        if (selected || num_instances >= max_instances) yield break;
+        StopAllCoroutines();
+        templates.Clear();
+        StartCoroutine(LoadTemplates());
+    }
 
-        if (object_grid != null)
+    IEnumerator LoadTemplates()
+    {
+        for (int i = 0; i < num_templates; i++)
         {
-            floor_tiles.Clear();
-            checked_floors.Clear();
-        }
-
-        num_instances++;
- 
-        template_grid = new GridTemplate[size_x, size_y];
-        for (int y = 0; y < size_y; y++)
-        {
-            for (int x = 0; x < size_x; x++)
+            if (templates.Count < num_templates)
             {
-                template_grid[x, y] = new GridTemplate(this.gameObject);
+                GridTemplate template = new GridTemplate(this.gameObject);
+                templates.Add(template);
             }
+            yield return null;
         }
 
-        int[,] temp_grid = new int[grid_x, grid_y];
-        int x_offset = 0, y_offset = 0;
+        grid = new int[grid_x, grid_y];
+        StartApplying();
+    }
 
-        for (int y = 0; y < size_x; y++)
+    void StartApplying()
+    {
+        StopAllCoroutines();
+        StartCoroutine(ApplyTemplate(0, 0, 0, 0));
+    }
+
+    IEnumerator ApplyTemplate(int temp_num, int x_offset, int y_offset, int reset_count)
+    {
+        Debug.Log("TEMP NUM: " + temp_num.ToString() + ", NUM TEMPLATES: " + templates.Count.ToString());
+        Debug.Log("X_OFFSET: " + x_offset.ToString() + " Y_OFFSET: " + y_offset.ToString());
+        for (int y = 0; y < 5; y++)
         {
-            for (int x = 0; x < size_y; x++)
+            for (int x = 0; x < 5; x++)
             {
-                for (int iy = 0; iy < 5; iy++)
+                int check_x = x_offset + x;
+                int check_y = y_offset + y;
+                if (check_x >= 0 && check_y >= 0 && check_x < grid_x && check_y < grid_y)
                 {
-                    for (int ix = 0; ix < 5; ix++)
+                    if (check_x == 0 || check_y == 0 || check_x == grid_x - 1 || check_y == grid_y - 1)
                     {
-                        int check_x = x_offset + ix;
-                        int check_y = y_offset + iy;
-                        if (check_x >= 0 && check_y >= 0 && check_x < grid_x && check_y < grid_y)
+                        grid[check_x, check_y] = 2;
+                    }
+                    else
+                    {
+                        if (grid[check_x, check_y] == 0)
                         {
-                            if (check_x == 0 || check_y == 0 || check_x == grid_x - 1 || check_y == grid_y - 1)
-                            {
-                                temp_grid[check_x, check_y] = 2;
-                            }
-                            else
-                            {
-                                if (temp_grid[check_x, check_y] == 0)
-                                {
-                                    temp_grid[check_x, check_y] = template_grid[x, y].GetTemplate(ix, iy);
-                                }
-                                if (temp_grid[check_x, check_y] != template_grid[x, y].GetTemplate(ix, iy))
-                                {
-                                    StartCoroutine(SetupGrid());
-                                }
-                            }
+                            grid[check_x, check_y] = templates[temp_num].GetTemplate(x, y);
                         }
-                        yield return null;
+                        if (grid[check_x, check_y] != templates[temp_num].GetTemplate(x, y))
+                        {
+                            SetupGrid();
+                        }
                     }
                 }
+                yield return null;
+            }
+
+            if (reset_count == size_x - 1)
+            {
+                reset_count = 0;
+                x_offset = 0;
+                y_offset += 3;
+            }
+            else
+            {
+                reset_count++;
                 x_offset += 3;
             }
-            x_offset = 0;
-            y_offset += 3;
-        }
 
-        if (selected)
-        {
-            num_instances--;
-            yield break;
+            Debug.Log("X_OFFSET: " + x_offset.ToString() + " Y_OFFSET: " + y_offset.ToString());
+            if (temp_num < num_templates) StartCoroutine(ApplyTemplate(temp_num + 1, x_offset, y_offset, reset_count));
+            else StartCoroutine(FillGaps());
         }
-
-        selected = true;
-        grid = temp_grid;
-        StartCoroutine(FillGaps());
     }
 
     IEnumerator FillGaps()
     {
+        StartCoroutine("REACHED");
         // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
         int max_passes = 8;
         for (int i = 0; i < max_passes; i++)
@@ -192,7 +202,7 @@ public class GenerateGrid : MonoBehaviour
                 goals.NextAttempt();
                 yield break;
             }
-            else StartCoroutine(SetupGrid());
+            else SetupGrid();
         }
         else
         {
