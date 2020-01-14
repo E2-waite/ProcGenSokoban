@@ -154,9 +154,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
+  max_instances: 1000
   floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
     type: 3}
   wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
+    type: 3}
+  grid_prefab: {fileID: 2433724824734905372, guid: 20aea0ed3469a3644878b5ea678daf4c,
     type: 3}
   num_templates: 0
   floor_tiles: []

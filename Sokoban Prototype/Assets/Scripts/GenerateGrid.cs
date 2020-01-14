@@ -9,6 +9,7 @@ public class GenerateGrid : MonoBehaviour
     public int max_instances = 128;
     int failed = 0;
     public GameObject floor_prefab, wall_prefab, grid_prefab;
+    bool[,] floor_grid;
     GameObject grid_obj;
     public int num_templates = 0;
     private GameObject[,] object_grid;
@@ -26,10 +27,6 @@ public class GenerateGrid : MonoBehaviour
 
     private void Update()
     {
-        if (object_grid == null)
-        {
-            Debug.Log("IS NULL");
-        }
         if (failed >= max_instances && !template_selected)
         {
             failed = 0;
@@ -157,12 +154,76 @@ public class GenerateGrid : MonoBehaviour
 
             if (highest_walls < 3)
             {
-                StartGenerating(grid);
+                StartFloorCheck(grid);
                 yield break;
             }
             yield return null;
         }
-        StartGenerating(grid);
+        StartFloorCheck(grid);
+    }
+
+    void StartFloorCheck(int[,] grid)
+    {
+        StopAllCoroutines();
+        StartCoroutine(FloorCheck(grid));
+    }
+
+    IEnumerator FloorCheck(int[,] grid)
+    {
+        Debug.Log("STARTING FLOOR CHECK");
+        int num_floors = 0;
+        floor_grid = new bool[grid_x, grid_y];
+        List<int[]> checked_floors = new List<int[]>();
+
+        for (int x = 0; x < grid_x; x++)
+        {
+            for (int y = 0; y < grid_y; y++)
+            {
+                if (grid[x, y] == 1)
+                {
+                    if (checked_floors.Count == 0) checked_floors.Add(new int[2] { x, y });
+                    num_floors++;
+                }
+                yield return null;
+            }
+        }
+
+        for (int x = 0; x < grid_x; x++)
+        {
+            for (int y = 0; y < grid_y; y++)
+            {
+                if (grid[x, y] == 1)
+                {
+                    if (x == 0 && y == 0) Debug.Log("FIRST");
+                    else
+                    {
+                        for (int i = 0; i < checked_floors.Count; i++)
+                        {
+                            if ((checked_floors[i][0] == x + 1 && checked_floors[i][1] == y) || (checked_floors[i][0] == x - 1 && checked_floors[i][1] == y) ||
+                                (checked_floors[i][0] == x && checked_floors[i][1] == y + 1) || (checked_floors[i][0] == x && checked_floors[i][1] == y - 1))
+                            {
+                                checked_floors.Add(new int[2] { x, y });
+                                break;
+                            }
+                        }
+                    }
+                }
+                yield return null;
+            }
+        }
+
+        yield return new WaitForSeconds(1);
+
+        Debug.Log("CHECKED FLOORS: " + checked_floors.Count.ToString());
+        if (checked_floors.Count == num_floors)
+        {
+            StartGenerating(grid);
+        }
+        else
+        {
+            Debug.Log("FAILED FLOOR CHECK, NUM_FLOORS: " + num_floors.ToString() + " CHECKED FLOORS: " + checked_floors.Count.ToString());
+            SetupGrid();
+        }
     }
 
     void StartGenerating(int[,] grid)
@@ -201,7 +262,7 @@ public class GenerateGrid : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.1f);
-        FloorCheck(false, 0);
+        //FloorCheck(false, 0);
     }
 
     public void FloorCheck(bool boxes_placed, int num_boxes)
