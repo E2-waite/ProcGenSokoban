@@ -50,21 +50,21 @@ public class HallwayGenerator : MonoBehaviour
         if (dir == Vector2.right)
         {
             x_offset = (int)last_pos.x + 5;
-            y_offset = (int)last_pos.y;
+            y_offset = 0;
         }
         if (dir == Vector2.left)
         {
             x_offset = (int)last_pos.x - 5;
-            y_offset = (int)last_pos.y;
+            y_offset = 0;
         }
         if (dir == Vector2.up)
         {
-            x_offset = (int)last_pos.x;
+            x_offset = 0;
             y_offset = (int)last_pos.y + 5;
         }
         if (dir == Vector2.down)
         {
-            x_offset = (int)last_pos.x;
+            x_offset = 0;
             y_offset = (int)last_pos.y - 5;
         }
         last_pos = new Vector2(last_pos.x + x_offset, last_pos.y + y_offset);
@@ -138,17 +138,7 @@ public class HallwayGenerator : MonoBehaviour
 
         for (int i = 0; i < 3; i++)
         {
-            int[,] rot_template = new int[5, 5];
-            // Rotate not working correctly...
-            for (int x = 0; x < 5; x++)
-            {
-                for (int y = 0; y < 5; y++)
-                {
-                    rot_template[x, y] = temp_template[y, x];
-                    yield return null;
-                }
-            }
-            temp_template = rot_template;
+            temp_template = RotateTemplate(temp_template);
 
             // Check if current orientation's entrace matches previous section's exit
             for (int y = 0; y < 5; y++)
@@ -170,5 +160,20 @@ public class HallwayGenerator : MonoBehaviour
             }
         }
         Debug.Log("FAILED ROTATION");
+    }
+
+    static int[,] RotateTemplate(int[,] template)
+    {
+        int[,] rot_template = new int[5, 5];
+
+        for (int i = 0; i < 5; ++i)
+        {
+            for (int j = 0; j < 5; ++j)
+            {
+                rot_template[i, j] = template[5 - j - 1, i];
+            }
+        }
+
+        return rot_template;
     }
 }
