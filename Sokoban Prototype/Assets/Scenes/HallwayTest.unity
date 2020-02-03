@@ -340,7 +340,7 @@ MonoBehaviour:
     type: 3}
   floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
     type: 3}
-  num_segments: 1
+  num_segments: 3
 --- !u!4 &2108435703
 Transform:
   m_ObjectHideFlags: 0
