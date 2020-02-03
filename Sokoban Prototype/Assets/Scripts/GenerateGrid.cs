@@ -15,6 +15,12 @@ public class GenerateGrid : MonoBehaviour
     private bool selected = false;
     public List<GameObject> floor_tiles = new List<GameObject>();
     [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
+
+    private void Update()
+    {
+        if (Input.GetKeyUp("escape")) Application.Quit();
+    }
+
     public void Start()
     {
         QualitySettings.vSyncCount = 0;
@@ -134,11 +140,34 @@ public class GenerateGrid : MonoBehaviour
 
             if (highest_walls < 3)
             {
-                CreateGrid();
+                StartCoroutine(FloorCount());
                 yield break;
             }
         }
-        CreateGrid();
+        StartCoroutine(FloorCount());
+    }
+
+    IEnumerator FloorCount()
+    {
+        int num_floors = 0;
+        for (int x = 0; x < grid_x; x++)
+        {
+            for (int y = 0; y < grid_y; y++)
+            {
+                if (grid[x, y] == 1)
+                {
+                    num_floors++;
+                }
+                yield return null;
+            }
+        }
+
+        if (num_floors < (grid_x * grid_y) / 4)
+        {
+            Debug.Log("FAILED FLOOR COUNT, NUM FLOORS: " + num_floors.ToString() + "/" + ((grid_x * grid_y) / 4).ToString());
+            Restart();
+        }
+        else CreateGrid();
     }
 
     private void CreateGrid()

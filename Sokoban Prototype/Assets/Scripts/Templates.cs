@@ -4,8 +4,9 @@ using UnityEngine;
 
 public partial class Templates : MonoBehaviour
 {
-    public static int[,,] templates = new int[17,5,5]
+    public static int[,,] templates = new int[17, 5, 5]
     {
+        // 0 = Blank Space, 1 = Floor Tile, 2 = Wall Tile
         {
             {0,0,0,0,0},
             {0,1,1,1,0},
@@ -76,7 +77,7 @@ public partial class Templates : MonoBehaviour
             {0,2,2,2,0},
             {0,0,0,0,0}
         },
-        { 
+        {
             {0,0,0,0,0},
             {0,2,2,2,0},
             {1,1,1,1,1},
@@ -131,5 +132,52 @@ public partial class Templates : MonoBehaviour
     public int Get(int t_num, int x, int y)
     {
         return templates[t_num, x, y];
+    }
+
+    //Hallway Templates:
+    static int[,] hall_template_1 = new int[,]
+    {
+        {0,0,0,0,0},
+        {2,2,2,2,2},
+        {3,1,1,1,4},
+        {2,2,2,2,2},
+        {0,0,0,0,0}
+    };
+    static int[,] hall_template_2 = new int[,]
+    {
+        {2,2,4,2,2},
+        {2,1,1,1,2},
+        {3,1,1,1,2},
+        {2,1,1,1,2},
+        {2,2,2,2,2}
+    };
+    static int[,] hall_template_3 = new int[,]
+    {
+        {0,2,4,2,0},
+        {2,2,1,2,0},
+        {3,1,1,2,0},
+        {2,2,1,2,0},
+        {0,2,4,2,0}
+    };
+    static int[,] hall_template_4 = new int[,]
+    {
+        {2,2,4,2,2},
+        {2,1,1,1,2},
+        {3,1,1,1,2},
+        {2,1,1,1,2},
+        {2,2,4,2,2}
+    };
+
+    List<int[,]> hall_templates = new List<int[,]>()
+    {
+        hall_template_1,
+        hall_template_2,
+        hall_template_3,
+        hall_template_4
+    };
+
+    public int[,] GetHall(int temp_num)
+    {
+        return hall_templates[temp_num];
     }
 }
