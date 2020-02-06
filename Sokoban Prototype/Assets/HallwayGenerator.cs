@@ -8,23 +8,73 @@ public class HallwayGenerator : MonoBehaviour
     Templates templates;
     int[,] template;
     Vector2 start_pos = new Vector2(0, 0);
-    Vector2 start_dir = new Vector2(0, 1);
+    Vector2 start_dir = new Vector2(1, 0);
+    public Vector2 grid_size = new Vector2(10, 10);
     public int num_segments = 1;
     List<GameObject[,]> obj_grids = new List<GameObject[,]>();
     bool lined_up, flipped;
+    bool[,] placed;
     void Start()
     {
         templates = GetComponent<Templates>();
-        template = new int [5,5];
-        StartCoroutine(LoadTemplate(Random.Range(0, 4), num_segments, start_dir, start_pos));
+        StartGeneration();
     }
 
-    IEnumerator LoadTemplate(int temp_num, int steps_left, Vector2 dir, Vector2 pos)
+    void StartGeneration()
+    {
+        // Destroy all objects on restart
+        if (obj_grids.Count > 0)
+        {
+            for (int i = 0; i < obj_grids.Count; i++)
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    for (int y = 0; y < 5; y++)
+                    {
+                        Destroy(obj_grids[i][x,y]);
+                    }
+                }
+            }
+        }
+
+        // Restarts generation if section overlap detected
+        Debug.Log("STARTING");
+        template = new int[5, 5];
+        placed = new bool[(int)grid_size.x, (int)grid_size.y];
+        Vector2 grid_pos = new Vector2(0, 0);
+        
+        // Get start grid position based on starting direction
+        if (start_dir == Vector2.right) grid_pos = new Vector2(0, grid_size.y * 0.5f);
+        else if (start_dir == Vector2.left) grid_pos = new Vector2(grid_size.x - 1, grid_size.y * 0.5f);
+        else if (start_dir == Vector2.up) grid_pos = new Vector2(grid_size.x * 0.5f, 0);
+        else if (start_dir == Vector2.down) grid_pos = new Vector2(grid_size.x * 0.5f, grid_size.y - 1);
+        StartCoroutine(LoadTemplate(Random.Range(0, 4), num_segments, start_dir, start_pos, grid_pos));
+    }
+
+    IEnumerator LoadTemplate(int temp_num, int steps_left, Vector2 dir, Vector2 pos, Vector2 grid_pos)
     {
         float x_offset = 0, y_offset = 0;
         template = templates.GetHall(temp_num);
         lined_up = false;
         flipped = false;
+
+        // Check if desired position is outside of the grid
+        if ((int)grid_pos.x < 0 || (int)grid_pos.x >= placed.GetLength(0) ||
+            (int)grid_pos.y < 0 || (int)grid_pos.y >= placed.GetLength(1))
+        {
+            Debug.Log("HALLWAY FINISHED - REACHED EDGE");
+            yield break;
+        }
+        else
+        {
+            // Check if desired position already has a hallway section (prevents overlap)
+            if (placed[(int)grid_pos.x, (int)grid_pos.y])
+            {
+                StartGeneration();
+                yield break;
+            }
+            else placed[(int)grid_pos.x, (int)grid_pos.y] = true;
+        }
 
         // Flip template 50% of the time
         bool flip_template = (Random.value > 0.5f);
@@ -41,21 +91,25 @@ public class HallwayGenerator : MonoBehaviour
         {
             x_offset = (int)pos.x + 5;
             y_offset = (int)pos.y;
+            grid_pos.x++;
         }
-        if (dir == Vector2.left)
+        else if (dir == Vector2.left)
         {
             x_offset = (int)pos.x - 5;
             y_offset = (int)pos.y;
+            grid_pos.x--;
         }
-        if (dir == Vector2.up)
+        else if (dir == Vector2.up)
         {
             x_offset = (int)pos.x;
             y_offset = (int)pos.y + 5;
+            grid_pos.y++;
         }
-        if (dir == Vector2.down)
+        else if (dir == Vector2.down)
         {
             x_offset = (int)pos.x;
             y_offset = (int)pos.y - 5;
+            grid_pos.y--;
         }
 
         // Generate hallway section
@@ -93,8 +147,8 @@ public class HallwayGenerator : MonoBehaviour
 
         pos = new Vector2(x_offset, y_offset);
         steps_left--;
-        if (steps_left > 0) StartCoroutine(LoadTemplate(Random.Range(0, 4), steps_left, dir, pos));
-        else Debug.Log("HALLWAY FINISHED");
+        if (steps_left > 0) StartCoroutine(LoadTemplate(Random.Range(0, 4), steps_left, dir, pos, grid_pos));
+        else Debug.Log("HALLWAY FINISHED - REACHED SEGMENT THRESHOLD");
     }
 
     private void FlipTemplate()
