@@ -5,23 +5,26 @@ using enums;
 public class GenerateMaze : MonoBehaviour
 {
     public GameObject tile_prefab;
-    public int x_size, y_size;
-    public bool maze_complete = false;
+    public Vector2 size;
     private Cell[,] grid;
     readonly private List<Cell> checked_cells = new List<Cell>();
-
+    public int junctions = 0, dead_ends = 0;
     void Start()
     {
-        grid = new Cell[x_size, y_size];
+        grid = new Cell[(int)size.x, (int)size.y];
         StartCoroutine(LoopCheck());
-        StartCoroutine(StepForward(0, 0, Direction.N));
+        StartCoroutine(StepForward(0, 2, Direction.E));
     }
 
     IEnumerator LoopCheck()
     {
         // Starts loop that checks if full grid is filled
-        if (CheckCompletion()) StopAllCoroutines();
-        yield return new WaitForSeconds(0.01f);
+        if (CheckCompletion())
+        {
+            StopAllCoroutines();
+            dead_ends++;
+        }
+        yield return new WaitForSeconds(0.001f);
         StartCoroutine(LoopCheck());
     }
 
@@ -45,7 +48,8 @@ public class GenerateMaze : MonoBehaviour
             else dir++;
             yield return null;
         }
-        // Start backtracking if there are no clear space adjascent to current tile
+        // Start backtracking if there are no clear space adjascent to current tile (Dead end)
+        dead_ends++;
         StartCoroutine(StepBack());
     }
 
@@ -62,8 +66,9 @@ public class GenerateMaze : MonoBehaviour
             Vector2 pos = GetNewPos(dir, x, y);
             if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y))
             {
-                // If the cell at the top of the checked cells list has clear space adjascent, make junction and start branching out in that direction
+                // Check adjacent tiles to cell at top of checked list, move in new direction if space is clear (Junction)
                 grid[x, y].ClearWall(dir);
+                junctions++;
                 StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
                 yield break;
             }
@@ -91,15 +96,15 @@ public class GenerateMaze : MonoBehaviour
 
     bool InGrid(int x, int y)
     {
-        if (x < 0 || x >= x_size || y < 0 || y >= y_size) return false;
+        if (x < 0 || x >= (int)size.x || y < 0 || y >= (int)size.y) return false;
         else return true;
     }
 
     bool CheckCompletion()
     {
-        for (int x = 0; x < x_size; x++)
+        for (int x = 0; x < (int)size.x; x++)
         {
-            for (int y = 0; y < y_size; y++)
+            for (int y = 0; y < (int)size.y; y++)
             {
                 if (grid[x, y] == null)
                 {
@@ -119,14 +124,13 @@ public class GenerateMaze : MonoBehaviour
 
     void InstantiateMaze()
     {
-        for (int x = 0; x < x_size; x++)
+        for (int x = 0; x < (int)size.x; x++)
         {
-            for (int y = 0; y < y_size; y++)
+            for (int y = 0; y < (int)size.y; y++)
             {
                 GameObject tile = Instantiate(tile_prefab, new Vector3(x, 0, y), Quaternion.identity);
                 tile.GetComponent<RenderWall>().EnableWalls(grid[x, y].GetWalls());
             }
         }
     }
-
 }

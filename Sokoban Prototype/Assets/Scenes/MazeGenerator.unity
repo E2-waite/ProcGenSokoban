@@ -325,9 +325,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile_prefab: {fileID: 688354286607124571, guid: a6bc56865d371c247ad9279d6f5fd494,
     type: 3}
-  x_size: 10
-  y_size: 10
-  maze_complete: 0
+  size: {x: 3, y: 3}
+  junctions: 0
+  dead_ends: 0
 --- !u!4 &1902716074
 Transform:
   m_ObjectHideFlags: 0
