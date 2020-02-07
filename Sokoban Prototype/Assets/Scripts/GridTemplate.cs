@@ -9,14 +9,7 @@ public class GridTemplate
     public GridTemplate(GameObject grid)
     {
         int grid_num = Random.Range(0, 17);
-        template = new int[5, 5];
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                template[x, y] = grid.GetComponent<Templates>().Get(grid_num, x, y);
-            }
-        }
+        template = grid.GetComponent<Templates>().GetRoomTemplate(grid_num);
         RotateTemplate();
     }
 

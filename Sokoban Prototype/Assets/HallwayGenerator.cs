@@ -54,7 +54,7 @@ public class HallwayGenerator : MonoBehaviour
     IEnumerator LoadTemplate(int temp_num, int steps_left, Vector2 dir, Vector2 pos, Vector2 grid_pos)
     {
         float x_offset = 0, y_offset = 0;
-        template = templates.GetHall(temp_num);
+        template = templates.GetHallTemplate(temp_num);
         lined_up = false;
         flipped = false;
 
