@@ -68,13 +68,12 @@
     <Compile Include="Assets\RenderWall.cs" />
     <Compile Include="Assets\Scripts\Box.cs" />
     <Compile Include="Assets\Scripts\Cell.cs" />
-    <Compile Include="Assets\Scripts\CheckSurrounding.cs" />
     <Compile Include="Assets\Scripts\CheckWin.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
     <Compile Include="Assets\Scripts\GenerateMaze.cs" />
-    <Compile Include="Assets\Scripts\GridTemplate.cs" />
-    <Compile Include="Assets\Scripts\HallwayTemplates.cs" />
+    <Compile Include="Assets\Scripts\GridCheck.cs" />
+    <Compile Include="Assets\Scripts\ManipulateTemp.cs" />
     <Compile Include="Assets\Scripts\PlaceGoals.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
