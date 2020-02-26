@@ -4,19 +4,17 @@ using UnityEngine;
 
 public class GenerateGrid : MonoBehaviour
 {
-    public int size_x = 3, size_y = 3, num_templates;
-    int grid_x = 0, grid_y = 0;
+    public int size_x = 3, size_y = 3, num_boxes = 3;
+    int grid_x = 0, grid_y = 0, num_templates;
     public GameObject floor_prefab, wall_prefab;
     private GameObject[,] object_grid;
-    public List<GameObject> floor_tiles = new List<GameObject>();
-    [HideInInspector]  public List<GameObject> checked_floors = new List<GameObject>();
 
     private void Update()
     {
         if (Input.GetKeyUp("escape")) Application.Quit();
     }
 
-    public void Start()
+    private void Start()
     {
         QualitySettings.vSyncCount = 0;
         grid_x = (size_x * 3) + 2;
@@ -95,7 +93,7 @@ public class GenerateGrid : MonoBehaviour
         CheckGrid(grid);
     }
 
-    public bool IsMultipleOf(int x, int n)
+    private bool IsMultipleOf(int x, int n)
     {
         // Returns the remainder after dividing x by n which will always be 0 if x is divisible by n.
         return (x % n) == 0;
@@ -110,7 +108,7 @@ public class GenerateGrid : MonoBehaviour
             if (check.ContinuousFloor(check.num_floors))
             {
                 // If all checks are passed continue to next step
-                CreateGrid(grid);
+                GeneratePuzzle puzzle = new GeneratePuzzle(check.FillGaps(), num_boxes);
             }
             else
             {
@@ -133,7 +131,6 @@ public class GenerateGrid : MonoBehaviour
                 if (grid[x, y] == 1)
                 {
                     object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity);
-                    floor_tiles.Add(object_grid[x, y]);
                 }
                 else if (grid[x, y] == 2)
                 {
@@ -142,43 +139,4 @@ public class GenerateGrid : MonoBehaviour
             }
         }
     }
-
-    //IEnumerator FillGaps()
-    //{
-    //    // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
-    //    int max_passes = 8;
-    //    for (int i = 0; i < max_passes; i++)
-    //    {
-    //        int highest_walls = 0;
-    //        for (int x = 0; x < grid_x; x++)
-    //        {
-    //            for (int y = 0; y < grid_y; y++)
-    //            {
-    //                int surrounding_walls = 0;
-    //                if (grid[x, y] == 1)
-    //                {
-    //                    if (grid[x + 1, y] == 2) surrounding_walls++;
-    //                    if (grid[x - 1, y] == 2) surrounding_walls++;
-    //                    if (grid[x, y + 1] == 2) surrounding_walls++;
-    //                    if (grid[x, y - 1] == 2) surrounding_walls++;
-
-    //                    if (surrounding_walls > highest_walls) highest_walls = surrounding_walls;
-
-    //                    if (surrounding_walls >= 3)
-    //                    {
-    //                        grid[x, y] = 2;
-    //                    }
-    //                }
-    //                yield return null;
-    //            }
-    //        }
-
-    //        if (highest_walls < 3)
-    //        {
-    //            StartCoroutine(FloorCount());
-    //            yield break;
-    //        }
-    //    }
-    //    StartCoroutine(FloorCount());
-    //}
 }

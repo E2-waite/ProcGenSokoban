@@ -63,19 +63,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CamFollow.cs" />
-    <Compile Include="Assets\HallwayGenerator.cs" />
-    <Compile Include="Assets\RenderWall.cs" />
     <Compile Include="Assets\Scripts\Box.cs" />
+    <Compile Include="Assets\Scripts\CamFollow.cs" />
     <Compile Include="Assets\Scripts\Cell.cs" />
     <Compile Include="Assets\Scripts\CheckWin.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
+    <Compile Include="Assets\Scripts\GameController.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
     <Compile Include="Assets\Scripts\GenerateMaze.cs" />
+    <Compile Include="Assets\Scripts\GeneratePuzzle.cs" />
     <Compile Include="Assets\Scripts\GridCheck.cs" />
+    <Compile Include="Assets\Scripts\HallwayGenerator.cs" />
     <Compile Include="Assets\Scripts\ManipulateTemp.cs" />
     <Compile Include="Assets\Scripts\PlaceGoals.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\RenderWall.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Files/University Work/Year 3/CTP/ProcGenSokoban/Sokoban Prototype/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

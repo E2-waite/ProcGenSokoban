@@ -90,12 +90,49 @@ public class GridCheck
         return (num_checked == num_floors);
     }
 
-    int[] CheckDir(int[] pos, Direction dir)
+    private int[] CheckDir(int[] pos, Direction dir)
     {
         if (dir == Direction.N && grid[pos[0], pos[1] + 1] == 1) return new int[2] { pos[0], pos[1] + 1 };
         if (dir == Direction.E && grid[pos[0] + 1, pos[1]] == 1) return new int[2] { pos[0] + 1, pos[1] };
         if (dir == Direction.S && grid[pos[0], pos[1] - 1] == 1) return new int[2] { pos[0], pos[1] - 1 };
         if (dir == Direction.W && grid[pos[0] - 1, pos[1]] == 1) return new int[2] { pos[0] - 1, pos[1] };
         return new int[2] { 0, 0 };
+    }
+
+    public int[,] FillGaps()
+    {
+        // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
+        int max_passes = 8;
+        for (int i = 0; i < max_passes; i++)
+        {
+            int highest_walls = 0;
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                for (int x = 0; x < grid.GetLength(0); x++)
+                {
+                    int surrounding_walls = 0;
+                    if (grid[x, y] == 1)
+                    {
+                        if (grid[x + 1, y] == 2) surrounding_walls++;
+                        if (grid[x - 1, y] == 2) surrounding_walls++;
+                        if (grid[x, y + 1] == 2) surrounding_walls++;
+                        if (grid[x, y - 1] == 2) surrounding_walls++;
+
+                        if (surrounding_walls > highest_walls) highest_walls = surrounding_walls;
+
+                        if (surrounding_walls >= 3)
+                        {
+                            grid[x, y] = 2;
+                        }
+                    }
+                }
+            }
+
+            if (highest_walls < 3)
+            {
+                break;
+            }
+        }
+        return grid;
     }
 }
