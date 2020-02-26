@@ -5,7 +5,7 @@ using enums;
 
 public class PlaceGoals : MonoBehaviour
 {
-    //public GameObject player_prefab, box_prefab, button_prefab;
+
     //private GameObject[] boxes, buttons;
     //private GameObject player;
     //private Vector2[] box_pos;

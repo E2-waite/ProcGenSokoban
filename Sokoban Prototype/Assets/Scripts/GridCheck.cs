@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using enums;
 public class GridCheck
 {
     public int num_floors = 0;
@@ -31,15 +32,6 @@ public class GridCheck
         // If the number of floors is greater than quater of the number of total tiles, floor check is passed
         return (num_floors > (grid.GetLength(0) * grid.GetLength(1)) / 4);
     }
-
-    enum Direction
-    {
-        N,
-        E,
-        S,
-        W
-    };
-
 
     public bool ContinuousFloor(int num_floors)
     {

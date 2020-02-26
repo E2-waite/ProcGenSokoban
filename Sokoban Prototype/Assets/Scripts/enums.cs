@@ -18,11 +18,11 @@
         exit = 4
     }
 
-    public enum Direction : int
+    public enum Direction
     {
-        N = 0,
-        E = 1,
-        S = 2,
-        W = 3
+        N,
+        E,
+        S,
+        W
     }
 }

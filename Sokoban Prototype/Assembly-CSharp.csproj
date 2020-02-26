@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\GameController.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
     <Compile Include="Assets\Scripts\GenerateMaze.cs" />
+    <Compile Include="Assets\Scripts\GenerateObjects.cs" />
     <Compile Include="Assets\Scripts\GeneratePuzzle.cs" />
     <Compile Include="Assets\Scripts\GridCheck.cs" />
     <Compile Include="Assets\Scripts\HallwayGenerator.cs" />

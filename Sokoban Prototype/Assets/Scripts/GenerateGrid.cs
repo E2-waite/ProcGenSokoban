@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class GenerateGrid : MonoBehaviour
 {
-    public int size_x = 3, size_y = 3, num_boxes = 3;
+    public int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0, num_templates;
-    public GameObject floor_prefab, wall_prefab;
-    private GameObject[,] object_grid;
+
 
     private void Update()
     {
@@ -108,7 +107,7 @@ public class GenerateGrid : MonoBehaviour
             if (check.ContinuousFloor(check.num_floors))
             {
                 // If all checks are passed continue to next step
-                GeneratePuzzle puzzle = new GeneratePuzzle(check.FillGaps(), num_boxes);
+                GetComponent<GeneratePuzzle>().Generate(check.FillGaps());
             }
             else
             {
@@ -118,25 +117,6 @@ public class GenerateGrid : MonoBehaviour
         else
         {
             StartCoroutine(CombineTemplates());
-        }
-    }
-
-    private void CreateGrid(int[,] grid)
-    {
-        object_grid = new GameObject[grid_x, grid_y];
-        for (int y = 0; y < grid.GetLength(1); y++)
-        {
-            for (int x = 0; x < grid.GetLength(0); x++)
-            {
-                if (grid[x, y] == 1)
-                {
-                    object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x, 0, y), Quaternion.identity);
-                }
-                else if (grid[x, y] == 2)
-                {
-                    object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x, 1, y), Quaternion.identity);
-                }
-            }
         }
     }
 }

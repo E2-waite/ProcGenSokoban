@@ -130,6 +130,8 @@ GameObject:
   m_Component:
   - component: {fileID: 318576927}
   - component: {fileID: 318576926}
+  - component: {fileID: 318576930}
+  - component: {fileID: 318576929}
   - component: {fileID: 318576928}
   m_Layer: 0
   m_Name: GameController
@@ -152,11 +154,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  num_boxes: 3
-  floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
-    type: 3}
-  wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
-    type: 3}
 --- !u!4 &318576927
 Transform:
   m_ObjectHideFlags: 0
@@ -183,6 +180,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62f4ca265ae11434e80b1a143e754ed1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &318576929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 318576925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 275661ab138baa74a8cf4cee9c3f1b59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
+    type: 3}
+  wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
+    type: 3}
+  player_prefab: {fileID: 1876405309000523216, guid: 2df7673104355cf45bc75475fb27f907,
+    type: 3}
+  box_prefab: {fileID: 2872035265010042474, guid: 57e6af8483e5c7f42ab18009c6e0de91,
+    type: 3}
+  button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
+    type: 3}
+--- !u!114 &318576930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 318576925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351944b5f1413dd4ab719c9d17dbcdef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  num_boxes: 3
+  min_steps: 4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
