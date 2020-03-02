@@ -4,30 +4,57 @@ using UnityEngine;
 using enums;
 public class GeneratePuzzle : MonoBehaviour
 {
-    public int num_boxes = 3, min_steps = 8;
+    public int num_boxes = 3, min_steps = 8, max_attempts = 10;
     int[,] room_grid;
-
+    int attempts = 0;
     public void Generate(int[,] grid)
     {
+        attempts = 0;
         room_grid = grid;
         PlaceButtons();
     }
 
     private void PlaceButtons()
     {
+        // If number of attempts exceeds maximum number of attempts for a generated room generate a new empty room
+        if (attempts >= max_attempts)
+        {
+            Debug.Log("MAX ATTEMPTS");
+            GetComponent<GenerateGrid>().Restart();
+            return;
+        }
+
         // Place buttons in valid floor tile positions
         List<int[]> button_positions = new List<int[]>();
         while (button_positions.Count < num_boxes)
         {
             int x = Random.Range(1, room_grid.GetLength(0) - 1);
             int y = Random.Range(1, room_grid.GetLength(1) - 1);
-
+            bool is_floor = false;
             if (room_grid[x,y] == 1)
             {
-                button_positions.Add(new int[2] { x, y });
+                is_floor = true;
+            }
+            // If the random position is a floor tile and there is not an existing button, set button position
+            if (is_floor)
+            {
+                bool pos_taken = false;
+                for (int i = 0; i < button_positions.Count; i++)
+                {
+                    if (x == button_positions[i][0] && y == button_positions[i][1])
+                    {
+                        pos_taken = true;
+                        break;
+                    }
+                }
+                if (!pos_taken)
+                {
+                    button_positions.Add(new int[2] { x, y });
+                }
             }
         }
         Debug.Log("Buttons Placed");
+        attempts++;
         StartCoroutine(PlaceBoxes(button_positions));
     }
     
@@ -38,6 +65,7 @@ public class GeneratePuzzle : MonoBehaviour
         // Continue looping until the required number of boxes are placed
         while (box_positions.Count < num_boxes)
         {
+            int num_fails = 0;
             List<int[]> stepped_positions = new List<int[]>();
             stepped_positions.Add(button_positions[box]);
             // Continue looping until box position is far enough away
@@ -48,7 +76,7 @@ public class GeneratePuzzle : MonoBehaviour
                 // Loop through all directions (unless valid direction is found)
                 for (int i = 0; i < 4; i++)
                 {
-                    //Debug.Log("STEPPED COUNT " + stepped_positions.Count.ToString());
+                    // Debug.Log("STEPPED COUNT " + stepped_positions.Count.ToString());
                     int[] checked_pos = CheckDir(dir, stepped_positions[stepped_positions.Count - 1]);
                     // Check if CheckDir function passed (valid floor tile)
                     if (checked_pos[0] != 0 && checked_pos[1] != 0)
@@ -58,6 +86,22 @@ public class GeneratePuzzle : MonoBehaviour
                         for (int j = 0; j < stepped_positions.Count; j++)
                         {
                             if (checked_pos[0] == stepped_positions[j][0] && checked_pos[1] == stepped_positions[j][1])
+                            {
+                                stepped_before = true;
+                                break;
+                            }
+                        }
+                        for (int j = 0; j < box_positions.Count; j++)
+                        {
+                            if (checked_pos[0] == box_positions[j][0] && checked_pos[1] == box_positions[j][1])
+                            {
+                                stepped_before = true;
+                                break;
+                            }
+                        }
+                        for (int j = 0; j < button_positions.Count; j++)
+                        {
+                            if (checked_pos[0] == button_positions[j][0] && checked_pos[1] == button_positions[j][1])
                             {
                                 stepped_before = true;
                                 break;
@@ -79,12 +123,25 @@ public class GeneratePuzzle : MonoBehaviour
                 // If all directions have been attempted step backwards
                 if (!stepped)
                 {
-                    stepped_positions.Remove(stepped_positions[stepped_positions.Count - 1]);
+                    num_fails++;
+                    if (stepped_positions.Count > 1)
+                    {
+                        stepped_positions.Remove(stepped_positions[stepped_positions.Count - 1]);
+                    }
+                }
+
+                // If failed too many times, restart goal placement (prevents getting stuck in loop going back and forth)
+                if (num_fails >= 50)
+                {
+                    PlaceButtons();
+                    yield break;
                 }
             }
+
             // Once final position is found, add box position
             box++;
             box_positions.Add(stepped_positions[stepped_positions.Count - 1]);
+           
         }
         Debug.Log("Finished Box Placement");
         GetComponent<GenerateObjects>().Generate(room_grid, button_positions, box_positions);

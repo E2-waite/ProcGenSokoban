@@ -22,6 +22,11 @@ public class GenerateGrid : MonoBehaviour
         StartCoroutine(CombineTemplates());
     }
 
+    public void Restart()
+    {
+        StartCoroutine(CombineTemplates());
+    }
+
     private IEnumerator CombineTemplates()
     {
         int[,] grid = new int[grid_x, grid_y];
