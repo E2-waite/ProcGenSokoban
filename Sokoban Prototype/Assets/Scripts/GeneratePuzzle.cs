@@ -62,6 +62,7 @@ public class GeneratePuzzle : MonoBehaviour
     {
         List<int[]> box_positions = new List<int[]>();
         int box = 0;
+        Direction dir = Direction.N;
         // Continue looping until the required number of boxes are placed
         while (box_positions.Count < num_boxes)
         {
@@ -71,7 +72,7 @@ public class GeneratePuzzle : MonoBehaviour
             // Continue looping until box position is far enough away
             while (stepped_positions.Count < min_steps)
             {
-                Direction dir = RandomDir();
+                dir = RandomDir();
                 bool stepped = false;
                 // Loop through all directions (unless valid direction is found)
                 for (int i = 0; i < 4; i++)
@@ -144,7 +145,38 @@ public class GeneratePuzzle : MonoBehaviour
            
         }
         Debug.Log("Finished Box Placement");
-        GetComponent<GenerateObjects>().Generate(room_grid, button_positions, box_positions);
+
+        PlacePlayer(dir, button_positions, box_positions);
+    }
+
+
+    void PlacePlayer(Direction dir, List<int[]> button_positions, List<int[]> box_positions)
+    {
+        int[] player_pos = new int[2];
+        //Spawns the player next to the last placed box
+
+        if (dir == Direction.N)
+        {
+            player_pos[0] = box_positions[box_positions.Count - 1][0];
+            player_pos[1] = box_positions[box_positions.Count - 1][1] + 1;
+        }
+        if (dir == Direction.E)
+        {
+            player_pos[0] = box_positions[box_positions.Count - 1][0] + 1;
+            player_pos[1] = box_positions[box_positions.Count - 1][1];
+        }
+        if (dir == Direction.S)
+        {
+            player_pos[0] = box_positions[box_positions.Count - 1][0];
+            player_pos[1] = box_positions[box_positions.Count - 1][1] - 1;
+        }
+        if (dir == Direction.W)
+        {
+            player_pos[0] = box_positions[box_positions.Count - 1][0] - 1;
+            player_pos[1] = box_positions[box_positions.Count - 1][1];
+        }
+
+        GetComponent<GenerateObjects>().Generate(room_grid, button_positions, box_positions, player_pos);
     }
 
     private Direction RandomDir() { return (Direction)Random.Range(0, 4); }

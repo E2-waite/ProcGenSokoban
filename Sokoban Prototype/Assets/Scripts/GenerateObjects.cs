@@ -6,10 +6,11 @@ public class GenerateObjects : MonoBehaviour
 {
     public GameObject floor_prefab, wall_prefab, player_prefab, box_prefab, button_prefab;
     private GameObject[,] object_grid;
+    GameObject player;
     List<GameObject> buttons = new List<GameObject>();
     List<GameObject> boxes = new List<GameObject>();
     // Start is called before the first frame update
-    public void Generate(int[,] grid, List<int[]> button_positions, List<int[]> box_positions)
+    public void Generate(int[,] grid, List<int[]> button_positions, List<int[]> box_positions, int[] player_pos)
     {
         object_grid = new GameObject[grid.GetLength(0), grid.GetLength(1)];
         for (int y = 0; y < grid.GetLength(1); y++)
@@ -40,5 +41,8 @@ public class GenerateObjects : MonoBehaviour
             boxes[boxes.Count - 1].transform.position = new Vector3(box_positions[i][0], 0.5f, box_positions[i][1]);
             boxes[boxes.Count - 1].name = "Box " + ((i + 1).ToString());
         }
+        player = Instantiate(player_prefab, object_grid[player_pos[0], player_pos[1]].transform);
+        player.transform.position = new Vector3(player_pos[0], 0.5f ,player_pos[1]);
     }
+
 }
