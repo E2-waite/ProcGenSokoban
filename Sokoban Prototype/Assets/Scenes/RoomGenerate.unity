@@ -215,7 +215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   num_boxes: 3
-  min_steps: 6
+  min_steps: 5
   max_attempts: 10
 --- !u!1 &705507993
 GameObject:

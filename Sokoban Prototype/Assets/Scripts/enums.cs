@@ -18,4 +18,14 @@
         S,
         W
     }
+
+    public enum Elements : int
+    {
+        empty = 0,
+        floor = 1,
+        wall = 2,
+        player = 4,
+        box = 8,
+        button = 16
+    }
 }
