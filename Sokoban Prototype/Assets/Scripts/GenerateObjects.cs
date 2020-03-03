@@ -5,7 +5,7 @@ using UnityEngine;
 public class GenerateObjects : MonoBehaviour
 {
     public GameObject floor_prefab, wall_prefab, player_prefab, box_prefab, button_prefab;
-    private GameObject[,] object_grid;
+    public GameObject[,] object_grid;
     GameObject player;
     List<GameObject> buttons = new List<GameObject>();
     List<GameObject> boxes = new List<GameObject>();
