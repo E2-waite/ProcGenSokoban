@@ -13,8 +13,7 @@ public class GeneratePuzzle : MonoBehaviour
     {
         attempts = 0;
         empty_grid = grid.Clone() as int[,];
-        int[,] puzzle_grid = grid.Clone() as int[,];
-        PlaceButtons(puzzle_grid);
+        PlaceButtons(grid.Clone() as int[,]);
     }
 
     private void PlaceButtons(int[,] grid)
@@ -52,18 +51,18 @@ public class GeneratePuzzle : MonoBehaviour
         // Continue looping until the required number of boxes are placed
         while (box_positions.Count < num_boxes)
         {
+            int num_fails = 0;
             List<int[]> stepped_positions = new List<int[]>();
             stepped_positions.Add(button_positions[box]);
             // Continue looping until box position is far enough away
             while (stepped_positions.Count < min_steps)
             {
-                int num_fails = 0;
                 dir = RandomDir();
                 bool stepped = false;
                 // Loop through all directions (unless valid direction is found)
                 for (int i = 0; i < 4; i++)
                 {
-                    Debug.Log("STEPPED COUNT " + stepped_positions.Count.ToString());
+                    // Debug.Log("STEPPED COUNT " + stepped_positions.Count.ToString());
                     int[] checked_pos = CheckDir(dir, grid, stepped_positions[stepped_positions.Count - 1]);
                     // Check if CheckDir function passed (valid floor tile)
                     if (checked_pos[0] != 0 && checked_pos[1] != 0)
@@ -104,7 +103,7 @@ public class GeneratePuzzle : MonoBehaviour
                 // If failed too many times, restart goal placement (prevents getting stuck in loop going back and forth)
                 if (num_fails >= 50)
                 {
-                    PlaceButtons(empty_grid);
+                    PlaceButtons(empty_grid.Clone() as int[,]);
                     yield break;
                 }
             }

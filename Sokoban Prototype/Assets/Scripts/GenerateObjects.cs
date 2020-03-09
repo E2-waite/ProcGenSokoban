@@ -45,5 +45,7 @@ public class GenerateObjects : MonoBehaviour
                 }
             }
         }
+
+        GetComponent<GameControl>().StartGame(grid, object_grid, boxes.Count);
     }
 }
