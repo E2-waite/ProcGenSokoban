@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using enums;
-public class Node : MonoBehaviour
+public class Node
 {
     public Pos pos;
     public bool is_wall;

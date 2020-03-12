@@ -36,6 +36,7 @@ public class GenerateObjects : MonoBehaviour
             Destroy(player);
         }
 
+        Pos entrance_pos = null, exit_pos = null;
         object_grid = new GameObject[grid.GetLength(0), grid.GetLength(1)];
         for (int y = 0; y < grid.GetLength(1); y++)
         {
@@ -70,14 +71,39 @@ public class GenerateObjects : MonoBehaviour
                 else if (grid[x, y] == (int)Elements.entrance)
                 {
                     object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x, 0, y), Quaternion.identity);
+                    entrance_pos = new Pos { x = x, y = y };
                 }
                 else if (grid[x, y] == (int)Elements.exit)
                 {
                     object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x, 0, y), Quaternion.identity);
+                    exit_pos = new Pos { x = x, y = y };
                 }
             }
         }
+
+        StartCoroutine(CheckPath(grid, entrance_pos, exit_pos));
+
         generated = true;
         GetComponent<GameControl>().StartGame(grid, object_grid, boxes.Count);
+    }
+
+    IEnumerator CheckPath(int[,] grid, Pos entrance_pos, Pos exit_pos)
+    {
+        FindPath path = new FindPath(grid, entrance_pos, exit_pos);
+        bool checking = true;
+        while (checking)
+        {
+            if (path.final_path.Count > 0)
+            {
+                Debug.Log("PATH EXISTS");
+                checking = false;
+            }
+            if (path.path_failed)
+            {
+                Debug.Log("PATH FAILED");
+                checking = false;
+            }
+            yield return null;
+        }
     }
 }

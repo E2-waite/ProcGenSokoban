@@ -141,7 +141,6 @@ public class GenerateGrid : MonoBehaviour
         }
         else
         {
-            Debug.Log("Failed Door Placement (Wall Blocking Door)");
             Restart();
         }
     }

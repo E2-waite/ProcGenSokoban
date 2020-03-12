@@ -148,6 +148,7 @@ public class GeneratePuzzle : MonoBehaviour
 
         grid[player_pos.x, player_pos.y] += (int)Elements.player;
 
+
         GetComponent<GenerateObjects>().Generate(grid);
     }
 
