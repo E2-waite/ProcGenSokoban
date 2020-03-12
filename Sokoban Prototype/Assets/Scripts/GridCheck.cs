@@ -4,7 +4,7 @@ public class GridCheck
 {
     public int num_floors = 0;
     public int checks_left = 2;
-    int[] first_floor;
+    Pos first_floor;
     int[,] grid;
 
     public GridCheck(int[,] check_grid)
@@ -25,7 +25,7 @@ public class GridCheck
                 {
                     if (num_floors == 0)
                     {
-                        first_floor = new int[2] { x, y };
+                        first_floor = new Pos { x = x, y = y };
                     }
                     num_floors++;
                 }
@@ -38,7 +38,7 @@ public class GridCheck
 
     public bool ContinuousFloor(int num_floors)
     {
-        List<int[]> checked_floor = new List<int[]>();
+        List<Pos> checked_floor = new List<Pos>();
         Direction dir = Direction.E;
         int num_checked = 0;
         checked_floor.Add(first_floor);
@@ -49,11 +49,11 @@ public class GridCheck
             bool placed = false;
             for (int i = 0; i < 4; i++)
             {
-                int[] pos = CheckDir(checked_floor[checked_floor.Count - 1], dir);
+                Pos pos = CheckDir(checked_floor[checked_floor.Count - 1], dir);
                 // If direction is free, add to checked list and set grid position to 0
-                if (pos[0] != 0 && pos[1] != 0)
+                if (!pos.empty)
                 {
-                    grid[pos[0], pos[1]] = 0;
+                    grid[pos.x, pos.y] = 0;
                     checked_floor.Add(pos);
                     num_checked++;
                     placed = true;
@@ -85,13 +85,13 @@ public class GridCheck
         return (num_checked == num_floors);
     }
 
-    private int[] CheckDir(int[] pos, Direction dir)
+    private Pos CheckDir(Pos pos, Direction dir)
     {
-        if (dir == Direction.N && grid[pos[0], pos[1] + 1] == 1) return new int[2] { pos[0], pos[1] + 1 };
-        if (dir == Direction.E && grid[pos[0] + 1, pos[1]] == 1) return new int[2] { pos[0] + 1, pos[1] };
-        if (dir == Direction.S && grid[pos[0], pos[1] - 1] == 1) return new int[2] { pos[0], pos[1] - 1 };
-        if (dir == Direction.W && grid[pos[0] - 1, pos[1]] == 1) return new int[2] { pos[0] - 1, pos[1] };
-        return new int[2] { 0, 0 };
+        if (dir == Direction.N && grid[pos.x, pos.y + 1] == 1) return new Pos { x = pos.x, y = pos.y + 1 };
+        if (dir == Direction.E && grid[pos.x + 1, pos.y] == 1) return new Pos { x = pos.x + 1, y = pos.y };
+        if (dir == Direction.S && grid[pos.x, pos.y - 1] == 1) return new Pos { x = pos.x, y = pos.y - 1 };
+        if (dir == Direction.W && grid[pos.x - 1, pos.y] == 1) return new Pos { x = pos.x - 1, y = pos.y };
+        return new Pos { empty = true };
     }
 
     public int[,] FillGaps()

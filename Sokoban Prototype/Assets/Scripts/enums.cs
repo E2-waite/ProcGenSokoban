@@ -1,6 +1,11 @@
 ﻿namespace enums
 {
-
+    public class Pos
+    {
+        public int x;
+        public int y;
+        public bool empty = false;
+    }
 
     public enum TILE : int 
     { 

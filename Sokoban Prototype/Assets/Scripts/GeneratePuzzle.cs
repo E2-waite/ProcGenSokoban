@@ -7,8 +7,8 @@ public class GeneratePuzzle : MonoBehaviour
     public int num_boxes = 3, min_steps = 8, max_attempts = 10;
     int[,] empty_grid;
     int attempts = 0;
-    List<int[]> button_positions;
-    List<int[]> box_positions;
+    List<Pos> button_positions;
+    List<Pos> box_positions;
     public void Generate(int[,] grid)
     {
         attempts = 0;
@@ -26,16 +26,16 @@ public class GeneratePuzzle : MonoBehaviour
             return;
         }
 
-        button_positions = new List<int[]>();
+        button_positions = new List<Pos>();
         // Place buttons in valid floor tile positions
         while (button_positions.Count < num_boxes)
         {
-            int x = Random.Range(1, grid.GetLength(0) - 1);
-            int y = Random.Range(1, grid.GetLength(1) - 1);
-            if (grid[x,y] == (int)Elements.floor)
+            int x_pos = Random.Range(1, grid.GetLength(0) - 1);
+            int y_pos = Random.Range(1, grid.GetLength(1) - 1);
+            if (grid[x_pos, y_pos] == (int)Elements.floor)
             {
-                grid[x, y] += (int)Elements.button;
-                button_positions.Add(new int[2] { x, y });
+                grid[x_pos, y_pos] += (int)Elements.button;
+                button_positions.Add(new Pos { x = x_pos, y = y_pos });
             }
         }
         Debug.Log("Buttons Placed");
@@ -45,14 +45,14 @@ public class GeneratePuzzle : MonoBehaviour
     
     private IEnumerator PlaceBoxes(int[,] grid)
     {
-        box_positions = new List<int[]>();
+        box_positions = new List<Pos>();
         int box = 0;
         Direction dir = Direction.N;
         // Continue looping until the required number of boxes are placed
         while (box_positions.Count < num_boxes)
         {
             int num_fails = 0;
-            List<int[]> stepped_positions = new List<int[]>();
+            List<Pos> stepped_positions = new List<Pos>();
             stepped_positions.Add(button_positions[box]);
             // Continue looping until box position is far enough away
             while (stepped_positions.Count < min_steps)
@@ -63,15 +63,15 @@ public class GeneratePuzzle : MonoBehaviour
                 for (int i = 0; i < 4; i++)
                 {
                     // Debug.Log("STEPPED COUNT " + stepped_positions.Count.ToString());
-                    int[] checked_pos = CheckDir(dir, grid, stepped_positions[stepped_positions.Count - 1]);
+                    Pos checked_pos = CheckDir(dir, grid, stepped_positions[stepped_positions.Count - 1]);
                     // Check if CheckDir function passed (valid floor tile)
-                    if (checked_pos[0] != 0 && checked_pos[1] != 0)
+                    if (!checked_pos.empty)
                     {
                         // Check if the desired position has already been stepped on (if it has check another direction)
                         bool stepped_before = false;
                         for (int j = 0; j < stepped_positions.Count; j++)
                         {
-                            if (checked_pos[0] == stepped_positions[j][0] && checked_pos[1] == stepped_positions[j][1])
+                            if (checked_pos.x == stepped_positions[j].x && checked_pos.y == stepped_positions[j].y)
                             {
                                 stepped_before = true;
                                 break;
@@ -110,7 +110,7 @@ public class GeneratePuzzle : MonoBehaviour
 
             // Once final position is found, add box position
             box++;
-            grid[stepped_positions[stepped_positions.Count - 1][0], stepped_positions[stepped_positions.Count - 1][1]] += (int)Elements.box;
+            grid[stepped_positions[stepped_positions.Count - 1].x, stepped_positions[stepped_positions.Count - 1].y] += (int)Elements.box;
             box_positions.Add(stepped_positions[stepped_positions.Count - 1]);
            
         }
@@ -122,59 +122,59 @@ public class GeneratePuzzle : MonoBehaviour
 
     void PlacePlayer(Direction dir, int[,]grid)
     {
-        int[] player_pos = new int[2];
+        Pos player_pos = new Pos();
         //Spawns the player next to the last placed box
 
         if (dir == Direction.N)
         {
-            player_pos[0] = box_positions[box_positions.Count - 1][0];
-            player_pos[1] = box_positions[box_positions.Count - 1][1] + 1;
+            player_pos.x = box_positions[box_positions.Count - 1].x;
+            player_pos.y = box_positions[box_positions.Count - 1].y + 1;
         }
         if (dir == Direction.E)
         {
-            player_pos[0] = box_positions[box_positions.Count - 1][0] + 1;
-            player_pos[1] = box_positions[box_positions.Count - 1][1];
+            player_pos.x = box_positions[box_positions.Count - 1].x + 1;
+            player_pos.y = box_positions[box_positions.Count - 1].y;
         }
         if (dir == Direction.S)
         {
-            player_pos[0] = box_positions[box_positions.Count - 1][0];
-            player_pos[1] = box_positions[box_positions.Count - 1][1] - 1;
+            player_pos.x = box_positions[box_positions.Count - 1].x;
+            player_pos.y = box_positions[box_positions.Count - 1].y - 1;
         }
         if (dir == Direction.W)
         {
-            player_pos[0] = box_positions[box_positions.Count - 1][0] - 1;
-            player_pos[1] = box_positions[box_positions.Count - 1][1];
+            player_pos.x = box_positions[box_positions.Count - 1].x - 1;
+            player_pos.y = box_positions[box_positions.Count - 1].y;
         }
 
-        grid[player_pos[0], player_pos[1]] += (int)Elements.player;
+        grid[player_pos.x, player_pos.y] += (int)Elements.player;
 
         GetComponent<GenerateObjects>().Generate(grid);
     }
 
     private Direction RandomDir() { return (Direction)Random.Range(0, 4); }
-    private int[] CheckDir(Direction dir, int[,] grid, int[] pos)
+    private Pos CheckDir(Direction dir, int[,] grid, Pos pos)
     {
         // Checks if tile in direction is empty floor
-        if (dir == Direction.N && grid[pos[0], pos[1] + 1] == (int)Elements.floor &&
-            grid[pos[0], pos[1] + 2] == (int)Elements.floor)
+        if (dir == Direction.N && grid[pos.x, pos.y + 1] == (int)Elements.floor &&
+            grid[pos.x, pos.y + 2] == (int)Elements.floor)
         {
-            return new int[2] { pos[0], pos[1] + 1 };
+            return new Pos { x = pos.x, y = pos.y + 1 };
         }
-        if (dir == Direction.E && grid[pos[0] + 1, pos[1]] == (int)Elements.floor && 
-            grid[pos[0] + 2, pos[1]] == (int)Elements.floor)
+        if (dir == Direction.E && grid[pos.x + 1, pos.y] == (int)Elements.floor && 
+            grid[pos.x + 2, pos.y] == (int)Elements.floor)
         {
-            return new int[2] { pos[0] + 1, pos[1] };
+            return new Pos { x = pos.x + 1, y = pos.y };
         }
-        if (dir == Direction.S && grid[pos[0], pos[1] - 1] == (int)Elements.floor && 
-            grid[pos[0], pos[1] - 2] == (int)Elements.floor)
+        if (dir == Direction.S && grid[pos.x, pos.y - 1] == (int)Elements.floor && 
+            grid[pos.x, pos.y - 2] == (int)Elements.floor)
         {
-            return new int[2] { pos[0], pos[1] - 1 };
+            return new Pos { x = pos.x, y = pos.y - 1 };
         }
-        if (dir == Direction.W && grid[pos[0] - 1, pos[1]] == (int)Elements.floor && 
-            grid[pos[0] - 2, pos[1]] == (int)Elements.floor)
+        if (dir == Direction.W && grid[pos.x - 1, pos.y] == (int)Elements.floor && 
+            grid[pos.x - 2, pos.y] == (int)Elements.floor)
         {
-            return new int[2] { pos[0] - 1, pos[1] };
+            return new Pos { x = pos.x - 1, y = pos.y };
         }
-        return new int[2] { 0, 0 };
+        return new Pos { empty = true };
     }
 }
