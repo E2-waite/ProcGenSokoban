@@ -16,7 +16,8 @@
         N,
         E,
         S,
-        W
+        W,
+        None
     }
 
     public enum Elements : int
@@ -26,6 +27,8 @@
         wall = 2,
         player = 4,
         box = 8,
-        button = 16
+        button = 16,
+        entrance = 32,
+        exit = 64
     }
 }

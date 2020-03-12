@@ -11,7 +11,10 @@ public class GridCheck
     {
         grid = check_grid;
     }
+    public GridCheck()
+    {
 
+    }
     public bool FloorCount()
     {
         for (int y = 0; y < grid.GetLength(1); y++)

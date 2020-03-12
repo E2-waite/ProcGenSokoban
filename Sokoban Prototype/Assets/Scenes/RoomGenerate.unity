@@ -203,6 +203,10 @@ MonoBehaviour:
     type: 3}
   button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
     type: 3}
+  entrance_prefab: {fileID: 7128332734857414354, guid: 98832b0a5f180f84da93a57c6602cf8b,
+    type: 3}
+  exit_prefab: {fileID: 6172572861218704768, guid: 6e2b1530ab9088c46a944ecf47c1f945,
+    type: 3}
 --- !u!114 &318576930
 MonoBehaviour:
   m_ObjectHideFlags: 0

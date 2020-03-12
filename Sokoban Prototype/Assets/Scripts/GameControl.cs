@@ -11,6 +11,8 @@ public class GameControl : MonoBehaviour
     
     public void StartGame(int[,] i_grid, GameObject[,] o_grid, int boxes)
     {
+        Debug.Log("GAME STARTED, Num Boxes: " + boxes.ToString());
+        game_won = false;
         grid = i_grid;
         object_grid = o_grid;
         num_boxes = boxes;
@@ -36,6 +38,8 @@ public class GameControl : MonoBehaviour
         {
             Debug.Log("GAME WON");
             game_won = true;
+            GetComponent<GenerateGrid>().Restart();
+
         }
         else
         {

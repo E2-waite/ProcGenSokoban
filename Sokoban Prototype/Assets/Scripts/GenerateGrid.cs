@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using enums;
 public class GenerateGrid : MonoBehaviour
 {
     public int size_x = 3, size_y = 3;
     int grid_x = 0, grid_y = 0, num_templates;
-
+    Direction entrance_edge = Direction.None, exit_edge = Direction.None;
 
     private void Update()
     {
@@ -19,11 +19,19 @@ public class GenerateGrid : MonoBehaviour
         grid_x = (size_x * 3) + 2;
         grid_y = (size_y * 3) + 2;
         num_templates = size_x * size_y;
-        StartCoroutine(CombineTemplates());
+        StartGenerating(Direction.S, Direction.E);
     }
 
     public void Restart()
     {
+        // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
+        StartCoroutine(CombineTemplates());
+    }
+
+    public void StartGenerating(Direction entrance, Direction exit)
+    {
+        entrance_edge = entrance;
+        exit_edge = exit;
         StartCoroutine(CombineTemplates());
     }
 
@@ -112,16 +120,78 @@ public class GenerateGrid : MonoBehaviour
             if (check.ContinuousFloor(check.num_floors))
             {
                 // If all checks are passed continue to next step
-                GetComponent<GeneratePuzzle>().Generate(check.FillGaps());
+                PlaceDoorways(check.FillGaps());
             }
             else
             {
-                StartCoroutine(CombineTemplates());
+                Restart();
             }
         }
         else
         {
-            StartCoroutine(CombineTemplates());
+            Restart();
         }
+    }
+
+    private void PlaceDoorways(int[,] grid)
+    {
+        if (PlaceDoorway(entrance_edge, Elements.entrance, grid) && PlaceDoorway(exit_edge, Elements.exit, grid))
+        {
+            GetComponent<GeneratePuzzle>().Generate(grid);
+        }
+        else
+        {
+            Debug.Log("Failed Door Placement (Wall Blocking Door)");
+            Restart();
+        }
+    }
+
+    bool PlaceDoorway(Direction edge, Elements type, int[,] grid)
+    {
+        switch (edge)
+        {
+            case Direction.N:
+                {
+                    int x = (int)(grid.GetLength(0) / 2), y = grid.GetLength(1) - 1;
+                    grid[x, y] = (int)type;
+                    if (grid[x, y - 1] == (int)Elements.wall)
+                    {
+                        return false;
+                    }
+                    break;
+                }
+            case Direction.E:
+                {
+                    int x = grid.GetLength(0) - 1, y = (int)(grid.GetLength(1) / 2);
+                    grid[x, y] = (int)type;
+                    if (grid[x - 1, y] == (int)Elements.wall)
+                    {
+                        return false;
+                    }
+                    break;
+                }
+            case Direction.S:
+                {
+                    int x = (int)(grid.GetLength(0) / 2), y = 0;
+                    grid[x, y] = (int)type;
+                    if (grid[x, y + 1] == (int)Elements.wall)
+                    {
+                        return false;
+                    }
+                    break;
+                }
+            case Direction.W:
+                {
+                    int x = 0, y = (int)(grid.GetLength(1) / 2);
+                    grid[x, y] = (int)type;
+                    if (grid[x + 1, y] == (int)Elements.wall)
+                    {
+                        return false;
+                    }
+                    break;
+                }
+        }
+
+        return true;
     }
 }
