@@ -1,10 +1,18 @@
-﻿namespace enums
+﻿using System.Collections;
+using System.Collections.Generic;
+namespace enums
 {
     public class Pos
     {
         public int x;
         public int y;
         public bool empty = false;
+    }
+
+    public class Template
+    {
+        public int[,] template;
+        public List<int>[] compatible = new List<int>[4];
     }
 
     public enum TILE : int 

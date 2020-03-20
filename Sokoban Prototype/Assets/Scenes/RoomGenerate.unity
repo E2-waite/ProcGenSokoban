@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   num_boxes: 3
-  min_steps: 5
+  min_steps: 8
   max_attempts: 10
 --- !u!114 &318576931
 MonoBehaviour:

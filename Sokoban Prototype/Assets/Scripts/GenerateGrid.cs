@@ -44,7 +44,7 @@ public class GenerateGrid : MonoBehaviour
         {
             temp_grid = grid;
             // Gets random template from list of templates
-            int[,] template = GetComponent<Templates>().GetRoomTemplate(Random.Range(0, 17));
+            int[,] template = GetComponent<Templates>().templates[(Random.Range(0, 17))].template;
 
             ManipulateTemp manipulate = new ManipulateTemp();
 

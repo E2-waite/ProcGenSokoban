@@ -1,33 +1,201 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using enums;
 public partial class Templates : MonoBehaviour
 {
-    List<int[,]> room_templates = new List<int[,]>()
+    public List<Template> templates = new List<Template>()
     {
-        room_template_1,
-        room_template_2,
-        room_template_3,
-        room_template_4,
-        room_template_5,
-        room_template_6,
-        room_template_7,
-        room_template_8,
-        room_template_9,
-        room_template_10,
-        room_template_11,
-        room_template_12,
-        room_template_13,
-        room_template_14,
-        room_template_15,
-        room_template_16,
-        room_template_17
+        new Template // 0
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,1,1,1,0},
+                {0,1,1,1,0},
+                {0,1,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 1
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,1,1,0},
+                {0,1,1,1,0},
+                {0,1,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 2
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,1,1},
+                {0,2,2,1,1},
+                {0,1,1,1,0},
+                {0,1,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 3
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {0,1,1,1,0},
+                {0,1,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 4
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {0,2,1,1,0},
+                {0,2,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 5
+        {
+            template = new int[5,5]
+            {
+                {0,0,1,0,0},
+                {0,2,1,1,0},
+                {1,1,1,1,0},
+                {0,1,1,2,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 6
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,1,1,0},
+                {1,1,1,1,0},
+                {0,2,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 7
+        {
+            template = new int[5,5]
+            {
+                {0,0,1,0,0},
+                {0,2,1,1,0},
+                {1,1,1,1,0},
+                {0,2,1,2,0},
+                {0,0,1,0,0}
+            }
+        },
+        new Template // 8
+        {
+            template = new int[5,5]
+            {
+                {0,0,1,0,0},
+                {0,2,1,2,0},
+                {1,1,1,1,1},
+                {0,2,1,2,0},
+                {0,0,1,0,0}
+            }
+        },
+        new Template // 9
+        {
+            template = new int[5,5]
+            {
+                {0,0,1,0,0},
+                {0,2,1,2,0},
+                {0,2,1,1,1},
+                {0,2,2,2,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 10
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {1,1,1,1,1},
+                {0,2,2,2,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 11
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,1,1,1,1},
+                {0,1,2,1,1},
+                {0,1,1,1,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 12
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {0,2,2,2,0},
+                {0,2,2,2,0},
+                {0,0,0,0,0}
+            }
+        },
+        new Template // 13
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {0,2,1,1,0},
+                {1,1,1,1,0},
+                {1,1,0,0,0}
+            }
+        },
+        new Template // 14
+        {
+            template = new int[5,5]
+            {
+                {0,1,0,1,0},
+                {0,1,1,1,0},
+                {0,2,1,2,0},
+                {0,1,1,1,0},
+                {0,1,0,1,0}
+            }
+        },
+        new Template // 15
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {0,2,2,2,0},
+                {0,1,1,1,0},
+                {0,1,1,1,0}
+            }
+        },
+        new Template // 16
+        {
+            template = new int[5,5]
+            {
+                {0,0,0,0,0},
+                {0,2,2,2,0},
+                {1,1,2,1,1},
+                {0,1,1,1,0},
+                {0,1,1,0,0}
+            }
+        },
     };
-    public int[,] GetRoomTemplate(int temp_num)
-    {
-        return room_templates[temp_num];
-    }
+
+
 
     List<int[,]> hall_templates = new List<int[,]>()
     {
@@ -41,143 +209,45 @@ public partial class Templates : MonoBehaviour
         return hall_templates[temp_num];
     }
 
-
-    static int[,] room_template_1 = new int[,]
-    {
-        {0,0,0,0,0},
-        {0,1,1,1,0},
-        {0,1,1,1,0},
-        {0,1,1,1,0},
-        {0,0,0,0,0}
-    };
-    static int[,] room_template_2 = new int[,]
-    {
-        {0,0,0,0,0},
-        {0,2,1,1,0},
-        {0,1,1,1,0},
-        {0,1,1,1,0},
-        {0,0,0,0,0}
-    };
-    static int[,] room_template_3 = new int[,]
-    {
-        {0,0,0,1,1},
-        {0,2,2,1,1},
-        {0,1,1,1,0},
-        {0,1,1,1,0},
-        {0,0,0,0,0}
-    };
-    static int[,] room_template_4 = new int[,]
-    {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {0,1,1,1,0},
-        {0,1,1,1,0},
-        {0,0,0,0,0}
-    };
-
-    static int[,] room_template_5 = new int[,]
-    {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {0,2,1,1,0},
-        {0,2,1,1,0},
-        {0,0,0,0,0}
-    };
-    static int[,] room_template_6 = new int[,]
-    {
-        {0,0,1,0,0},
-        {0,2,1,1,0},
-        {1,1,1,1,0},
-        {0,1,1,2,0},
-        {0,0,0,0,0}
-    };
-    static int[,] room_template_7 = new int[,]
-    {
-        {0,0,0,0,0},
-        {0,2,1,1,0},
-        {1,1,1,1,0},
-        {0,2,1,1,0},
-        {0,0,0,0,0}
-    };
     static int[,] room_template_8 = new int[,]
     {
-        {0,0,1,0,0},
-        {0,2,1,1,0},
-        {1,1,1,1,0},
-        {0,2,1,2,0},
-        {0,0,1,0,0}
+        
     };
     static int[,] room_template_9 = new int[,]
     {
-        {0,0,1,0,0},
-        {0,2,1,2,0},
-        {1,1,1,1,1},
-        {0,2,1,2,0},
-        {0,0,1,0,0}
+        
     };
     static int[,] room_template_10 = new int[,]
     {
-        {0,0,1,0,0},
-        {0,2,1,2,0},
-        {0,2,1,1,1},
-        {0,2,2,2,0},
-        {0,0,0,0,0}
+        
     };
     static int[,] room_template_11 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {1,1,1,1,1},
-        {0,2,2,2,0},
-        {0,0,0,0,0}
+        
     };
     static int[,] room_template_12 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,1,1,1,1},
-        {0,1,2,1,1},
-        {0,1,1,1,0},
-        {0,0,0,0,0}
+        
     };
     static int[,] room_template_13 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {0,2,2,2,0},
-        {0,2,2,2,0},
-        {0,0,0,0,0}
+        
     };
     static int[,] room_template_14 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {0,2,1,1,0},
-        {1,1,1,1,0},
-        {1,1,0,0,0}
+        
     };
     static int[,] room_template_15 = new int[,]
     {
-        {0,1,0,1,0},
-        {0,1,1,1,0},
-        {0,2,1,2,0},
-        {0,1,1,1,0},
-        {0,1,0,1,0}
+        
     };
     static int[,] room_template_16 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {0,2,2,2,0},
-        {0,1,1,1,0},
-        {0,1,1,1,0}
+        
     };
     static int[,] room_template_17 = new int[,]
     {
-        {0,0,0,0,0},
-        {0,2,2,2,0},
-        {1,1,2,1,1},
-        {0,1,1,1,0},
-        {0,1,1,0,0}
+        
     };
 
     //Hallway Templates:
