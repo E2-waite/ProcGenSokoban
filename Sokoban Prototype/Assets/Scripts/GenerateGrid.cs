@@ -24,7 +24,6 @@ public class GenerateGrid : MonoBehaviour
 
     public void Restart()
     {
-        Debug.Log("NEW ROOM");
         // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
         StartCoroutine(CombineTemplates());
     }
@@ -118,7 +117,7 @@ public class GenerateGrid : MonoBehaviour
         // If all checks are passed continue to next step, otherwise combine templates into new grid
         if (check.FloorCount())
         {
-            if (check.ContinuousFloor(check.num_floors))
+            if (check.ContinuousFloor())
             {
                 // If all checks are passed continue to next step
                 PlaceDoorways(check.FillGaps());

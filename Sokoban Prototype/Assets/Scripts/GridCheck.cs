@@ -21,7 +21,7 @@ public class GridCheck
         {
             for (int x = 0; x < grid.GetLength(0); x++)
             {
-                if (grid[x, y] == 1)
+                if (grid[x, y] == (int)Elements.floor || grid[x,y] == (int)Elements.floor + (int)Elements.button)
                 {
                     if (num_floors == 0)
                     {
@@ -36,7 +36,7 @@ public class GridCheck
         return (num_floors > (grid.GetLength(0) * grid.GetLength(1)) / 4);
     }
 
-    public bool ContinuousFloor(int num_floors)
+    public bool ContinuousFloor()
     {
         List<Pos> checked_floor = new List<Pos>();
         Direction dir = Direction.E;
@@ -87,10 +87,14 @@ public class GridCheck
 
     private Pos CheckDir(Pos pos, Direction dir)
     {
-        if (dir == Direction.N && grid[pos.x, pos.y + 1] == 1) return new Pos { x = pos.x, y = pos.y + 1 };
-        if (dir == Direction.E && grid[pos.x + 1, pos.y] == 1) return new Pos { x = pos.x + 1, y = pos.y };
-        if (dir == Direction.S && grid[pos.x, pos.y - 1] == 1) return new Pos { x = pos.x, y = pos.y - 1 };
-        if (dir == Direction.W && grid[pos.x - 1, pos.y] == 1) return new Pos { x = pos.x - 1, y = pos.y };
+        if (dir == Direction.N && (grid[pos.x, pos.y + 1] == (int)Elements.floor || 
+            grid[pos.x, pos.y + 1] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x, y = pos.y + 1 };
+        if (dir == Direction.E && (grid[pos.x + 1, pos.y] == (int)Elements.floor || 
+            grid[pos.x + 1, pos.y] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x + 1, y = pos.y };
+        if (dir == Direction.S && (grid[pos.x, pos.y - 1] == (int)Elements.floor || 
+            grid[pos.x, pos.y - 1] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x, y = pos.y - 1 };
+        if (dir == Direction.W && (grid[pos.x - 1, pos.y] == (int)Elements.floor || 
+            grid[pos.x - 1, pos.y] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x - 1, y = pos.y };
         return new Pos { empty = true };
     }
 

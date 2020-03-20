@@ -78,6 +78,10 @@ public class GenerateObjects : MonoBehaviour
                     object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x, 0, y), Quaternion.identity);
                     exit_pos = new Pos { x = x, y = y };
                 }
+                else
+                {
+                    Debug.Log("WAS " + grid[x,y].ToString());
+                }
             }
         }
 
