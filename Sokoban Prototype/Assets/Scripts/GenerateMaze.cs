@@ -31,6 +31,7 @@ public class GenerateMaze : MonoBehaviour
     IEnumerator StepForward(int x, int y, Direction dir)
     {
         // Adds grid tile to checked tiles list, then check adjascent tiles for clear space
+        Debug.Log(x.ToString() + y.ToString());
         grid[x, y] = new Cell(x,y, dir);
         checked_cells.Add(grid[x, y]);
         dir = RandomDir();
@@ -40,7 +41,7 @@ public class GenerateMaze : MonoBehaviour
             if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y))
             {
                 // If space is clear, continue to next step
-                grid[x, y].ClearWall(dir);
+                grid[x, y].exits.Add(dir);
                 StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
                 yield break;
             }
@@ -59,7 +60,7 @@ public class GenerateMaze : MonoBehaviour
         checked_cells.Remove(checked_cells[checked_cells.Count - 1]);
         Cell curr_cell = checked_cells[checked_cells.Count - 1];
 
-        int x = curr_cell.GetX(), y = curr_cell.GetY();
+        int x = curr_cell.GetPos().x, y = curr_cell.GetPos().y;
         Direction dir = RandomDir();
         for (int i = 0; i < 4; i++)
         {
@@ -67,7 +68,6 @@ public class GenerateMaze : MonoBehaviour
             if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y))
             {
                 // Check adjacent tiles to cell at top of checked list, move in new direction if space is clear (Junction)
-                grid[x, y].ClearWall(dir);
                 junctions++;
                 StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
                 yield break;
@@ -113,24 +113,13 @@ public class GenerateMaze : MonoBehaviour
             }
         }
         Debug.Log("FILLED");
-        InstantiateMaze();
+
+        GetComponent<GenerateLevel>().Generate(grid);
         return true;
     }
 
     Direction RandomDir()
     {
         return (Direction)Random.Range(0, 4);
-    }
-
-    void InstantiateMaze()
-    {
-        for (int x = 0; x < (int)size.x; x++)
-        {
-            for (int y = 0; y < (int)size.y; y++)
-            {
-                GameObject tile = Instantiate(tile_prefab, new Vector3(x, 0, y), Quaternion.identity);
-                tile.GetComponent<RenderWall>().EnableWalls(grid[x, y].GetWalls());
-            }
-        }
     }
 }

@@ -1,19 +1,18 @@
-﻿using enums;
+﻿using System.Collections;
+using System.Collections.Generic;
+using enums;
 public class Cell
 {
-    readonly bool[] walls = new bool[4] { true, true, true, true };
-    readonly  int x_pos, y_pos;
+    readonly  Pos pos;
+    public Direction entrance;
+    public List<Direction> exits = new List<Direction>();
     public Cell(int x, int y, Direction dir)
     {
-        x_pos = x;
-        y_pos = y;
-        if (dir == Direction.N) walls[(int)Direction.S] = false;
-        if (dir == Direction.E) walls[(int)Direction.W] = false;
-        if (dir == Direction.S) walls[(int)Direction.N] = false;
-        if (dir == Direction.W) walls[(int)Direction.E] = false;
+        pos = new Pos { x = x, y = y };
+        if (dir == Direction.N) entrance = Direction.S;
+        if (dir == Direction.E) entrance = Direction.W;
+        if (dir == Direction.S) entrance = Direction.N;
+        if (dir == Direction.W) entrance = Direction.E;
     }
-    public int GetX() { return x_pos; }
-    public int GetY() { return y_pos; }
-    public void ClearWall(Direction dir) => walls[(int)dir] = false;
-    public bool[]GetWalls() { return walls; }
+    public Pos GetPos() { return pos; }
 }

@@ -1,7 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 namespace enums
 {
+    public class Room
+    {
+        public GameObject room_object;
+        public int[,] grid;
+        public GameObject[,] object_grid;
+        public int offset_x, offset_y;
+        public int num_templates, size_x = 3, size_y = 3, grid_x = 0, grid_y = 0;
+    }
+
     public class Pos
     {
         public int x;

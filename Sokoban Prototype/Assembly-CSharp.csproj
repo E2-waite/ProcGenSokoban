@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\FindPath.cs" />
     <Compile Include="Assets\Scripts\GameControl.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
+    <Compile Include="Assets\Scripts\GenerateLevel.cs" />
     <Compile Include="Assets\Scripts\GenerateMaze.cs" />
     <Compile Include="Assets\Scripts\GenerateObjects.cs" />
     <Compile Include="Assets\Scripts\GeneratePuzzle.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\RenderWall.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
+    <None Include="Assets\GenerationTime.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Files/University Work/Year 3/CTP/ProcGenSokoban/Sokoban Prototype/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

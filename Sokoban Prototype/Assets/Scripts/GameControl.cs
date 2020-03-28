@@ -1,25 +1,55 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+using System.IO;
 using enums;
 public class GameControl : MonoBehaviour
 {
-    public bool game_won = false;
+    public bool game_won = false, game_started = false;
+    public float seconds = 0;
+    bool time_written = false;
     int[,] grid;
     public GameObject[,] object_grid;
     int num_boxes;
-    
-    public void StartGame(int[,] i_grid, GameObject[,] o_grid, int boxes)
+    float time = 0;
+    private void Update()
+    {
+        if (!game_started)
+        {
+            time += Time.deltaTime;
+            seconds = time % 60;
+        }
+        else
+        {
+            if (!time_written)
+            {
+                time_written = true;
+                WriteTime();
+            }
+        }
+    }
+
+    void WriteTime()
+    {
+        Debug.Log("Writing time");
+        StreamWriter writer = new StreamWriter("Assets/GenerationTime.txt", true);
+        writer.WriteLine(seconds.ToString());
+        writer.Close();
+    }
+
+    public void StartGame(Room room, int boxes)
     {
         Debug.Log("GAME STARTED, Num Boxes: " + boxes.ToString());
         game_won = false;
-        grid = i_grid;
-        object_grid = o_grid;
+        game_started = true;
+        grid = room.grid;
+        object_grid = room.object_grid;
         num_boxes = boxes;
-        StartCoroutine(CheckWin());
+        StartCoroutine(CheckWin(room));
     }
 
-    IEnumerator CheckWin()
+    IEnumerator CheckWin(Room room)
     {
         int buttons_pressed = 0;
         for (int y = 0; y < grid.GetLength(1); y++)
@@ -38,13 +68,13 @@ public class GameControl : MonoBehaviour
         {
             Debug.Log("GAME WON");
             game_won = true;
-            GetComponent<GenerateGrid>().Restart();
+            GetComponent<GenerateGrid>().Restart(room);
 
         }
         else
         {
             game_won = false;
-            StartCoroutine(CheckWin());
+            StartCoroutine(CheckWin(room));
         }
     }
 
