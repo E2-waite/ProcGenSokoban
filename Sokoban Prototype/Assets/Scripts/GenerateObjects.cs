@@ -81,9 +81,9 @@ public class GenerateObjects : MonoBehaviour
             }
         }
 
+        room.generated = true;
+        GetComponent<CheckRoom>().StartChecking(room);
         StartCoroutine(CheckPath(room, entrance_pos, exit_pos));
-
-        GetComponent<GameControl>().StartGame(room, boxes.Count);
     }
 
     IEnumerator CheckPath(Room room, Pos entrance_pos, Pos exit_pos)

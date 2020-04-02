@@ -14,6 +14,7 @@ public class GenerateMaze : MonoBehaviour
         grid = new Cell[(int)size.x, (int)size.y];
         StartCoroutine(LoopCheck());
         StartCoroutine(StepForward(0, 2, Direction.E));
+
     }
 
     IEnumerator LoopCheck()
@@ -31,9 +32,13 @@ public class GenerateMaze : MonoBehaviour
     IEnumerator StepForward(int x, int y, Direction dir)
     {
         // Adds grid tile to checked tiles list, then check adjascent tiles for clear space
-        Debug.Log(x.ToString() + y.ToString());
         grid[x, y] = new Cell(x,y, dir);
         checked_cells.Add(grid[x, y]);
+        if (checked_cells.Count == 1)
+        {
+            checked_cells[0].first_room = true;
+        }
+
         dir = RandomDir();
         for (int i = 0; i < 4; i++)
         {

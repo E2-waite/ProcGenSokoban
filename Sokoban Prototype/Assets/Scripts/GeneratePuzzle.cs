@@ -13,6 +13,7 @@ public class GeneratePuzzle : MonoBehaviour
     {
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
+        room.num_boxes = num_boxes;
         PlaceButtons(room);
     }
 
@@ -35,7 +36,6 @@ public class GeneratePuzzle : MonoBehaviour
                 button_positions.Add(new Pos { x = x_pos, y = y_pos });
             }
         }
-        Debug.Log("Buttons Placed");
         box_positions = new List<Pos>();
         BoxPlace(room);
         attempts++;
@@ -63,7 +63,14 @@ public class GeneratePuzzle : MonoBehaviour
                 {
                     room.grid[button_positions[i].x, button_positions[i].y] = (int)Elements.floor + (int)Elements.button;
                 }
-                GetComponent<GenerateObjects>().Generate(room);
+                if (room.first)
+                {
+                    PlacePlayer(room);
+                }
+                else
+                {
+                    GetComponent<GenerateObjects>().Generate(room);
+                }
             }
             else
             {
@@ -78,6 +85,42 @@ public class GeneratePuzzle : MonoBehaviour
             deepest_node = current_node;
             StartCoroutine(CheckNode(current_node, room));
         }
+    }
+
+    void PlacePlayer(Room room)
+    {
+        Pos entrance_pos = new Pos();
+
+        for (int y = 0; y < room.grid.GetLength(1); y++)
+        {
+            for (int x = 0; x < room.grid.GetLength(0); x++)
+            {
+                if (room.grid[x,y] == (int)Elements.entrance)
+                {
+                    entrance_pos = new Pos { x = x, y = y };
+                    break;
+                }
+            }
+        }
+
+        if (room.entrance == Direction.N)
+        {
+            room.grid[entrance_pos.x, entrance_pos.y - 1] += (int)Elements.player;
+        }
+        if (room.entrance == Direction.E)
+        {
+            room.grid[entrance_pos.x - 1, entrance_pos.y] += (int)Elements.player;
+        }
+        if (room.entrance == Direction.S)
+        {
+            room.grid[entrance_pos.x, entrance_pos.y + 1] += (int)Elements.player;
+        }
+        if (room.entrance == Direction.W)
+        {
+            room.grid[entrance_pos.x + 1, entrance_pos.y] += (int)Elements.player;
+        }
+
+        GetComponent<GenerateObjects>().Generate(room);
     }
 
     Node deepest_node;
@@ -145,11 +188,9 @@ public class GeneratePuzzle : MonoBehaviour
 
         if (current_node.children.Count == 0 || num_complete == current_node.children.Count)
         {
-            Debug.Log("REACHED END");
             // If reached end of branch (can't go further) check if enough steps have been made in deepest nod, if they have place box and continue to next
             if (deepest_node.stepped.Count >= min_steps)
             {
-                Debug.Log("BOX PLACED");
                 room.grid[current_node.pos.x, current_node.pos.y] += (int)Elements.box;
                 box_positions.Add(current_node.pos);
                 BoxPlace(room);
@@ -158,12 +199,10 @@ public class GeneratePuzzle : MonoBehaviour
             {
                 if (current_node.stepped.Count > 1)
                 {
-                    Debug.Log("STEPPING BACK");
                     StartCoroutine(CheckNode(current_node.stepped[current_node.stepped.Count - 2], room));
                 }
                 else
                 {
-                    Debug.Log("RESTARTING");
                     room.grid = empty_grid;
                     PlaceButtons(room);
                 }
@@ -175,38 +214,6 @@ public class GeneratePuzzle : MonoBehaviour
     {
         StopAllCoroutines();
         GetComponent<GenerateGrid>().Restart(room);
-    }
-
-    void PlacePlayer(Direction dir, Room room)
-    {
-        Pos player_pos = new Pos();
-        //Spawns the player next to the last placed box
-
-        if (dir == Direction.N)
-        {
-            player_pos.x = box_positions[box_positions.Count - 1].x;
-            player_pos.y = box_positions[box_positions.Count - 1].y + 1;
-        }
-        if (dir == Direction.E)
-        {
-            player_pos.x = box_positions[box_positions.Count - 1].x + 1;
-            player_pos.y = box_positions[box_positions.Count - 1].y;
-        }
-        if (dir == Direction.S)
-        {
-            player_pos.x = box_positions[box_positions.Count - 1].x;
-            player_pos.y = box_positions[box_positions.Count - 1].y - 1;
-        }
-        if (dir == Direction.W)
-        {
-            player_pos.x = box_positions[box_positions.Count - 1].x - 1;
-            player_pos.y = box_positions[box_positions.Count - 1].y;
-        }
-
-        room.grid[player_pos.x, player_pos.y] += (int)Elements.player;
-
-
-        GetComponent<GenerateObjects>().Generate(room);
     }
 
     private Direction RandomDir() { return (Direction)Random.Range(0, 4); }

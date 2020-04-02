@@ -4,8 +4,6 @@ using UnityEngine;
 using enums;
 public class GenerateGrid : MonoBehaviour
 {
-    Direction entrance_edge = Direction.None;
-    List<Direction> exit_edges = new List<Direction>();
     private void Update()
     {
         if (Input.GetKeyUp("escape")) Application.Quit();
@@ -24,8 +22,9 @@ public class GenerateGrid : MonoBehaviour
 
     public void StartGenerating(Cell cell, Room room)
     {
-        entrance_edge = cell.entrance;
-        exit_edges = cell.exits;
+        room.generated = false;
+        room.entrance = cell.entrance;
+        room.exits = cell.exits;
         StartCoroutine(CombineTemplates(room));
     }
 
@@ -131,11 +130,11 @@ public class GenerateGrid : MonoBehaviour
 
     IEnumerator PlaceDoorways(Room room)
     {
-        if (PlaceDoorway(entrance_edge, Elements.entrance, room))
+        if (PlaceDoorway(room.entrance, Elements.entrance, room))
         {
-            for (int i = 0; i < exit_edges.Count; i++)
+            for (int i = 0; i < room.exits.Count; i++)
             {
-                if (!PlaceDoorway(exit_edges[i], Elements.exit, room))
+                if (!PlaceDoorway(room.exits[i], Elements.exit, room))
                 {
                     Restart(room);
                     yield break;

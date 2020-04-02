@@ -6,17 +6,22 @@ public class CamFollow : MonoBehaviour
 {
     GameObject player = null;
     public float height = 10;
-
-    public void SetPlayer(GameObject obj)
+    GameControl game;
+    private void Start()
     {
-        player = obj;
+        game = GameObject.FindGameObjectWithTag("Grid").GetComponent<GameControl>();
     }
 
     void Update()
     {
+        if (game.game_started && player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+        }
+
         if (player == null)
         {
-            transform.position = new Vector3(5, height, 5);
+            transform.position = new Vector3(5, height * 5, 5);
         }
         else
         {

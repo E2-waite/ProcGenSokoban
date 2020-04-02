@@ -6,6 +6,7 @@ public class Cell
     readonly  Pos pos;
     public Direction entrance;
     public List<Direction> exits = new List<Direction>();
+    public bool first_room = false;
     public Cell(int x, int y, Direction dir)
     {
         pos = new Pos { x = x, y = y };

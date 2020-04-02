@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     {
         int x_pos = (int)transform.parent.position.x + x_dir, y_pos = (int)transform.parent.position.z + y_dir;
         GameObject tile = game.object_grid[x_pos, y_pos];
-        if (tile.CompareTag("Floor"))
+        if (tile.CompareTag("Floor") || tile.CompareTag("Doorway"))
         {
             if (tile.transform.childCount == 0) Move(tile);
             else

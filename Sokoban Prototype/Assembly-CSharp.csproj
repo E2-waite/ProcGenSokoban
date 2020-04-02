@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Box.cs" />
     <Compile Include="Assets\Scripts\CamFollow.cs" />
     <Compile Include="Assets\Scripts\Cell.cs" />
+    <Compile Include="Assets\Scripts\CheckRoom.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
     <Compile Include="Assets\Scripts\FindPath.cs" />
     <Compile Include="Assets\Scripts\GameControl.cs" />
