@@ -4,8 +4,8 @@ using UnityEngine;
 using enums;
 public class GenerateLevel : MonoBehaviour
 {
-    public int size_x = 3;
-    int size_y = 3, grid_x, grid_y;
+    public int size_x = 3, size_y = 3;
+    int grid_x, grid_y;
     public GameObject room_prefab;
     Room[,] room_grid;
     public int[,] grid;
@@ -25,9 +25,9 @@ public class GenerateLevel : MonoBehaviour
         for (int y = 0; y < room_grid.GetLength(1); y++)
         {
             for (int x = 0; x < room_grid.GetLength(0); x++)
-            { 
-                room_grid[x, y] = new Room { size_x = size_x, size_y = size_y, grid_x = grid_x, grid_y = grid_y, 
-                    num_templates = size_x * size_y};
+            {
+                room_grid[x, y] = new Room { size_x = size_x, size_y = size_y, grid_x = grid_x, grid_y = grid_y,
+                    num_templates = size_x * size_y };
                 room_grid[x, y].offset_x = room_grid[x, y].grid_x * x;
                 room_grid[x, y].offset_y = room_grid[x, y].grid_y * y;
                 room_grid[x, y].room_object = Instantiate(room_prefab, new Vector3(room_grid[x, y].offset_x, 0, room_grid[x, y].offset_y), Quaternion.identity);
@@ -45,7 +45,7 @@ public class GenerateLevel : MonoBehaviour
             {
                 for (int x = 0; x < room_grid.GetLength(0); x++)
                 {
-                    if (room_grid[x,y].generated)
+                    if (room_grid[x, y].generated)
                     {
                         num_generated++;
                     }
@@ -71,17 +71,19 @@ public class GenerateLevel : MonoBehaviour
                     {
                         grid[ix + (x * grid_x), iy + (y * grid_y)] = room_grid[x, y].grid[ix, iy];
                         object_grid[ix + (x * grid_x), iy + (y * grid_y)] = room_grid[x, y].object_grid[ix, iy];
+                        object_grid[ix + (x * grid_x), iy + (y * grid_y)].name = (ix + (x * grid_x)).ToString() + " " + (iy + (y * grid_y)).ToString();
                     }
                 }
             }
         }
 
-        GetComponent<GameControl>().StartGame(object_grid);
-        PlacePlayer();
-    }
+        string row = null;
 
-    void PlacePlayer()
-    {
-        
+        for (int i = 0; i < object_grid.GetLength(0); i++)
+        {
+            row += object_grid[i, 4].name + " ";
+        }
+        Debug.Log(row);
+        GetComponent<GameControl>().StartGame(object_grid);
     }
 }

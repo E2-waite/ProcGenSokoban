@@ -78,6 +78,7 @@ public class GenerateObjects : MonoBehaviour
                     exit_pos = new Pos { x = x, y = y };
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
+                room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
             }
         }
 

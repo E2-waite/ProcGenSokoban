@@ -47,6 +47,14 @@ public class GameControl : MonoBehaviour
     {
         game_started = true;
         object_grid = obj_grid;
+
+        string row = null;
+
+        for (int i = 0; i < object_grid.GetLength(0); i++)
+        {
+            row += object_grid[i, 4].name + " ";
+        }
+        Debug.Log(row);
     }
 
     public void UpdatePosition(Elements element, int[] old_pos, int[] new_pos)
