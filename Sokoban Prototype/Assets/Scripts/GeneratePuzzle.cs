@@ -103,19 +103,19 @@ public class GeneratePuzzle : MonoBehaviour
             }
         }
 
-        if (room.entrance == Direction.N)
+        if (room.entrance_dir == Direction.N)
         {
             room.grid[entrance_pos.x, entrance_pos.y - 1] += (int)Elements.player;
         }
-        if (room.entrance == Direction.E)
+        if (room.entrance_dir == Direction.E)
         {
             room.grid[entrance_pos.x - 1, entrance_pos.y] += (int)Elements.player;
         }
-        if (room.entrance == Direction.S)
+        if (room.entrance_dir == Direction.S)
         {
             room.grid[entrance_pos.x, entrance_pos.y + 1] += (int)Elements.player;
         }
-        if (room.entrance == Direction.W)
+        if (room.entrance_dir == Direction.W)
         {
             room.grid[entrance_pos.x + 1, entrance_pos.y] += (int)Elements.player;
         }

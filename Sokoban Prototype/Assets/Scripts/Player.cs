@@ -28,10 +28,8 @@ public class Player : MonoBehaviour
     {
         int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
         GameObject tile = game.object_grid[x_pos, y_pos];
-        Debug.Log("Pos: " + transform.position.x.ToString() + " " + transform.position.z.ToString());
-        Debug.Log("Dir: " + x_dir.ToString() + " " + y_dir.ToString());
-        Debug.Log((transform.position.x + x_dir).ToString() + " " + (transform.position.z + y_dir).ToString());
-        if (tile.CompareTag("Floor") || tile.CompareTag("Doorway"))
+
+        if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()))
         {
             if (tile.transform.childCount == 0) Move(tile);
             else

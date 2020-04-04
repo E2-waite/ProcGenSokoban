@@ -36,6 +36,7 @@ public class GenerateObjects : MonoBehaviour
         }
 
         Pos entrance_pos = null, exit_pos = null;
+        room.exits = new List<GameObject>();
         room.object_grid = new GameObject[room.grid.GetLength(0), room.grid.GetLength(1)];
         for (int y = 0; y < room.grid.GetLength(1); y++)
         {
@@ -69,13 +70,15 @@ public class GenerateObjects : MonoBehaviour
                 }
                 else if (room.grid[x, y] == (int)Elements.entrance)
                 {
-                    room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                    room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
                     entrance_pos = new Pos { x = x, y = y };
+                    room.entrance = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.exit)
                 {
-                    room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                    room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
                     exit_pos = new Pos { x = x, y = y };
+                    room.exits.Add(room.object_grid[x, y]);
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();

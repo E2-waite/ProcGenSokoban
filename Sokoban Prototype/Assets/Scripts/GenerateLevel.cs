@@ -7,7 +7,7 @@ public class GenerateLevel : MonoBehaviour
     public int size_x = 3, size_y = 3;
     int grid_x, grid_y;
     public GameObject room_prefab;
-    Room[,] room_grid;
+    public Room[,] room_grid;
     public int[,] grid;
     public GameObject[,] object_grid;
 
@@ -33,6 +33,7 @@ public class GenerateLevel : MonoBehaviour
                 room_grid[x, y].room_object = Instantiate(room_prefab, new Vector3(room_grid[x, y].offset_x, 0, room_grid[x, y].offset_y), Quaternion.identity);
                 room_grid[x, y].room_object.transform.parent = transform;
                 room_grid[x, y].first = maze_grid[x, y].first_room;
+                room_grid[x, y].pos = new Pos { x = x, y = y };
                 room_grid[x, y].room_object.GetComponent<GenerateGrid>().StartGenerating(maze_grid[x, y], room_grid[x, y]);
             }
         }

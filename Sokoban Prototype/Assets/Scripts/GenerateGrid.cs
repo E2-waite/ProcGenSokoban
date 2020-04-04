@@ -23,8 +23,8 @@ public class GenerateGrid : MonoBehaviour
     public void StartGenerating(Cell cell, Room room)
     {
         room.generated = false;
-        room.entrance = cell.entrance;
-        room.exits = cell.exits;
+        room.entrance_dir = cell.entrance;
+        room.exit_dirs = cell.exits;
         StartCoroutine(CombineTemplates(room));
     }
 
@@ -130,11 +130,11 @@ public class GenerateGrid : MonoBehaviour
 
     IEnumerator PlaceDoorways(Room room)
     {
-        if (PlaceDoorway(room.entrance, Elements.entrance, room))
+        if (PlaceDoorway(room.entrance_dir, Elements.entrance, room))
         {
-            for (int i = 0; i < room.exits.Count; i++)
+            for (int i = 0; i < room.exit_dirs.Count; i++)
             {
-                if (!PlaceDoorway(room.exits[i], Elements.exit, room))
+                if (!PlaceDoorway(room.exit_dirs[i], Elements.exit, room))
                 {
                     Restart(room);
                     yield break;

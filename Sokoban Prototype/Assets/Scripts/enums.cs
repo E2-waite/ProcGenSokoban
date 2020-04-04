@@ -5,14 +5,17 @@ namespace enums
 {
     public class Room
     {
+        public Pos pos;
         public GameObject room_object;
         public int[,] grid;
         public GameObject[,] object_grid;
         public int offset_x, offset_y;
         public int num_templates, size_x, size_y, grid_x, grid_y, num_boxes;
         public bool solved, generated, first = false;
-        public Direction entrance;
-        public List<Direction> exits;
+        public Direction entrance_dir;
+        public List<Direction> exit_dirs;
+        public GameObject entrance;
+        public List<GameObject> exits;
     }
 
     public class Pos
