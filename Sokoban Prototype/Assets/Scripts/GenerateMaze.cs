@@ -74,6 +74,7 @@ public class GenerateMaze : MonoBehaviour
             {
                 // Check adjacent tiles to cell at top of checked list, move in new direction if space is clear (Junction)
                 junctions++;
+                grid[x, y].exits.Add(dir);
                 StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
                 yield break;
             }

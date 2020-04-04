@@ -87,14 +87,10 @@ public class GridCheck
 
     private Pos CheckDir(Pos pos, Direction dir)
     {
-        if (dir == Direction.N && (grid[pos.x, pos.y + 1] == (int)Elements.floor || 
-            grid[pos.x, pos.y + 1] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x, y = pos.y + 1 };
-        if (dir == Direction.E && (grid[pos.x + 1, pos.y] == (int)Elements.floor || 
-            grid[pos.x + 1, pos.y] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x + 1, y = pos.y };
-        if (dir == Direction.S && (grid[pos.x, pos.y - 1] == (int)Elements.floor || 
-            grid[pos.x, pos.y - 1] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x, y = pos.y - 1 };
-        if (dir == Direction.W && (grid[pos.x - 1, pos.y] == (int)Elements.floor || 
-            grid[pos.x - 1, pos.y] == (int)Elements.floor + (int)Elements.button)) return new Pos { x = pos.x - 1, y = pos.y };
+        if (dir == Direction.N && (grid[pos.x, pos.y + 1] == (int)Elements.floor)) return new Pos { x = pos.x, y = pos.y + 1 };
+        if (dir == Direction.E && (grid[pos.x + 1, pos.y] == (int)Elements.floor)) return new Pos { x = pos.x + 1, y = pos.y };
+        if (dir == Direction.S && (grid[pos.x, pos.y - 1] == (int)Elements.floor)) return new Pos { x = pos.x, y = pos.y - 1 };
+        if (dir == Direction.W && (grid[pos.x - 1, pos.y] == (int)Elements.floor)) return new Pos { x = pos.x - 1, y = pos.y };
         return new Pos { empty = true };
     }
 
