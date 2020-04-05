@@ -18,7 +18,7 @@ public class FindPath
             for (int x = 0; x < grid_x; x++)
             {
                 bool is_obstacle = false;
-                if (grid[x, y] == (int)Elements.wall || grid[x,y] == (int)Elements.floor + (int)Elements.button || grid[x, y] == (int)Elements.floor + (int)Elements.box)
+                if (grid[x, y] == (int)Elements.wall || grid[x,y] == (int)Elements.floor + (int)Elements.button)
                 {
                     is_obstacle = true;
                 }
@@ -42,6 +42,14 @@ public class FindPath
         
         while (open_list.Count > 0)
         {
+            // If number of steps exceeds 100, a path probably cannot be found
+            num_steps++;
+            if (num_steps > 100)
+            {
+                path_failed = true;
+                break;
+            }
+
             // Looks at node at the bottom of the open list
             Node current_node = open_list[0];
 
@@ -84,14 +92,6 @@ public class FindPath
                         open_list.Add(neighbour);
                     }
                 }
-            }
-
-            // If number of steps exceeds 100, a path probably cannot be found
-            num_steps++;
-            if (num_steps > 100)
-            {
-                path_failed = false;
-                break;
             }
         }
     }

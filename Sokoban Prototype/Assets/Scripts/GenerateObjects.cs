@@ -10,33 +10,8 @@ public class GenerateObjects : MonoBehaviour
     List<GameObject> boxes = new List<GameObject>();
 
     // Start is called before the first frame update
-    public void Generate(Room room)
+    public GameObject[,] Generate(Room room)
     {
-        // If there is a level already instantiated, delete it before instantiating the next
-        if (room.object_grid != null)
-        {
-            for (int y = 0; y < room.object_grid.GetLength(1); y++)
-            {
-                for (int x = 0; x < room.object_grid.GetLength(0); x++)
-                {
-                    Destroy(room.object_grid[x, y]);
-                }
-            }
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                Destroy(buttons[i]);
-            }
-            buttons.Clear();
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                Destroy(boxes[i]);               
-            }
-            boxes.Clear();
-            Destroy(player);
-        }
-
-        Pos entrance_pos = null, exit_pos = null;
-        room.exits = new List<GameObject>();
         room.object_grid = new GameObject[room.grid.GetLength(0), room.grid.GetLength(1)];
         for (int y = 0; y < room.grid.GetLength(1); y++)
         {
@@ -71,42 +46,42 @@ public class GenerateObjects : MonoBehaviour
                 else if (room.grid[x, y] == (int)Elements.entrance)
                 {
                     room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
-                    entrance_pos = new Pos { x = x, y = y };
-                    room.entrance = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.exit)
                 {
                     room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
-                    exit_pos = new Pos { x = x, y = y };
-                    room.exits.Add(room.object_grid[x, y]);
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
             }
         }
 
-        room.generated = true;
-        GetComponent<CheckRoom>().StartChecking(room);
-        StartCoroutine(CheckPath(room, entrance_pos, exit_pos));
+        room.room_object.GetComponent<CheckRoom>().StartChecking(room);
+        return room.object_grid;
     }
 
-    IEnumerator CheckPath(Room room, Pos entrance_pos, Pos exit_pos)
+    public void Delete(Room room)
     {
-        FindPath path = new FindPath(room.grid, entrance_pos, exit_pos);
-        bool checking = true;
-        while (checking)
+        if (room.object_grid != null)
         {
-            if (path.final_path.Count > 0)
+            for (int y = 0; y < room.object_grid.GetLength(1); y++)
             {
-                Debug.Log("PATH EXISTS");
-                checking = false;
+                for (int x = 0; x < room.object_grid.GetLength(0); x++)
+                {
+                    Destroy(room.object_grid[x, y]);
+                }
             }
-            if (path.path_failed)
+            for (int i = 0; i < buttons.Count; i++)
             {
-                Debug.Log("PATH FAILED");
-                checking = false;
+                Destroy(buttons[i]);
             }
-            yield return null;
+            buttons.Clear();
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                Destroy(boxes[i]);
+            }
+            boxes.Clear();
+            Destroy(player);
         }
     }
 }

@@ -16,12 +16,14 @@ public class GenerateGrid : MonoBehaviour
 
     public void Restart(Room room)
     {
+        room.stage = Stage.grid;
         // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
         StartCoroutine(CombineTemplates(room));
     }
 
     public void StartGenerating(Cell cell, Room room)
     {
+        room.stage = Stage.grid;
         room.generated = false;
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
@@ -130,6 +132,7 @@ public class GenerateGrid : MonoBehaviour
 
     IEnumerator PlaceDoorways(Room room)
     {
+        room.exits = new List<Pos>();
         if (PlaceDoorway(room.entrance_dir, Elements.entrance, room))
         {
             for (int i = 0; i < room.exit_dirs.Count; i++)
@@ -151,11 +154,13 @@ public class GenerateGrid : MonoBehaviour
 
     bool PlaceDoorway(Direction edge, Elements type, Room room)
     {
+        int x = 0, y = 0;
         switch (edge)
         {
             case Direction.N:
                 {
-                    int x = (int)(room.grid.GetLength(0) / 2), y = room.grid.GetLength(1) - 1;
+                    x = (int)(room.grid.GetLength(0) / 2); 
+                    y = room.grid.GetLength(1) - 1;
                     room.grid[x, y] = (int)type;
                     if (room.grid[x, y - 1] == (int)Elements.wall)
                     {
@@ -165,7 +170,8 @@ public class GenerateGrid : MonoBehaviour
                 }
             case Direction.E:
                 {
-                    int x = room.grid.GetLength(0) - 1, y = (int)(room.grid.GetLength(1) / 2);
+                    x = room.grid.GetLength(0) - 1;
+                    y = (int)(room.grid.GetLength(1) / 2);
                     room.grid[x, y] = (int)type;
                     if (room.grid[x - 1, y] == (int)Elements.wall)
                     {
@@ -175,7 +181,8 @@ public class GenerateGrid : MonoBehaviour
                 }
             case Direction.S:
                 {
-                    int x = (int)(room.grid.GetLength(0) / 2), y = 0;
+                    x = (int)(room.grid.GetLength(0) / 2); 
+                    y = 0;
                     room.grid[x, y] = (int)type;
                     if (room.grid[x, y + 1] == (int)Elements.wall)
                     {
@@ -185,7 +192,8 @@ public class GenerateGrid : MonoBehaviour
                 }
             case Direction.W:
                 {
-                    int x = 0, y = (int)(room.grid.GetLength(1) / 2);
+                    x = 0;
+                    y = (int)(room.grid.GetLength(1) / 2);
                     room.grid[x, y] = (int)type;
                     if (room.grid[x + 1, y] == (int)Elements.wall)
                     {
@@ -195,6 +203,14 @@ public class GenerateGrid : MonoBehaviour
                 }
         }
 
+        if (type == Elements.entrance)
+        {
+            room.entrance = new Pos { x = x, y = y };
+        }
+        else if (type == Elements.exit)
+        {
+            room.exits.Add( new Pos { x = x, y = y } );
+        }
         return true;
     }
 }

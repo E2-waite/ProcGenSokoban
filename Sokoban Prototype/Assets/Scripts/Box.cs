@@ -30,7 +30,7 @@ public class Box : MonoBehaviour
     public bool Move(int x_dir, int y_dir)
     {
         int x_pos = (int)transform.parent.position.x + x_dir, y_pos = (int)transform.parent.position.z + y_dir;
-        GameObject tile = game.object_grid[x_pos, y_pos];
+        GameObject tile = game.this_level.object_grid[x_pos, y_pos];
         if (tile.CompareTag("Floor") &&
             (tile.transform.childCount == 0 ||
             (tile.transform.childCount == 1 &&

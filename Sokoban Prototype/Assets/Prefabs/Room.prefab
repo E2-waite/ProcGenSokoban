@@ -9,10 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1196654292877959519}
-  - component: {fileID: 1252152444402977006}
-  - component: {fileID: 6873058513703527911}
-  - component: {fileID: 639604391552416900}
-  - component: {fileID: 7277223035372161134}
   - component: {fileID: 4630929354604908159}
   m_Layer: 0
   m_Name: Room
@@ -35,71 +31,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1252152444402977006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8744511831243225635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f6bb84f55918b843a10f36b72e836b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6873058513703527911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8744511831243225635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 351944b5f1413dd4ab719c9d17dbcdef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  num_boxes: 3
-  min_steps: 10
-  max_attempts: 10
---- !u!114 &639604391552416900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8744511831243225635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 275661ab138baa74a8cf4cee9c3f1b59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
-    type: 3}
-  wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
-    type: 3}
-  player_prefab: {fileID: 1876405309000523216, guid: 2df7673104355cf45bc75475fb27f907,
-    type: 3}
-  box_prefab: {fileID: 2872035265010042474, guid: 57e6af8483e5c7f42ab18009c6e0de91,
-    type: 3}
-  button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
-    type: 3}
-  entrance_prefab: {fileID: 7128332734857414354, guid: 98832b0a5f180f84da93a57c6602cf8b,
-    type: 3}
-  exit_prefab: {fileID: 6172572861218704768, guid: 6e2b1530ab9088c46a944ecf47c1f945,
-    type: 3}
---- !u!114 &7277223035372161134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8744511831243225635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f4ca265ae11434e80b1a143e754ed1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &4630929354604908159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,3 +43,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fbde29a683850d4bb62503f9187dce6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  doors_opened: 0

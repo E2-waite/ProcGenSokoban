@@ -7,6 +7,8 @@ public class Cell
     public Direction entrance;
     public List<Direction> exits = new List<Direction>();
     public bool first_room = false;
+    public bool last_room = false;
+    public int depth;
     public Cell(int x, int y, Direction dir)
     {
         pos = new Pos { x = x, y = y };

@@ -11,11 +11,38 @@ namespace enums
         public GameObject[,] object_grid;
         public int offset_x, offset_y;
         public int num_templates, size_x, size_y, grid_x, grid_y, num_boxes;
-        public bool solved, generated, first = false;
+        public bool solved, generated, first = false, last = false;
         public Direction entrance_dir;
         public List<Direction> exit_dirs;
-        public GameObject entrance;
-        public List<GameObject> exits;
+        public Pos entrance;
+        public List<Pos> exits;
+        public Stage stage = Stage.level;
+    }
+
+    public enum Stage
+    { 
+        level,
+        grid,
+        buttons,
+        boxes,
+        path,
+        complete
+    }
+
+
+    public class Level
+    {
+        public int[,] grid;
+        public Room[,] room_grid;
+        public GameObject[,] object_grid;
+        public bool generated = false;
+        public bool instantiated = false;
+    }
+
+    public class Maze
+    {
+        public Cell[,] grid;
+        public bool complete;
     }
 
     public class Pos

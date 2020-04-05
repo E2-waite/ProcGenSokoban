@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
     private void MovePlayer(int x_dir, int y_dir)
     {
         int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
-        GameObject tile = game.object_grid[x_pos, y_pos];
+        GameObject tile = game.this_level.object_grid[x_pos, y_pos];
 
         if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()))
         {
@@ -54,7 +54,6 @@ public class Player : MonoBehaviour
 
     private void Move(GameObject tile)
     {
-        Debug.Log("MOVING");
         transform.parent = null;
         transform.parent = tile.transform;
         game.UpdatePosition(Elements.player, new int[2] { (int)transform.position.x, (int)transform.position.z },

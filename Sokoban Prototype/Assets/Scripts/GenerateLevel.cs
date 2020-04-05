@@ -4,87 +4,67 @@ using UnityEngine;
 using enums;
 public class GenerateLevel : MonoBehaviour
 {
-    public int size_x = 3, size_y = 3;
-    int grid_x, grid_y;
-    public GameObject room_prefab;
-    public Room[,] room_grid;
-    public int[,] grid;
-    public GameObject[,] object_grid;
-
-    public void Generate(Cell[,] maze_grid)
+    public Level Generate(int size_x, int size_y, int grid_x, int grid_y, int maze_x, int maze_y)
     {
-        StartCoroutine(GenerationRoutine(maze_grid));
+        Level level = new Level();
+        StartCoroutine(GenerationRoutine(level, size_x, size_y, grid_x, grid_y, maze_x, maze_y));
+        return level;
     }
 
-    public IEnumerator GenerationRoutine(Cell[,] maze_grid)
+    public IEnumerator GenerationRoutine(Level level, int size_x, int size_y, int grid_x, int grid_y, int maze_x, int maze_y)
     {
-        grid_x = (size_x * 3) + 2;
-        grid_y = (size_y * 3) + 2;
-        room_grid = new Room[maze_grid.GetLength(0), maze_grid.GetLength(1)];
-
-        for (int y = 0; y < room_grid.GetLength(1); y++)
+        Maze maze = GetComponent<GenerateMaze>().Generate(maze_x, maze_y);
+        while (!maze.complete)
         {
-            for (int x = 0; x < room_grid.GetLength(0); x++)
-            {
-                room_grid[x, y] = new Room { size_x = size_x, size_y = size_y, grid_x = grid_x, grid_y = grid_y,
-                    num_templates = size_x * size_y };
-                room_grid[x, y].offset_x = room_grid[x, y].grid_x * x;
-                room_grid[x, y].offset_y = room_grid[x, y].grid_y * y;
-                room_grid[x, y].room_object = Instantiate(room_prefab, new Vector3(room_grid[x, y].offset_x, 0, room_grid[x, y].offset_y), Quaternion.identity);
-                room_grid[x, y].room_object.transform.parent = transform;
-                room_grid[x, y].first = maze_grid[x, y].first_room;
-                room_grid[x, y].pos = new Pos { x = x, y = y };
-                room_grid[x, y].room_object.GetComponent<GenerateGrid>().StartGenerating(maze_grid[x, y], room_grid[x, y]);
-            }
+            yield return null;
         }
 
-        bool all_generated = false;
-        while (!all_generated)
+        level.room_grid = new Room[maze.grid.GetLength(0), maze.grid.GetLength(1)];
+
+        // Finds deepest maze node, to choose where the transition to next level is placed
+        Cell shallowest_cell = null;
+        Cell deepest_cell = null;
+        int lowest_depth = 5;
+        int highest_depth = 0;
+        for (int y = 0; y < maze.grid.GetLength(1); y++)
         {
-            int num_generated = 0;
-            for (int y = 0; y < room_grid.GetLength(1); y++)
+            for (int x = 0; x < maze.grid.GetLength(0); x++)
             {
-                for (int x = 0; x < room_grid.GetLength(0); x++)
+                if (maze.grid[x,y].depth > highest_depth)
                 {
-                    if (room_grid[x, y].generated)
-                    {
-                        num_generated++;
-                    }
+                    deepest_cell = maze.grid[x, y];
+                    highest_depth = maze.grid[x, y].depth;
+                }
+                if (maze.grid[x,y].depth < lowest_depth)
+                {
+                    shallowest_cell = maze.grid[x, y];
+                    lowest_depth = maze.grid[x, y].depth;
+                }
+            }
+        }
+        shallowest_cell.first_room = true;
+        deepest_cell.last_room = true;
+
+        // Create and populate room grid
+        for (int y = 0; y < level.room_grid.GetLength(1); y++)
+        {
+            for (int x = 0; x < level.room_grid.GetLength(0); x++)
+            {
+                level.room_grid[x, y] = new Room { size_x = size_x, size_y = size_y, grid_x = grid_x, grid_y = grid_y,
+                    num_templates = size_x * size_y };
+                level.room_grid[x, y].offset_x = level.room_grid[x, y].grid_x * x;
+                level.room_grid[x, y].offset_y = level.room_grid[x, y].grid_y * y;
+                level.room_grid[x, y].first = maze.grid[x, y].first_room;
+                level.room_grid[x, y].last = maze.grid[x, y].last_room;
+                level.room_grid[x, y].pos = new Pos { x = x, y = y };
+                GetComponent<GenerateGrid>().StartGenerating(maze.grid[x, y], level.room_grid[x, y]);
+                while (!level.room_grid[x, y].generated)
+                {
                     yield return null;
                 }
             }
-
-            if (num_generated == room_grid.GetLength(0) * room_grid.GetLength(1))
-            {
-                all_generated = true;
-            }
         }
 
-        grid = new int[room_grid.GetLength(0) * grid_x, room_grid.GetLength(1) * grid_y];
-        object_grid = new GameObject[room_grid.GetLength(0) * grid_x, room_grid.GetLength(1) * grid_y];
-        for (int y = 0; y < room_grid.GetLength(1); y++)
-        {
-            for (int x = 0; x < room_grid.GetLength(0); x++)
-            {
-                for (int iy = 0; iy < grid_y; iy++)
-                {
-                    for (int ix = 0; ix < grid_x; ix++)
-                    {
-                        grid[ix + (x * grid_x), iy + (y * grid_y)] = room_grid[x, y].grid[ix, iy];
-                        object_grid[ix + (x * grid_x), iy + (y * grid_y)] = room_grid[x, y].object_grid[ix, iy];
-                        object_grid[ix + (x * grid_x), iy + (y * grid_y)].name = (ix + (x * grid_x)).ToString() + " " + (iy + (y * grid_y)).ToString();
-                    }
-                }
-            }
-        }
-
-        string row = null;
-
-        for (int i = 0; i < object_grid.GetLength(0); i++)
-        {
-            row += object_grid[i, 4].name + " ";
-        }
-        Debug.Log(row);
-        GetComponent<GameControl>().StartGame(object_grid);
+        level.generated = true;
     }
 }

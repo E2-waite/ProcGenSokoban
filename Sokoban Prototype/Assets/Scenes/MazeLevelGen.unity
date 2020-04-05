@@ -317,9 +317,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1734988047}
+  - component: {fileID: 1734988048}
   - component: {fileID: 1734988046}
   - component: {fileID: 1734988045}
-  - component: {fileID: 1734988048}
+  - component: {fileID: 1734988052}
+  - component: {fileID: 1734988051}
+  - component: {fileID: 1734988050}
+  - component: {fileID: 1734988049}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Grid
@@ -339,10 +343,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9cfe337e25b55540a4a79fcdb889fa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size_x: 3
-  size_y: 3
-  room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,
-    type: 3}
 --- !u!114 &1734988046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,9 +355,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fd4859c34a52054a9a420ee41504d29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tile_prefab: {fileID: 688354286607124571, guid: a6bc56865d371c247ad9279d6f5fd494,
-    type: 3}
-  size: {x: 5, y: 5}
   junctions: 0
   dead_ends: 0
 --- !u!4 &1734988047
@@ -386,6 +383,78 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aa7775058b3ecb4f829b2524cef56e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  size_x: 3
+  size_y: 3
+  maze_x: 1
+  maze_y: 2
   game_started: 0
   seconds: 0
+  room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,
+    type: 3}
   player: {fileID: 0}
+  level_won: 0
+--- !u!114 &1734988049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 275661ab138baa74a8cf4cee9c3f1b59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor_prefab: {fileID: 4149889689917936856, guid: 264441735f8668949a4d55ca9e07496e,
+    type: 3}
+  wall_prefab: {fileID: 8422579611117666169, guid: e926604d6096b7c4fb52a6e7604633c2,
+    type: 3}
+  player_prefab: {fileID: 1876405309000523216, guid: 2df7673104355cf45bc75475fb27f907,
+    type: 3}
+  box_prefab: {fileID: 2872035265010042474, guid: 57e6af8483e5c7f42ab18009c6e0de91,
+    type: 3}
+  button_prefab: {fileID: 1840437457772456898, guid: e4dc16444c6f5444f9b7dcfc7fc5dcff,
+    type: 3}
+  entrance_prefab: {fileID: 7128332734857414354, guid: 98832b0a5f180f84da93a57c6602cf8b,
+    type: 3}
+  exit_prefab: {fileID: 6172572861218704768, guid: 6e2b1530ab9088c46a944ecf47c1f945,
+    type: 3}
+--- !u!114 &1734988050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351944b5f1413dd4ab719c9d17dbcdef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  num_boxes: 3
+  min_steps: 8
+  max_attempts: 10
+--- !u!114 &1734988051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62f4ca265ae11434e80b1a143e754ed1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1734988052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f6bb84f55918b843a10f36b72e836b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

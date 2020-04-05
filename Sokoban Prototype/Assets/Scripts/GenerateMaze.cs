@@ -4,50 +4,50 @@ using UnityEngine;
 using enums;
 public class GenerateMaze : MonoBehaviour
 {
-    public GameObject tile_prefab;
-    public Vector2 size;
-    private Cell[,] grid;
+    Vector2 size;
     readonly private List<Cell> checked_cells = new List<Cell>();
     public int junctions = 0, dead_ends = 0;
-    void Start()
-    {
-        grid = new Cell[(int)size.x, (int)size.y];
-        StartCoroutine(LoopCheck());
-        StartCoroutine(StepForward(0, 2, Direction.E));
+    int depth = 0;
 
+    public Maze Generate(int maze_x, int maze_y)
+    {
+        Maze maze = new Maze();
+        size = new Vector2(maze_x, maze_y);
+        maze.grid = new Cell[(int)size.x, (int)size.y];
+        StartCoroutine(LoopCheck(maze));
+        StartCoroutine(StepForward(0, 0, Direction.E, maze));
+        return maze;
     }
 
-    IEnumerator LoopCheck()
+    IEnumerator LoopCheck(Maze maze)
     {
         // Starts loop that checks if full grid is filled
-        if (CheckCompletion())
+        if (CheckCompletion(maze))
         {
             StopAllCoroutines();
             dead_ends++;
         }
         yield return new WaitForSeconds(0.001f);
-        StartCoroutine(LoopCheck());
+        StartCoroutine(LoopCheck(maze));
     }
 
-    IEnumerator StepForward(int x, int y, Direction dir)
+    IEnumerator StepForward(int x, int y, Direction dir, Maze maze)
     {
+        depth++;
         // Adds grid tile to checked tiles list, then check adjascent tiles for clear space
-        grid[x, y] = new Cell(x,y, dir);
-        checked_cells.Add(grid[x, y]);
-        if (checked_cells.Count == 1)
-        {
-            checked_cells[0].first_room = true;
-        }
+        maze.grid[x, y] = new Cell(x,y, dir);
+        maze.grid[x, y].depth = depth;
+        checked_cells.Add(maze.grid[x, y]);
 
         dir = RandomDir();
         for (int i = 0; i < 4; i++)
         {
             Vector2 pos = GetNewPos(dir, x, y);
-            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y))
+            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y, maze))
             {
                 // If space is clear, continue to next step
-                grid[x, y].exits.Add(dir);
-                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
+                maze.grid[x, y].exits.Add(dir);
+                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir, maze));
                 yield break;
             }
             if (dir == Direction.W) dir = Direction.N;
@@ -56,11 +56,12 @@ public class GenerateMaze : MonoBehaviour
         }
         // Start backtracking if there are no clear space adjascent to current tile (Dead end)
         dead_ends++;
-        StartCoroutine(StepBack());
+        StartCoroutine(StepBack(maze));
     }
 
-    IEnumerator StepBack()
+    IEnumerator StepBack(Maze maze)
     {
+        depth--;
         // Backtrack through checked cells list
         checked_cells.Remove(checked_cells[checked_cells.Count - 1]);
         Cell curr_cell = checked_cells[checked_cells.Count - 1];
@@ -70,19 +71,19 @@ public class GenerateMaze : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             Vector2 pos = GetNewPos(dir, x, y);
-            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y))
+            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y, maze))
             {
                 // Check adjacent tiles to cell at top of checked list, move in new direction if space is clear (Junction)
                 junctions++;
-                grid[x, y].exits.Add(dir);
-                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir));
+                maze.grid[x, y].exits.Add(dir);
+                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir, maze));
                 yield break;
             }
             if (dir == Direction.W) dir = Direction.N;
             else dir++;
             yield return null;
         }
-        StartCoroutine(StepBack());
+        StartCoroutine(StepBack(maze));
     }
 
     Vector2 GetNewPos(Direction dir, int x, int y)
@@ -94,9 +95,9 @@ public class GenerateMaze : MonoBehaviour
         return new Vector2(0, 0);
     }
 
-    bool IsEmpty(int x, int y)
+    bool IsEmpty(int x, int y, Maze maze)
     {
-        if (grid[x, y] == null) return true;
+        if (maze.grid[x, y] == null) return true;
         else return false;
     }
 
@@ -106,13 +107,13 @@ public class GenerateMaze : MonoBehaviour
         else return true;
     }
 
-    bool CheckCompletion()
+    bool CheckCompletion(Maze maze)
     {
         for (int x = 0; x < (int)size.x; x++)
         {
             for (int y = 0; y < (int)size.y; y++)
             {
-                if (grid[x, y] == null)
+                if (maze.grid[x, y] == null)
                 {
                     return false;
                 }
@@ -120,7 +121,7 @@ public class GenerateMaze : MonoBehaviour
         }
         Debug.Log("FILLED");
 
-        GetComponent<GenerateLevel>().Generate(grid);
+        maze.complete = true;
         return true;
     }
 

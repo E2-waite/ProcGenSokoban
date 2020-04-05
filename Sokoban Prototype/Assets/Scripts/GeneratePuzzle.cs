@@ -19,6 +19,7 @@ public class GeneratePuzzle : MonoBehaviour
 
     private void PlaceButtons(Room room)
     {
+        room.stage = Stage.buttons;
         int[, ] grid = room.grid.Clone() as int[,];
         if (attempts > max_attempts)
         {
@@ -51,6 +52,7 @@ public class GeneratePuzzle : MonoBehaviour
 
     void BoxPlace(Room room)
     {
+        room.stage = Stage.boxes;
         StopAllCoroutines();
         // If enough boxes have been placed, continue else place next box
         if (box_positions.Count == num_boxes)
@@ -69,7 +71,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
-                    GetComponent<GenerateObjects>().Generate(room);
+                    StartCoroutine(CheckPath(room));
                 }
             }
             else
@@ -120,7 +122,7 @@ public class GeneratePuzzle : MonoBehaviour
             room.grid[entrance_pos.x + 1, entrance_pos.y] += (int)Elements.player;
         }
 
-        GetComponent<GenerateObjects>().Generate(room);
+        StartCoroutine(CheckPath(room));
     }
 
     Node deepest_node;
@@ -241,5 +243,36 @@ public class GeneratePuzzle : MonoBehaviour
             return new Pos { x = pos.x - 1, y = pos.y };
         }
         return new Pos { empty = true };
+    }
+
+    IEnumerator CheckPath(Room room)
+    {
+        room.stage = Stage.path;
+        Debug.Log("STARTED PATH CHECK");
+        for (int i = 0; i < room.exits.Count; i++)
+        {
+            float time_checked = 0;
+            FindPath path = new FindPath(room.grid, room.entrance, room.exits[i]);
+            bool checking = true;
+            while (checking)
+            {
+                time_checked += Time.deltaTime;
+                if (path.final_path.Count > 0)
+                {
+                    Debug.Log("PATH EXISTS");
+                    checking = false;
+                }
+                if (time_checked >= 1)
+                {
+                    Debug.Log("PATH FAILED");    
+                    PlaceButtons(room);
+                    yield break;
+                }
+                yield return null;
+            }
+        }
+
+        room.stage = Stage.complete;
+        room.generated = true;
     }
 }
