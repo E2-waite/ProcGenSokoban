@@ -19,8 +19,8 @@ public class GeneratePuzzle : MonoBehaviour
 
     private void PlaceButtons(Room room)
     {
-        room.stage = Stage.buttons;
-        int[, ] grid = room.grid.Clone() as int[,];
+        room.grid = empty_grid.Clone() as int[,];
+
         if (attempts > max_attempts)
         {
             NewRoom(room);
@@ -29,11 +29,11 @@ public class GeneratePuzzle : MonoBehaviour
         // Place buttons in valid floor tile positions
         while (button_positions.Count < num_boxes)
         {
-            int x_pos = Random.Range(1, grid.GetLength(0) - 1);
-            int y_pos = Random.Range(1, grid.GetLength(1) - 1);
-            if (grid[x_pos, y_pos] == (int)Elements.floor)
+            int x_pos = Random.Range(1, room.grid.GetLength(0) - 1);
+            int y_pos = Random.Range(1, room.grid.GetLength(1) - 1);
+            if (room.grid[x_pos, y_pos] == (int)Elements.floor)
             {
-                grid[x_pos, y_pos] += (int)Elements.button;
+                room.grid[x_pos, y_pos] += (int)Elements.button;
                 button_positions.Add(new Pos { x = x_pos, y = y_pos });
             }
         }
@@ -57,35 +57,20 @@ public class GeneratePuzzle : MonoBehaviour
         // If enough boxes have been placed, continue else place next box
         if (box_positions.Count == num_boxes)
         {
-            // If the floor is continuous, begin generation else start new configuration
-            GridCheck check = new GridCheck(room.grid);
-            if (check.FloorCount() && check.ContinuousFloor())
+            if (room.first)
             {
-                for (int i = 0; i < button_positions.Count; i++)
-                {
-                    room.grid[button_positions[i].x, button_positions[i].y] = (int)Elements.floor + (int)Elements.button;
-                }
-                if (room.first)
-                {
-                    PlacePlayer(room);
-                }
-                else
-                {
-                    StartCoroutine(CheckPath(room));
-                }
+                PlacePlayer(room);
             }
             else
             {
-                room.grid = empty_grid;
-                PlaceButtons(room);
+                StartCoroutine(CheckPath(room));
             }
         }
         else
         {
             // If there are still boxes to place, begin checking for next box
             Node current_node = new Node { pos = button_positions[box_positions.Count] };
-            deepest_node = current_node;
-            StartCoroutine(CheckNode(current_node, room));
+            StartCoroutine(CheckNode(current_node, new Node(), room));
         }
     }
 
@@ -125,15 +110,15 @@ public class GeneratePuzzle : MonoBehaviour
         StartCoroutine(CheckPath(room));
     }
 
-    Node deepest_node;
 
-    IEnumerator CheckNode(Node current_node, Room room)
+    IEnumerator CheckNode(Node current_node, Node deepest_node, Room room)
     {
         running++;
         current_node.stepped.Add(current_node);
+        //Debug.Log("Current: " + current_node.stepped.Count.ToString() + " Deepest: " + deepest_node.stepped.Count.ToString());
         if (current_node.stepped.Count >  deepest_node.stepped.Count)
         {
-            deepest_node = current_node;
+            deepest_node = new Node { };
         }
         Direction dir = Direction.N;
         if (current_node.children.Count == 0)
@@ -178,7 +163,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine(CheckNode(current_node.children[i], room));
+                    StartCoroutine(CheckNode(current_node.children[i], deepest_node, room));
                 }
                 yield return null;
             }
@@ -191,21 +176,27 @@ public class GeneratePuzzle : MonoBehaviour
         if (current_node.children.Count == 0 || num_complete == current_node.children.Count)
         {
             // If reached end of branch (can't go further) check if enough steps have been made in deepest nod, if they have place box and continue to next
-            if (deepest_node.stepped.Count >= min_steps)
+            if (current_node.stepped.Count >= min_steps)
             {
-                room.grid[current_node.pos.x, current_node.pos.y] += (int)Elements.box;
-                box_positions.Add(current_node.pos);
-                BoxPlace(room);
+                if (room.grid[current_node.pos.x, current_node.pos.y] == (int)Elements.floor)
+                {
+                    room.grid[current_node.pos.x, current_node.pos.y] += (int)Elements.box;
+                    box_positions.Add(current_node.pos);
+                    BoxPlace(room);
+                }
+                else
+                {
+                    PlaceButtons(room);
+                }
             }
             else
             {
                 if (current_node.stepped.Count > 1)
                 {
-                    StartCoroutine(CheckNode(current_node.stepped[current_node.stepped.Count - 2], room));
+                    StartCoroutine(CheckNode(current_node.stepped[current_node.stepped.Count - 2], deepest_node, room));
                 }
                 else
                 {
-                    room.grid = empty_grid;
                     PlaceButtons(room);
                 }
             }

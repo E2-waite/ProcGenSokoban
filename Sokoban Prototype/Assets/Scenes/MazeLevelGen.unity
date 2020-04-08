@@ -385,7 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  maze_x: 1
+  maze_x: 2
   maze_y: 2
   game_started: 0
   seconds: 0
@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   num_boxes: 3
-  min_steps: 8
+  min_steps: 5
   max_attempts: 10
 --- !u!114 &1734988051
 MonoBehaviour:
