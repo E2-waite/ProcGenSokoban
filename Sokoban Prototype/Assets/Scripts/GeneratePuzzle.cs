@@ -239,7 +239,6 @@ public class GeneratePuzzle : MonoBehaviour
     IEnumerator CheckPath(Room room)
     {
         room.stage = Stage.path;
-        Debug.Log("STARTED PATH CHECK");
         for (int i = 0; i < room.exits.Count; i++)
         {
             float time_checked = 0;
@@ -250,12 +249,10 @@ public class GeneratePuzzle : MonoBehaviour
                 time_checked += Time.deltaTime;
                 if (path.final_path.Count > 0)
                 {
-                    Debug.Log("PATH EXISTS");
                     checking = false;
                 }
                 if (time_checked >= 1)
                 {
-                    Debug.Log("PATH FAILED");    
                     PlaceButtons(room);
                     yield break;
                 }

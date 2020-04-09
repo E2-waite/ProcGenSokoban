@@ -63,6 +63,7 @@ public class GenerateObjects : MonoBehaviour
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
             }
         }
+        HideWalls(room);
 
         room.room_object.GetComponent<CheckRoom>().StartChecking(room);
         if (!room.first)
@@ -70,6 +71,73 @@ public class GenerateObjects : MonoBehaviour
             room.room_object.SetActive(false);
         }
         return room.object_grid;
+    }
+
+    void HideWalls(Room room)
+    {
+        for (int y = 0; y < room.object_grid.GetLength(1); y++)
+        {
+            for (int x = 0; x < room.object_grid.GetLength(0); x++)
+            {
+                if (CheckDirs(room, new Pos { x = x, y = y }))
+                {
+                    Renderer rend = room.object_grid[x, y].GetComponent<Renderer>();
+                    rend.enabled = false;
+                }
+            }
+        }
+    }
+
+    bool CheckDirs(Room room, Pos pos)
+    {
+        int wall_dirs = 0;
+
+        if (room.object_grid[pos.x, pos.y].CompareTag("Wall"))
+        {
+            if (pos.y + 1 >= room.object_grid.GetLength(1) || room.object_grid[pos.x, pos.y + 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x + 1 >= room.object_grid.GetLength(1) || pos.y + 1 >= room.object_grid.GetLength(1) || 
+                room.object_grid[pos.x + 1, pos.y + 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x + 1 >= room.object_grid.GetLength(0) || room.object_grid[pos.x + 1, pos.y].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x + 1 >= room.object_grid.GetLength(0) || pos.y - 1 < 0 ||
+                room.object_grid[pos.x + 1, pos.y - 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.y - 1 < 0 || room.object_grid[pos.x, pos.y - 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x - 1 < 0 || pos.y - 1 < 0 || 
+                room.object_grid[pos.x - 1, pos.y - 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x - 1 < 0 || room.object_grid[pos.x - 1, pos.y].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+            if (pos.x - 1 < 0 || pos.y + 1 >= room.object_grid.GetLength(1) ||
+                room.object_grid[pos.x - 1, pos.y + 1].CompareTag("Wall"))
+            {
+                wall_dirs++;
+            }
+
+            if (wall_dirs == 8)
+            {
+                return true;
+            }
+            else return false;
+        }
+        return false;
     }
 
     public void Delete(Room room)
