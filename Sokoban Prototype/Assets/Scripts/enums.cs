@@ -17,6 +17,7 @@ namespace enums
         public Pos entrance;
         public List<Pos> exits;
         public Stage stage = Stage.level;
+        public List<GameObject> buttons = new List<GameObject>();
     }
 
     public enum Stage
@@ -35,10 +36,11 @@ namespace enums
         public int[,] grid;
         public Room[,] room_grid;
         public GameObject[,] object_grid;
+        public List<Cell> maze_cells = new List<Cell>();
         public bool generated = false;
         public bool instantiated = false;
         public GameObject player;
-        public List<GameObject> box = new List<GameObject>();
+        public List<GameObject> boxes = new List<GameObject>();
         public List<Move> moves = new List<Move>();
     }
 

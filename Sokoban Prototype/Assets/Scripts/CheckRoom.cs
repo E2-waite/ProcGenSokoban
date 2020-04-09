@@ -12,47 +12,44 @@ public class CheckRoom : MonoBehaviour
         game = GameObject.FindWithTag("Grid").GetComponent<GameControl>();
     }
 
-    public void StartChecking(Room _room)
+    private void Update()
     {
-        room = _room;
-        StartCoroutine(Check());
-    }
-
-    IEnumerator Check()
-    {
-        int buttons_pressed = 0;
-        for (int y = 0; y < room.grid.GetLength(1); y++)
+        if (room != null)
         {
-            for (int x = 0; x < room.grid.GetLength(0); x++)
+            float buttons_pressed = 0;
+            for (int i = 0; i < room.buttons.Count; i++)
             {
-                if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button && room.object_grid[x,y].transform.childCount > 1)
+                if (room.buttons[i].transform.parent.childCount == 2)
                 {
                     buttons_pressed++;
                 }
             }
-        }
-
-        yield return new WaitForEndOfFrame();
-        if (buttons_pressed == room.num_boxes)
-        {
-            room.solved = true;
-            if (room.last)
+            if (buttons_pressed == room.buttons.Count)
             {
-                // Instantiate next level
-                game.level_won = true;
+                room.solved = true;
+                if (room.last)
+                {
+                    // Instantiate next level
+                    game.level_won = true;
+                }
+                else
+                {
+                    OpenDoors();
+                }
             }
             else
             {
-                OpenDoors();
+                room.solved = false;
+                CloseDoors();
             }
         }
-        else
-        {
-            room.solved = false;
-            CloseDoors();
-        }
-        StartCoroutine(Check());
     }
+
+    public void StartChecking(Room _room)
+    {
+        room = _room;
+    }
+
 
     void OpenDoors()
     {
@@ -66,21 +63,25 @@ public class CheckRoom : MonoBehaviour
                 if (room.exit_dirs[i] == Direction.N)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x, room.pos.y + 1];
+                    next_room.room_object.SetActive(true);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Open();
                 }
                 if (room.exit_dirs[i] == Direction.E)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x + 1, room.pos.y];
+                    next_room.room_object.SetActive(true);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Open();
                 }
                 if (room.exit_dirs[i] == Direction.S)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x, room.pos.y - 1];
+                    next_room.room_object.SetActive(true);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Open();
                 }
                 if (room.exit_dirs[i] == Direction.W)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x - 1, room.pos.y];
+                    next_room.room_object.SetActive(true);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Open();
                 }
             }
@@ -99,21 +100,25 @@ public class CheckRoom : MonoBehaviour
                 if (room.exit_dirs[i] == Direction.N)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x, room.pos.y + 1];
+                    next_room.room_object.SetActive(false);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Close();
                 }
                 if (room.exit_dirs[i] == Direction.E)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x + 1, room.pos.y];
+                    next_room.room_object.SetActive(false);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Close();
                 }
                 if (room.exit_dirs[i] == Direction.S)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x, room.pos.y - 1];
+                    next_room.room_object.SetActive(false);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Close();
                 }
                 if (room.exit_dirs[i] == Direction.W)
                 {
                     Room next_room = game.this_level.room_grid[room.pos.x - 1, room.pos.y];
+                    next_room.room_object.SetActive(false);
                     next_room.object_grid[next_room.entrance.x, next_room.entrance.y].GetComponent<DoorAction>().Close();
                 }
             }

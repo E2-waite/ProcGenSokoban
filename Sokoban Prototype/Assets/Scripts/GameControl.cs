@@ -29,38 +29,37 @@ public class GameControl : MonoBehaviour
 
     IEnumerator GenerateLevel()
     {
-        while (!this_level.generated)
+        while (this_level.maze_cells.Count == 0)
         {
             yield return null;
         }
-
-        // Instantiate room object and instantiate objects within
-        for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
+        // Generate rooms, starting with the first room and continuing through in order of depth
+        for (int i = 0; i < this_level.maze_cells.Count; i++)
         {
-            for (int x = 0; x < this_level.room_grid.GetLength(0); x++)
+            while (!this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].generated)
             {
-                this_level.room_grid[x, y].room_object = Instantiate(room_prefab, new Vector3(x * grid_x, 0, y * grid_y), Quaternion.identity);
-                this_level.room_grid[x, y].room_object.transform.parent = transform;
-                GetComponent<GenerateObjects>().Generate(this_level.room_grid[x, y]);
+                yield return null;
             }
+            Debug.Log("FIRST GENERATED");
+            this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].room_object = 
+                Instantiate(room_prefab, new Vector3(this_level.maze_cells[i].GetPos().x * grid_x, 0, this_level.maze_cells[i].GetPos().y * grid_y), Quaternion.identity);
+            this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].room_object.transform.parent = transform;
+            GetComponent<GenerateObjects>().Generate(this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y]);
         }
         this_level.instantiated = true;
 
         // Combine multiple room's object grids together to create a single object grid
-        this_level.grid = new int[this_level.room_grid.GetLength(0) * grid_x, this_level.room_grid.GetLength(1) * grid_y];
-        this_level.object_grid = new GameObject[this_level.room_grid.GetLength(0) * grid_x, this_level.room_grid.GetLength(1) * grid_y];
-        for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
+        this_level.object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y];
+        for (int i = 0; i < this_level.maze_cells.Count; i++)
         {
-            for (int x = 0; x < this_level.room_grid.GetLength(0); x++)
+            for (int y = 0; y < grid_y; y++)
             {
-                for (int iy = 0; iy < grid_y; iy++)
+                for (int x = 0; x < grid_x; x++)
                 {
-                    for (int ix = 0; ix < grid_x; ix++)
-                    {
-                        this_level.grid[ix + (x * grid_x), iy + (y * grid_y)] = this_level.room_grid[x, y].grid[ix, iy];
-                        this_level.object_grid[ix + (x * grid_x), iy + (y * grid_y)] = this_level.room_grid[x, y].object_grid[ix, iy];
-                        this_level.object_grid[ix + (x * grid_x), iy + (y * grid_y)].name = (ix + (x * grid_x)).ToString() + " " + (iy + (y * grid_y)).ToString();
-                    }
+                    Pos pos = new Pos { x = this_level.maze_cells[i].GetPos().x, y = this_level.maze_cells[i].GetPos().y };
+                    this_level.object_grid[x + (pos.x * grid_x), y + (pos.y * grid_y)] = this_level.room_grid[pos.x, pos.y].object_grid[x, y];
+                    this_level.object_grid[x + (pos.x * grid_x), y + (pos.y * grid_y)].name = (x + (pos.x * grid_x)).ToString() + " " + (y + (this_level.maze_cells[i].GetPos().y * grid_y)).ToString();
+                    yield return null;
                 }
             }
         }
@@ -68,7 +67,7 @@ public class GameControl : MonoBehaviour
         this_level.player = GameObject.FindGameObjectWithTag("Player");
         foreach (GameObject box in GameObject.FindGameObjectsWithTag("Box"))
         {
-            this_level.box.Add(box);
+            this_level.boxes.Add(box);
         }
 
         UpdateMove();
@@ -123,12 +122,11 @@ public class GameControl : MonoBehaviour
     public void UpdateMove()
     {
         Pos player_pos = new Pos() { x = (int)this_level.player.transform.parent.position.x, y = (int)this_level.player.transform.parent.position.z };
-
-        Debug.Log(this_level.box.Count.ToString());
         List<Pos> box_pos = new List<Pos>();
-        for (int i = 0;  i < this_level.box.Count; i++)
+
+        for (int i = 0;  i < this_level.boxes.Count; i++)
         {
-            box_pos.Add(new Pos() { x = (int)this_level.box[i].transform.parent.position.x, y = (int)this_level.box[i].transform.parent.position.z });
+            box_pos.Add(new Pos() { x = (int)this_level.boxes[i].transform.parent.position.x, y = (int)this_level.boxes[i].transform.parent.position.z });
         }
 
         this_level.moves.Add(new Move { player_pos = player_pos, box_pos = box_pos });
@@ -144,11 +142,11 @@ public class GameControl : MonoBehaviour
             this_level.player.transform.parent = this_level.object_grid[pos.x, pos.y].transform;
             this_level.player.transform.position = new Vector3(pos.x, 0.6f, pos.y);
 
-            for (int i = 0; i < this_level.box.Count; i++)
+            for (int i = 0; i < this_level.boxes.Count; i++)
             {
                 pos = this_level.moves[this_level.moves.Count - 1].box_pos[i];
-                this_level.box[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
-                this_level.box[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
+                this_level.boxes[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
+                this_level.boxes[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
             }
         }
     }

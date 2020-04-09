@@ -42,13 +42,14 @@ public class GenerateObjects : MonoBehaviour
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
                     boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
-                    game.this_level.box.Add(boxes[boxes.Count - 1]);
+                    game.this_level.boxes.Add(boxes[boxes.Count - 1]);
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     buttons.Add(Instantiate(button_prefab, room.object_grid[x, y].transform));
                     buttons[buttons.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
+                    room.buttons.Add(buttons[buttons.Count - 1]);
                 }
                 else if (room.grid[x, y] == (int)Elements.entrance)
                 {
@@ -64,6 +65,10 @@ public class GenerateObjects : MonoBehaviour
         }
 
         room.room_object.GetComponent<CheckRoom>().StartChecking(room);
+        if (!room.first)
+        {
+            room.room_object.SetActive(false);
+        }
         return room.object_grid;
     }
 
