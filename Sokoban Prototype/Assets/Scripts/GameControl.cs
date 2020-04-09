@@ -15,7 +15,6 @@ public class GameControl : MonoBehaviour
 
     bool time_written = false;
     float time = 0;
-    public GameObject player;
     Level next_level = null;
     public Level this_level;
     public bool level_won = false;
@@ -66,6 +65,13 @@ public class GameControl : MonoBehaviour
             }
         }
 
+        this_level.player = GameObject.FindGameObjectWithTag("Player");
+        foreach (GameObject box in GameObject.FindGameObjectsWithTag("Box"))
+        {
+            this_level.box.Add(box);
+        }
+
+        UpdateMove();
         next_level = GetComponent<GenerateLevel>().Generate(size_x, size_y, grid_x, grid_y, maze_x, maze_y);
         game_started = true;
     }
@@ -114,9 +120,36 @@ public class GameControl : MonoBehaviour
         StartCoroutine(GenerateLevel());
     }
 
-    public void UpdatePosition(Elements element, int[] old_pos, int[] new_pos)
+    public void UpdateMove()
     {
-        this_level.grid[old_pos[0], old_pos[1]] -= (int)element;
-        this_level.grid[new_pos[0], new_pos[1]] += (int)element;
+        Pos player_pos = new Pos() { x = (int)this_level.player.transform.parent.position.x, y = (int)this_level.player.transform.parent.position.z };
+
+        Debug.Log(this_level.box.Count.ToString());
+        List<Pos> box_pos = new List<Pos>();
+        for (int i = 0;  i < this_level.box.Count; i++)
+        {
+            box_pos.Add(new Pos() { x = (int)this_level.box[i].transform.parent.position.x, y = (int)this_level.box[i].transform.parent.position.z });
+        }
+
+        this_level.moves.Add(new Move { player_pos = player_pos, box_pos = box_pos });
+    }
+
+    public void StepBack()
+    {
+        Debug.Log("Num moves: " + this_level.moves.Count.ToString());
+        if (this_level.moves.Count > 1)
+        {
+            this_level.moves.RemoveAt(this_level.moves.Count - 1);
+            Pos pos = this_level.moves[this_level.moves.Count - 1].player_pos;
+            this_level.player.transform.parent = this_level.object_grid[pos.x, pos.y].transform;
+            this_level.player.transform.position = new Vector3(pos.x, 0.6f, pos.y);
+
+            for (int i = 0; i < this_level.box.Count; i++)
+            {
+                pos = this_level.moves[this_level.moves.Count - 1].box_pos[i];
+                this_level.box[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
+                this_level.box[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
+            }
+        }
     }
 }

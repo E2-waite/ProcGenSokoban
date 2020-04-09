@@ -37,12 +37,21 @@ namespace enums
         public GameObject[,] object_grid;
         public bool generated = false;
         public bool instantiated = false;
+        public GameObject player;
+        public List<GameObject> box = new List<GameObject>();
+        public List<Move> moves = new List<Move>();
     }
 
     public class Maze
     {
         public Cell[,] grid;
         public bool complete;
+    }
+
+    public class Move
+    {
+        public Pos player_pos;
+        public List<Pos> box_pos = new List<Pos>();
     }
 
     public class Pos

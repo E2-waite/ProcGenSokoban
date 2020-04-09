@@ -4,6 +4,7 @@ using UnityEngine;
 using enums;
 public class Player : MonoBehaviour
 {
+    public Pos pos;
     public float move_speed = 5;
     private GameControl game;
     private Vector3 target;
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyUp("left") && !moving) MovePlayer(-1, 0);
         if (Input.GetKeyUp("down") && !moving) MovePlayer(0, -1);
         if (Input.GetKeyUp("right") && !moving) MovePlayer(1, 0);
+        if (Input.GetKeyUp("z") && !moving) game.StepBack();
         if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;
     }
@@ -56,9 +58,9 @@ public class Player : MonoBehaviour
     {
         transform.parent = null;
         transform.parent = tile.transform;
-        game.UpdatePosition(Elements.player, new int[2] { (int)transform.position.x, (int)transform.position.z },
-            new int[2] { (int)transform.parent.position.x, (int)transform.parent.position.z });
         target = new Vector3(transform.parent.position.x, 0.6f, transform.parent.position.z);
         moving = true;
+        pos = new Pos() { x = (int)transform.parent.position.x, y = (int)transform.parent.position.y };
+        game.UpdateMove();
     }
 }

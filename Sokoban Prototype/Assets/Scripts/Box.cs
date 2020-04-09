@@ -4,6 +4,7 @@ using UnityEngine;
 using enums;
 public class Box : MonoBehaviour
 {
+    public Pos pos;
     public float move_speed = 5;
     private GameControl game;
     private Vector3 target;
@@ -38,10 +39,9 @@ public class Box : MonoBehaviour
         {
             transform.parent = null;
             transform.parent = tile.transform;
-            game.UpdatePosition(Elements.box, new int[2] { (int)transform.position.x, (int)transform.position.z },
-            new int[2] { (int)transform.parent.position.x, (int)transform.parent.position.z });
             target = new Vector3(transform.parent.position.x, 0.5f, transform.parent.position.z);
             moving = true;
+            pos = new Pos() { x = (int)transform.parent.position.x, y = (int)transform.parent.position.y };
             return true;
         }
         return false;

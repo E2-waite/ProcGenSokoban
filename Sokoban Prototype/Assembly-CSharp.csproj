@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\GridCheck.cs" />
     <Compile Include="Assets\Scripts\HallwayGenerator.cs" />
     <Compile Include="Assets\Scripts\ManipulateTemp.cs" />
+    <Compile Include="Assets\Scripts\Movement.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\RenderWall.cs" />
