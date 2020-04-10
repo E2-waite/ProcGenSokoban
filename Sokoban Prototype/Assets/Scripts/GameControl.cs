@@ -33,6 +33,9 @@ public class GameControl : MonoBehaviour
         {
             yield return null;
         }
+
+        this_level.object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y];
+
         // Generate rooms, starting with the first room and continuing through in order of depth
         for (int i = 0; i < this_level.maze_cells.Count; i++)
         {
@@ -45,13 +48,7 @@ public class GameControl : MonoBehaviour
                 Instantiate(room_prefab, new Vector3(this_level.maze_cells[i].GetPos().x * grid_x, 0, this_level.maze_cells[i].GetPos().y * grid_y), Quaternion.identity);
             this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].room_object.transform.parent = transform;
             GetComponent<GenerateObjects>().Generate(this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y]);
-        }
-        this_level.instantiated = true;
 
-        // Combine multiple room's object grids together to create a single object grid
-        this_level.object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y];
-        for (int i = 0; i < this_level.maze_cells.Count; i++)
-        {
             for (int y = 0; y < grid_y; y++)
             {
                 for (int x = 0; x < grid_x; x++)
@@ -62,17 +59,16 @@ public class GameControl : MonoBehaviour
                     yield return null;
                 }
             }
-        }
 
-        this_level.player = GameObject.FindGameObjectWithTag("Player");
-        foreach (GameObject box in GameObject.FindGameObjectsWithTag("Box"))
-        {
-            this_level.boxes.Add(box);
+            if (i == 0)
+            {
+                game_started = true;
+                UpdateMove();
+            }
         }
+        this_level.instantiated = true;
 
-        UpdateMove();
         next_level = GetComponent<GenerateLevel>().Generate(size_x, size_y, grid_x, grid_y, maze_x, maze_y);
-        game_started = true;
     }
 
     private void Update()
@@ -134,7 +130,6 @@ public class GameControl : MonoBehaviour
 
     public void StepBack()
     {
-        Debug.Log("Num moves: " + this_level.moves.Count.ToString());
         if (this_level.moves.Count > 1)
         {
             this_level.moves.RemoveAt(this_level.moves.Count - 1);
@@ -144,9 +139,12 @@ public class GameControl : MonoBehaviour
 
             for (int i = 0; i < this_level.boxes.Count; i++)
             {
-                pos = this_level.moves[this_level.moves.Count - 1].box_pos[i];
-                this_level.boxes[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
-                this_level.boxes[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
+                if (this_level.moves[this_level.moves.Count - 1].box_pos.Count > i)
+                {
+                    pos = this_level.moves[this_level.moves.Count - 1].box_pos[i];
+                    this_level.boxes[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
+                    this_level.boxes[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
+                }
             }
         }
     }

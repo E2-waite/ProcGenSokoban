@@ -17,10 +17,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyUp("up") && !moving) MovePlayer(0, 1);
-        if (Input.GetKeyUp("left") && !moving) MovePlayer(-1, 0);
-        if (Input.GetKeyUp("down") && !moving) MovePlayer(0, -1);
-        if (Input.GetKeyUp("right") && !moving) MovePlayer(1, 0);
+        if (Input.GetKey("up") && !moving) MovePlayer(0, 1);
+        if (Input.GetKey("left") && !moving) MovePlayer(-1, 0);
+        if (Input.GetKey("down") && !moving) MovePlayer(0, -1);
+        if (Input.GetKey("right") && !moving) MovePlayer(1, 0);
         if (Input.GetKeyUp("z") && !moving) game.StepBack();
         if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;

@@ -5,6 +5,7 @@ namespace enums
 {
     public class Room
     {
+        public Level parent_level;
         public Pos pos;
         public GameObject room_object;
         public int[,] grid;

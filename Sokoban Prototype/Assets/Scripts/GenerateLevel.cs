@@ -41,6 +41,7 @@ public class GenerateLevel : MonoBehaviour
         {
             level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y] = new Room { size_x = size_x, size_y = size_y, grid_x = grid_x, grid_y = grid_y,
                     num_templates = size_x * size_y };
+            level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].parent_level = level;
             level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].offset_x = 
                 level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].grid_x * level.maze_cells[i].GetPos().x;
             level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].offset_y = 

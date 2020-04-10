@@ -8,11 +8,6 @@ public class GenerateObjects : MonoBehaviour
     GameObject player;
     List<GameObject> buttons = new List<GameObject>();
     List<GameObject> boxes = new List<GameObject>();
-    GameControl game;
-    private void Start()
-    {
-        game = GetComponent<GameControl>();
-    }
 
     // Start is called before the first frame update
     public GameObject[,] Generate(Room room)
@@ -35,14 +30,14 @@ public class GenerateObjects : MonoBehaviour
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     player = Instantiate(player_prefab, room.object_grid[x, y].transform);
                     player.transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
-                    game.this_level.player = player;
+                    room.parent_level.player = player;
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.box)
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
                     boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
-                    game.this_level.boxes.Add(boxes[boxes.Count - 1]);
+                    room.parent_level.boxes.Add(boxes[boxes.Count - 1]);
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)
                 {
