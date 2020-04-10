@@ -261,6 +261,28 @@ public class GeneratePuzzle : MonoBehaviour
         }
 
         room.stage = Stage.complete;
-        room.generated = true;
+        StartCoroutine(CheckSolver(room));
+    }
+
+    IEnumerator CheckSolver(Room room)
+    {
+        Debug.Log("STARTED SOLVER");
+        Solver solver = GetComponent<Solver>();
+        solver.StartSolving(room);
+        // Wait until solver has failed or succeeded in solving the puzzle
+        while (!solver.failed && !solver.solved)
+        {
+            yield return null;
+        }
+        if (solver.failed)
+        {
+            PlaceButtons(room);
+            Debug.Log("FAILED");
+        }
+        if (solver.solved)
+        {
+            room.generated = true;
+            Debug.Log("SOLVED");
+        }
     }
 }

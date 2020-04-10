@@ -324,6 +324,7 @@ GameObject:
   - component: {fileID: 1734988051}
   - component: {fileID: 1734988050}
   - component: {fileID: 1734988049}
+  - component: {fileID: 1734988053}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Grid
@@ -457,3 +458,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f6bb84f55918b843a10f36b72e836b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1734988053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 625ab02b2594e5842b94c415a8b2cbdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  solved: 0
+  failed: 0
+  num_moves: 0
