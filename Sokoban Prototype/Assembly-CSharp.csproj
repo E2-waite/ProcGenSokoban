@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\RenderWall.cs" />
+    <Compile Include="Assets\Scripts\Solver.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
     <None Include="Assets\GenerationTime.txt" />
     <Reference Include="Unity.Timeline.Editor">
