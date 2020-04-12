@@ -31,7 +31,7 @@ public class GenerateGrid : MonoBehaviour
     }
 
     private IEnumerator CombineTemplates(Room room)
-    {
+    { 
         room.grid = new int[room.grid_x, room.grid_y];
         int[,] temp_grid = new int[room.grid_x, room.grid_y];
         int i = 0, x_pos = 0, y_pos = 0;

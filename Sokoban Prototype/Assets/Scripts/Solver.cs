@@ -16,15 +16,24 @@ public class Solver : MonoBehaviour
         public int[,] grid;
         public Pos player_pos;
         public Pos[] box_pos;
+        public DirsChecked[] dirs;
         public bool complete = false;
+    }
+
+    class DirsChecked
+    {
+        public bool[] _checked = new bool[4];
     }
 
     public void StartSolving(Room room)
     {
-        Node node = new Node { grid = room.grid.Clone() as int[,] };
+        Debug.Log("STARTING");
         num_boxes = room.num_boxes;
-        node.box_pos = new Pos[num_boxes];
-        node.box_pos = new Pos[num_boxes];
+        Node node = new Node { grid = room.grid.Clone() as int[,], box_pos = new Pos[num_boxes],  dirs = new DirsChecked[num_boxes] };
+        for (int i = 0; i < node.dirs.Length; i++)
+        {
+            node.dirs[i] = new DirsChecked();
+        }
         button_pos = new Pos[num_boxes];
         StartCoroutine(StartStep(node));
     }
@@ -62,23 +71,29 @@ public class Solver : MonoBehaviour
 
     IEnumerator Step(Node node, Direction last_dir, int last_box)
     {
-        yield return new WaitForSeconds(0.001f);
-        Debug.Log("STEP");
-        //// If all buttons are pressed stop searching and set as solved
-        //int buttons_pressed = 0;
-        //for (int i = 0; i < num_boxes; i++)
-        //{
-        //    if (node.grid[button_pos[i].x, button_pos[i].y] == (int)Elements.floor + (int)Elements.button + (int)Elements.box)
-        //    {
-        //        buttons_pressed++;
-        //    }
-        //    yield return null;
-        //}
-        //if (buttons_pressed == num_boxes)
-        //{
-        //    solved = true;
-        //    yield break;
-        //}
+        Debug.Log(node.parents.Count.ToString());
+        //Debug.Log("0: " + node.box_pos[0].x.ToString() + " " + node.box_pos[0].y.ToString() +
+        //         " 1: " + node.box_pos[1].x.ToString() + " " + node.box_pos[1].y.ToString() +
+        //         " 2: " + node.box_pos[2].x.ToString() + " " + node.box_pos[2].y.ToString());
+        // If all buttons are pressed stop searching and set as solved
+        int buttons_pressed = 0;
+        for (int i = 0; i < num_boxes; i++)
+        {
+            if (node.grid[button_pos[i].x, button_pos[i].y] == (int)Elements.floor + (int)Elements.button + (int)Elements.box)
+            {
+                buttons_pressed++;
+            }
+            yield return null;
+        }
+        if (buttons_pressed > 0)
+        {
+            Debug.Log("Buttons Pressed: " + buttons_pressed.ToString());
+        }
+        if (buttons_pressed == num_boxes)
+        {
+            solved = true;
+            yield break;
+        }
 
         Direction dir = last_dir;
         int box_num = last_box;
@@ -87,14 +102,12 @@ public class Solver : MonoBehaviour
         {
             for (int j = 0; j < 4; j++)
             {
-                Debug.Log("LOOPING");
-                Node new_node = null;
-                //Node new_node = MoveBox(box_num, dir, node);
-                if (new_node != null)
+                if (!node.dirs[box_num]._checked[(int)dir])
                 {
-                    StartCoroutine(Step(new_node, dir, box_num));
+                    StartCoroutine(CheckMovement(box_num, dir, node));
                     yield break;
                 }
+
                 if (dir == Direction.W)
                 {
                     dir = Direction.N;
@@ -117,21 +130,22 @@ public class Solver : MonoBehaviour
             dir = GetClosestDir(node.box_pos[box_num], node);
         }
 
+        Debug.Log("BACK, Node parents: " + node.parents.Count.ToString());
         // If reaches this point, none of the boxes can be moved in any direction (step back)
         node.complete = true;
         if (node.parents.Count > 0)
         {
-            Step(node.parents[node.parents.Count - 1], dir, box_num);
+            StartCoroutine(Step(node.parents[node.parents.Count - 1], dir, box_num));
         }
         else
         {
             failed = true;
+            yield break;
         }
     }
 
     Direction GetClosestDir(Pos pos, Node node)
     {
-        Debug.Log("Getting Closest Dir");
         float distance = 1000;
         Direction closest = Direction.None;
         for (int i = 0; i < button_pos.Length; i++)
@@ -190,9 +204,18 @@ public class Solver : MonoBehaviour
         return false;
     }
 
-    IEnumerator MoveBox(int box_num, Direction dir, Node node)
+    class Move
     {
-        Debug.Log("Moving Box");
+        public int box_num;
+        public Pos pos;
+        public Direction dir;
+        public bool can_move;
+    }
+
+
+    IEnumerator CheckMovement(int box_num, Direction dir, Node node)
+    {
+        node.dirs[box_num]._checked[(int)dir] = true;
         Pos push_pos = null, to_pos = null;
         if (dir == Direction.N)
         {
@@ -202,7 +225,7 @@ public class Solver : MonoBehaviour
         if (dir == Direction.E)
         {
             push_pos = new Pos { x = node.box_pos[box_num].x - 1, y = node.box_pos[box_num].y };
-            to_pos = new Pos { x = node.box_pos[box_num].x + 1, y = node.box_pos[box_num].y};
+            to_pos = new Pos { x = node.box_pos[box_num].x + 1, y = node.box_pos[box_num].y };
         }
         if (dir == Direction.S)
         {
@@ -215,37 +238,18 @@ public class Solver : MonoBehaviour
             to_pos = new Pos { x = node.box_pos[box_num].x - 1, y = node.box_pos[box_num].y };
         }
 
-        if (dir == Direction.N)
-        {
-            dir = Direction.W;
-        }
-        else
-        {
-            dir++;
-        }
-
         // Do not move box if:
         // Position to push from or position being pushed to are walls
         // There is no path from the player position to the push position (player cannot push in this direction)
         // The desired box position is a corner and is not a button (puts box in dead state, unless tile is a button)
         // One of this node's children moved to to_pos (already attempted)
-        if (node.grid[push_pos.x, push_pos.y] == (int)Elements.wall || node.grid[to_pos.x, to_pos.y] == (int)Elements.wall ||
-            !PathExists(push_pos, node) || (node.grid[to_pos.x, to_pos.y] == (int)Elements.floor && CheckCorner(to_pos, node)))
+        if (node.grid[push_pos.x, push_pos.y] == (int)Elements.wall || node.grid[push_pos.x, push_pos.y] == (int)Elements.entrance ||
+            node.grid[push_pos.x, push_pos.y] == (int)Elements.exit || node.grid[to_pos.x, to_pos.y] == (int)Elements.wall ||
+            node.grid[to_pos.x, to_pos.y] == (int)Elements.entrance || node.grid[to_pos.x, to_pos.y] == (int)Elements.exit ||
+            (node.grid[to_pos.x, to_pos.y] == (int)Elements.floor && CheckCorner(to_pos, node)))
         {
             StartCoroutine(Step(node, dir, box_num));
             yield break;
-        }
-        
-        for (int i = 0; i < node.children.Count; i++)
-        {
-            if (node.children[i].box_pos[box_num].x == to_pos.x &&
-                node.children[i].box_pos[box_num].y == to_pos.y)
-            {
-                // Prevents checking the same child node multiple times
-                StartCoroutine(Step(node, dir, box_num));
-                yield break;
-            }
-            yield return null;
         }
 
         for (int i = node.parents.Count - 1; i >= 0; i--)
@@ -253,20 +257,50 @@ public class Solver : MonoBehaviour
             if (node.parents[i].box_pos[box_num].x == to_pos.x &&
                 node.parents[i].box_pos[box_num].y == to_pos.y)
             {
+                //Debug.Log("STEPPED BEFORE");
                 StartCoroutine(Step(node, dir, box_num));
                 yield break;
             }
             yield return null;
         }
 
+        StartCoroutine(MoveBox(box_num, dir, to_pos, node));
+        yield break;
+    }
+
+    IEnumerator MoveBox(int box_num, Direction dir, Pos pos, Node node)
+    {
+        //Debug.Log("MOVING BOX");
         // Moves box and player and creates new node
-        Node new_node = new Node { grid = node.grid.Clone() as int[,], parents = node.parents };
+        Node new_node = new Node 
+        { 
+            dirs = new DirsChecked[num_boxes], 
+            grid = node.grid.Clone() as int[,],
+            box_pos = new Pos[num_boxes], 
+            player_pos = new Pos { x = node.player_pos.x, y = node.player_pos.y }
+
+        };
+        for (int i = 0; i < num_boxes; i++)
+        {
+            new_node.box_pos[i] = new Pos { x = node.box_pos[i].x, y = node.box_pos[i].y };
+        }
+        for (int i = 0; i < new_node.dirs.Length; i++)
+        {
+            new_node.dirs[i] = new DirsChecked();
+            yield return null;
+        }
+        new_node.parents = new List<Node>();
+        for (int i = 0; i < node.parents.Count; i++)
+        {
+            new_node.parents.Add(node.parents[i]);
+            yield return null;
+        }
         new_node.parents.Add(node);
         node.children.Add(new_node);
         new_node.grid[new_node.box_pos[box_num].x, new_node.box_pos[box_num].y] -= (int)Elements.box;
         new_node.grid[new_node.player_pos.x, new_node.player_pos.y] -= (int)Elements.player;
         new_node.player_pos = new_node.box_pos[box_num];
-        new_node.box_pos[box_num] = to_pos;
+        new_node.box_pos[box_num] = new Pos { x = pos.x, y = pos.y};
         new_node.grid[node.box_pos[box_num].x, new_node.box_pos[box_num].y] += (int)Elements.box;
         new_node.grid[node.player_pos.x, node.player_pos.y] += (int)Elements.player;
         StartCoroutine(Step(new_node, dir, box_num));
@@ -276,49 +310,6 @@ public class Solver : MonoBehaviour
     {
         public Pos pos;
         public List<PathCell> children;
-    }
-
-    bool PathExists(Pos start, Node node)
-    {
-        Debug.Log("Checking Player to Box Path");
-        int[,] temp_grid = node.grid.Clone() as int[,];
-        List<Pos> checked_floor = new List<Pos>();
-        Direction dir = Direction.E;
-        checked_floor.Add(start);
-
-        // Loop until checks returns to start position (if it does, player cannot path to position)
-        while (checked_floor.Count > 0)
-        {
-            bool placed = false;
-            for (int i = 0; i < 4; i++)
-            {
-                Pos pos = CheckDir(checked_floor[checked_floor.Count - 1], dir, node);
-                // If direction is free, add to checked list and set grid position to 0
-                if (!pos.empty)
-                {
-                    // If player is found, path is available
-                    if (temp_grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.player ||
-                        temp_grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.player + (int)Elements.button)
-                    {
-                        return true;
-                    }
-                    temp_grid[pos.x, pos.y] = 0;
-                    checked_floor.Add(pos);
-                    placed = true;
-                    break;
-                }
-
-                if (dir == Direction.W) dir = Direction.N;
-                else dir++;
-            }
-
-            if (!placed)
-            {
-                // If no surrounding tiles are floor remove last position in checked floor list (backtracks 1 space)
-                checked_floor.Remove(checked_floor[checked_floor.Count - 1]);
-            }
-        }
-        return false;
     }
 
     private Pos CheckDir(Pos pos, Direction dir, Node node)

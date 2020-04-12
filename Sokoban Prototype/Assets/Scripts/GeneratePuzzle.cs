@@ -14,11 +14,12 @@ public class GeneratePuzzle : MonoBehaviour
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
         room.num_boxes = num_boxes;
-        PlaceButtons(room);
+        StartCoroutine(PlaceButtons(room));
     }
 
-    private void PlaceButtons(Room room)
+    private IEnumerator PlaceButtons(Room room)
     {
+        Debug.Log("PLACING BUTTONS");
         room.grid = empty_grid.Clone() as int[,];
 
         if (attempts > max_attempts)
@@ -36,6 +37,7 @@ public class GeneratePuzzle : MonoBehaviour
                 room.grid[x_pos, y_pos] += (int)Elements.button;
                 button_positions.Add(new Pos { x = x_pos, y = y_pos });
             }
+            yield return null;
         }
         box_positions = new List<Pos>();
         BoxPlace(room);
@@ -59,7 +61,7 @@ public class GeneratePuzzle : MonoBehaviour
         {
             if (room.first)
             {
-                PlacePlayer(room);
+                StartCoroutine(PlacePlayer(room));
             }
             else
             {
@@ -74,7 +76,7 @@ public class GeneratePuzzle : MonoBehaviour
         }
     }
 
-    void PlacePlayer(Room room)
+    IEnumerator PlacePlayer(Room room)
     {
         Pos entrance_pos = new Pos();
 
@@ -87,6 +89,7 @@ public class GeneratePuzzle : MonoBehaviour
                     entrance_pos = new Pos { x = x, y = y };
                     break;
                 }
+                yield return null;
             }
         }
 
@@ -186,7 +189,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
-                    PlaceButtons(room);
+                    StartCoroutine(PlaceButtons(room));
                 }
             }
             else
@@ -197,7 +200,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
-                    PlaceButtons(room);
+                    StartCoroutine(PlaceButtons(room));
                 }
             }
         }
@@ -253,7 +256,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 if (time_checked >= 1)
                 {
-                    PlaceButtons(room);
+                    StartCoroutine(PlaceButtons(room));
                     yield break;
                 }
                 yield return null;
@@ -276,7 +279,7 @@ public class GeneratePuzzle : MonoBehaviour
         }
         if (solver.failed)
         {
-            PlaceButtons(room);
+            StartCoroutine(PlaceButtons(room));
             Debug.Log("FAILED");
         }
         if (solver.solved)
