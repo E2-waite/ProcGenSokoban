@@ -21,6 +21,12 @@ namespace enums
         public List<GameObject> buttons = new List<GameObject>();
     }
 
+    public class Attempt
+    {
+        public bool solved = false, failed = false;
+    }
+
+
     public enum Stage
     { 
         level,

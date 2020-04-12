@@ -269,23 +269,24 @@ public class GeneratePuzzle : MonoBehaviour
 
     IEnumerator CheckSolver(Room room)
     {
+        Attempt attempt = new Attempt();
         Debug.Log("STARTED SOLVER");
         Solver solver = GetComponent<Solver>();
-        solver.StartSolving(room);
+        solver.StartSolving(room, attempt);
         // Wait until solver has failed or succeeded in solving the puzzle
-        while (!solver.failed && !solver.solved)
+        while (!attempt.failed && !attempt.solved)
         {
             yield return null;
         }
-        if (solver.failed)
+        if (attempt.failed)
         {
             StartCoroutine(PlaceButtons(room));
             Debug.Log("FAILED");
         }
-        if (solver.solved)
+        if (attempt.solved)
         {
-            room.generated = true;
             Debug.Log("SOLVED");
+            room.generated = true;
         }
     }
 }
