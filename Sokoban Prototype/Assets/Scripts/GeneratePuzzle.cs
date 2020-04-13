@@ -67,12 +67,18 @@ public class GeneratePuzzle : MonoBehaviour
 
     void BoxPlace(Room room)
     {
-        room.stage = Stage.boxes;
         StopAllCoroutines();
         // If enough boxes have been placed, continue else place next box
         if (box_positions.Count == num_boxes)
         {
-            StartCoroutine(CheckPath(room));               
+            if (room.first && room.last)
+            {
+                room.generated = true;
+            }
+            else
+            {
+                StartCoroutine(CheckPath(room));
+            }
         }
         else
         {
@@ -158,7 +164,6 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("NOT FLOOR");
                     StartCoroutine(PlaceButtons(room));
                 }
             }
@@ -211,7 +216,6 @@ public class GeneratePuzzle : MonoBehaviour
 
     IEnumerator CheckPath(Room room)
     {
-        room.stage = Stage.path;
         for (int i = 0; i < room.exits.Count; i++)
         {
             float time_checked = 0;
@@ -234,7 +238,6 @@ public class GeneratePuzzle : MonoBehaviour
             }
         }
 
-        room.stage = Stage.complete;
         room.generated = true;
         timer_stopped = true;
         //StartCoroutine(CheckSolver(room));

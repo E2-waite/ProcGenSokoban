@@ -105,4 +105,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 215f18c086c764040a86b438d84f6597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  active: 1
+  door_type: 0

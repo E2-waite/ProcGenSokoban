@@ -103,6 +103,7 @@ namespace enums
         box = 8,
         button = 16,
         entrance = 32,
-        exit = 64
+        exit = 64, 
+        trapdoor = 128
     }
 }

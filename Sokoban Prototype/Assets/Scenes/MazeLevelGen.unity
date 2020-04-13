@@ -386,8 +386,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  maze_x: 3
-  maze_y: 3
+  maze_x: 1
+  maze_y: 1
   game_started: 0
   seconds: 0
   room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,
@@ -418,6 +418,8 @@ MonoBehaviour:
   entrance_prefab: {fileID: 7128332734857414354, guid: 98832b0a5f180f84da93a57c6602cf8b,
     type: 3}
   exit_prefab: {fileID: 6172572861218704768, guid: 6e2b1530ab9088c46a944ecf47c1f945,
+    type: 3}
+  trapdoor_prefab: {fileID: 6561746889423271843, guid: 41fa1012ab6630d47bad32674b59b890,
     type: 3}
 --- !u!114 &1734988050
 MonoBehaviour:

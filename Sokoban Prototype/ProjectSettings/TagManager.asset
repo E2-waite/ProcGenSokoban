@@ -9,7 +9,9 @@ TagManager:
   - Button
   - Wall
   - Floor
+  - Door
   - Doorway
+  - Trapdoor
   layers:
   - Default
   - TransparentFX

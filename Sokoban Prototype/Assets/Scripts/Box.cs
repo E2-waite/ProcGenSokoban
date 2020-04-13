@@ -35,7 +35,9 @@ public class Box : MonoBehaviour
         if (tile.CompareTag("Floor") &&
             (tile.transform.childCount == 0 ||
             (tile.transform.childCount == 1 &&
-            tile.transform.GetChild(0).CompareTag("Button"))))
+            tile.transform.GetChild(0).CompareTag("Button"))) ||
+            tile.CompareTag("Trapdoor") ||
+            (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()))
         {
             transform.parent = null;
             transform.parent = tile.transform;

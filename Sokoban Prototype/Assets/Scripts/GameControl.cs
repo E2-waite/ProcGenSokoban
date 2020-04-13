@@ -43,7 +43,6 @@ public class GameControl : MonoBehaviour
             {
                 yield return null;
             }
-            Debug.Log("FIRST GENERATED");
             this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].room_object = 
                 Instantiate(room_prefab, new Vector3(this_level.maze_cells[i].GetPos().x * grid_x, 0, this_level.maze_cells[i].GetPos().y * grid_y), Quaternion.identity);
             this_level.room_grid[this_level.maze_cells[i].GetPos().x, this_level.maze_cells[i].GetPos().y].room_object.transform.parent = transform;
@@ -104,11 +103,14 @@ public class GameControl : MonoBehaviour
     void DeleteLevel()
     {
         level_won = false;
-        for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
+        if (this_level.room_grid != null)
         {
-            for (int x = 0; x < this_level.room_grid.GetLength(0); x++)
+            for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
             {
-                Destroy(this_level.room_grid[x, y].room_object);
+                for (int x = 0; x < this_level.room_grid.GetLength(0); x++)
+                {
+                    Destroy(this_level.room_grid[x, y].room_object);
+                }
             }
         }
         this_level = next_level;

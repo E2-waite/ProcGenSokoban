@@ -22,14 +22,12 @@ public class GenerateGrid : MonoBehaviour
 
     public void Restart(Room room)
     {
-        room.stage = Stage.grid;
         // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
         StartCoroutine(CombineTemplates(room));
     }
 
     public void StartGenerating(Cell cell, Room room)
     {
-        room.stage = Stage.grid;
         room.generated = false;
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
@@ -161,14 +159,15 @@ public class GenerateGrid : MonoBehaviour
 
     IEnumerator PlaceDoorways(Room room)
     {
+        bool generate = true;
         // Do not place entrance doorway in first room
         room.exits = new List<Pos>();
         for (int i = 0; i < room.exit_dirs.Count; i++)
         {
             if (!PlaceDoorway(room.exit_dirs[i], Elements.exit, room))
             {
-                Restart(room);
-                yield break;
+                generate = false;
+                break;
             }
             yield return null;
         }
@@ -182,33 +181,45 @@ public class GenerateGrid : MonoBehaviour
             room.exits.Add(new Pos { x = Mathf.RoundToInt(room.grid.GetLength(0) / 2), y = Mathf.RoundToInt(room.grid.GetLength(1) / 2) });
         }
 
-        if (room.last || room.first)
+        if (room.last)
         {
-            if (CheckCentre(room))
+            if (!room.first && !PlaceDoorway(room.entrance_dir, Elements.entrance, room))
             {
-                timer_stopped = true;
-                GetComponent<GeneratePuzzle>().Generate(room);
+                generate = false;
             }
-            else
+            if (!CheckCentre(room))
             {
-                Debug.Log("CENTRE NOT FREE");
-                Restart(room);
+                generate = false;
+
+            }
+        }
+        else if (room.first)
+        {
+            if (!CheckCentre(room))
+            {
+                generate = false;
             }
         }
         else
         {
-            if (PlaceDoorway(room.entrance_dir, Elements.entrance, room))
+            if (!PlaceDoorway(room.entrance_dir, Elements.entrance, room))
             {
-                timer_stopped = true;
-                GetComponent<GeneratePuzzle>().Generate(room);
-            }
-            else
-            {
-                Debug.Log("FAILED DOOR");
-                Restart(room);
+                generate = false;
             }
         }
-
+        if (generate)
+        {
+            if (room.last)
+            {
+                room.grid[room.exits[0].x, room.exits[0].y] = (int)Elements.trapdoor;
+            }
+            timer_stopped = true;
+            GetComponent<GeneratePuzzle>().Generate(room);
+        }
+        else
+        {
+            Restart(room);
+        }
 
     }
 

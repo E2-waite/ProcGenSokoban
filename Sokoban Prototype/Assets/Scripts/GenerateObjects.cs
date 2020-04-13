@@ -4,7 +4,7 @@ using UnityEngine;
 using enums;
 public class GenerateObjects : MonoBehaviour
 {
-    public GameObject floor_prefab, wall_prefab, player_prefab, box_prefab, button_prefab, entrance_prefab, exit_prefab;
+    public GameObject floor_prefab, wall_prefab, player_prefab, box_prefab, button_prefab, entrance_prefab, exit_prefab, trapdoor_prefab;
     GameObject player;
     List<GameObject> buttons = new List<GameObject>();
     List<GameObject> boxes = new List<GameObject>();
@@ -12,6 +12,8 @@ public class GenerateObjects : MonoBehaviour
     // Start is called before the first frame update
     public GameObject[,] Generate(Room room)
     {
+        room.buttons = new List<GameObject>();
+        room.parent_level.boxes = new List<GameObject>();
         room.object_grid = new GameObject[room.grid.GetLength(0), room.grid.GetLength(1)];
         for (int y = 0; y < room.grid.GetLength(1); y++)
         {
@@ -29,7 +31,7 @@ public class GenerateObjects : MonoBehaviour
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     player = Instantiate(player_prefab, room.object_grid[x, y].transform);
-                    player.transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
+                    player.transform.position = new Vector3(x + room.offset_x, 0.6f, y + room.offset_y);
                     room.parent_level.player = player;
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.box)
@@ -53,6 +55,17 @@ public class GenerateObjects : MonoBehaviour
                 else if (room.grid[x, y] == (int)Elements.exit)
                 {
                     room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                }
+                else if (room.grid[x,y ] == (int)Elements.trapdoor)
+                {
+                    room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                }
+                else if (room.grid[x,y] == (int)Elements.trapdoor + (int)Elements.player)
+                {
+                    room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                    player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 0.6f, y + room.offset_y),Quaternion.identity);
+                    player.transform.parent = room.object_grid[x, y].transform;
+                    room.parent_level.player = player;
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
@@ -133,30 +146,5 @@ public class GenerateObjects : MonoBehaviour
             else return false;
         }
         return false;
-    }
-
-    public void Delete(Room room)
-    {
-        if (room.object_grid != null)
-        {
-            for (int y = 0; y < room.object_grid.GetLength(1); y++)
-            {
-                for (int x = 0; x < room.object_grid.GetLength(0); x++)
-                {
-                    Destroy(room.object_grid[x, y]);
-                }
-            }
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                Destroy(buttons[i]);
-            }
-            buttons.Clear();
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                Destroy(boxes[i]);
-            }
-            boxes.Clear();
-            Destroy(player);
-        }
     }
 }

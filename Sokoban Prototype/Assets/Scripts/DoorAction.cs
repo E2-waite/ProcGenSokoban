@@ -4,18 +4,40 @@ using UnityEngine;
 
 public class DoorAction : MonoBehaviour
 {
-    bool open = false;
+    public bool open = false;
+    public Type door_type;
+    public enum Type
+    {
+        Door,
+        Trapdoor
+    }
 
     public void Close()
     {
         open = false;
-        transform.position = new Vector3(transform.position.x, 1, transform.position.z);
+        if (door_type == Type.Door)
+        {
+            transform.position = new Vector3(transform.position.x, 1, transform.position.z);
+        }
+        else
+        {
+            Renderer rend = GetComponent<Renderer>();
+            rend.enabled = true;
+        }
     }
 
     public void Open()
     {
         open = true;
-        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        if (door_type == Type.Door)
+        {
+            transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        }
+        else
+        {
+            Renderer rend = GetComponent<Renderer>();
+            rend.enabled = false;
+        }
     }
 
     public bool IsOpen()

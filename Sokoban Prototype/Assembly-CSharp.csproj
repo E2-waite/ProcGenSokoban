@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\RenderWall.cs" />
     <Compile Include="Assets\Scripts\Solver.cs" />
     <Compile Include="Assets\Scripts\Templates.cs" />
+    <Compile Include="Assets\TrapDoor.cs" />
     <None Include="Assets\GenerationTime.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Files/University Work/Year 3/CTP/ProcGenSokoban/Sokoban Prototype/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

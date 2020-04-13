@@ -24,6 +24,12 @@ public class Player : MonoBehaviour
         if (Input.GetKeyUp("z") && !moving) game.StepBack();
         if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;
+        
+        // Game is won if player is stood on open trap door
+        if (!moving && transform.parent != null && transform.parent.CompareTag("Trapdoor") && transform.parent.GetComponent<DoorAction>().IsOpen())
+        {
+            game.level_won = true;
+        }
     }
 
     private void MovePlayer(int x_dir, int y_dir)
@@ -31,7 +37,7 @@ public class Player : MonoBehaviour
         int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
         GameObject tile = game.this_level.object_grid[x_pos, y_pos];
 
-        if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()))
+        if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()) || tile.CompareTag("Trapdoor"))
         {
             if (tile.transform.childCount == 0) Move(tile);
             else
