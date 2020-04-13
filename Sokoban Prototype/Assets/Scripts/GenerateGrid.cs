@@ -175,8 +175,25 @@ public class GenerateGrid : MonoBehaviour
 
         if (room.first)
         {
-            timer_stopped = true;
-            GetComponent<GeneratePuzzle>().Generate(room);
+            room.entrance = new Pos { x = Mathf.RoundToInt(room.grid.GetLength(0) / 2), y = Mathf.RoundToInt(room.grid.GetLength(1) / 2) };
+        }
+        if (room.last)
+        {
+            room.exits.Add(new Pos { x = Mathf.RoundToInt(room.grid.GetLength(0) / 2), y = Mathf.RoundToInt(room.grid.GetLength(1) / 2) });
+        }
+
+        if (room.last || room.first)
+        {
+            if (CheckCentre(room))
+            {
+                timer_stopped = true;
+                GetComponent<GeneratePuzzle>().Generate(room);
+            }
+            else
+            {
+                Debug.Log("CENTRE NOT FREE");
+                Restart(room);
+            }
         }
         else
         {
@@ -193,6 +210,15 @@ public class GenerateGrid : MonoBehaviour
         }
 
 
+    }
+
+    bool CheckCentre(Room room)
+    {
+        if (room.grid[Mathf.RoundToInt(room.grid.GetLength(0) / 2), Mathf.RoundToInt(room.grid.GetLength(1) / 2)] == (int)Elements.wall)
+        {
+            return false;
+        }
+        return true;
     }
 
     bool PlaceDoorway(Direction edge, Elements type, Room room)

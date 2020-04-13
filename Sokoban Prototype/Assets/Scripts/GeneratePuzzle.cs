@@ -13,6 +13,10 @@ public class GeneratePuzzle : MonoBehaviour
     bool timer_started = false, timer_stopped = false;
     public void Generate(Room room)
     {
+        if (room.first)
+        {
+            room.grid[room.entrance.x, room.entrance.y] += (int)Elements.player;
+        }
         timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
@@ -68,14 +72,7 @@ public class GeneratePuzzle : MonoBehaviour
         // If enough boxes have been placed, continue else place next box
         if (box_positions.Count == num_boxes)
         {
-            if (room.first)
-            {
-                StartCoroutine(PlacePlayer(room));
-            }
-            else
-            {              
-                StartCoroutine(CheckPath(room));               
-            }
+            StartCoroutine(CheckPath(room));               
         }
         else
         {
@@ -83,13 +80,6 @@ public class GeneratePuzzle : MonoBehaviour
             Node current_node = new Node { pos = button_positions[box_positions.Count] };
             StartCoroutine(CheckNode(current_node, new Node(), room));
         }
-    }
-
-    IEnumerator PlacePlayer(Room room)
-    {
-        room.grid[Mathf.RoundToInt(room.grid.GetLength(0) / 2), Mathf.RoundToInt(room.grid.GetLength(1) / 2)] += (int)Elements.player;
-        yield return null;
-        room.generated = true;
     }
 
 
