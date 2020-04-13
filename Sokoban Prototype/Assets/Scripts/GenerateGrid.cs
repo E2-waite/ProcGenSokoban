@@ -4,9 +4,15 @@ using UnityEngine;
 using enums;
 public class GenerateGrid : MonoBehaviour
 {
+    public float timer = 0;
+    bool timer_started = false, timer_stopped = false;
     private void Update()
     {
         if (Input.GetKeyUp("escape")) Application.Quit();
+        if (timer_started && !timer_stopped)
+        {
+            timer += Time.deltaTime;
+        }
     }
 
     private void Start()
@@ -28,33 +34,56 @@ public class GenerateGrid : MonoBehaviour
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
         StartCoroutine(CombineTemplates(room));
+        timer_started = true;
+    }
+
+    Direction GetDoorwayDir(Direction dir, Room room)
+    {
+        if (room.entrance_dir == dir)
+        {
+            return dir;
+        }
+        for (int i = 0; i < room.exit_dirs.Count; i++)
+        {
+            if (room.exit_dirs[i] == dir)
+            {
+                return dir;
+            }
+        }
+        return Direction.None;
     }
 
     private IEnumerator CombineTemplates(Room room)
-    { 
+    {
+        Templates templates = GetComponent<Templates>();
         room.grid = new int[room.grid_x, room.grid_y];
         int[,] temp_grid = new int[room.grid_x, room.grid_y];
         int i = 0, x_pos = 0, y_pos = 0;
         while (i < room.num_templates)
         {
             temp_grid = room.grid;
-            // Gets random template from list of templates
-            int[,] template = GetComponent<Templates>().templates[(Random.Range(0, 17))].template;
 
-            ManipulateTemp manipulate = new ManipulateTemp();
-
-            // Rotate a random number of times
-            int num_rotations = Random.Range(0, 4);
-            if (num_rotations > 0)
+            // Gets compatible template for the required direction of door
+            Direction doorway_dir = Direction.None;
+            if (y_pos == room.size_y - 1 && x_pos == Mathf.RoundToInt(room.size_x / 2))
             {
-                for (int r = 0; r < num_rotations; r++)
-                {
-                    template = manipulate.Rotate(template);
-                }
+                doorway_dir = GetDoorwayDir(Direction.N, room);
             }
-            // 50% chance to flip template
-            bool flip_template = Random.Range(0, 1) >= 0.5;
-            if (flip_template) template = manipulate.Flip(template);
+            if (y_pos == Mathf.RoundToInt(room.size_y / 2) && x_pos == room.size_x - 1)
+            {
+                doorway_dir = GetDoorwayDir(Direction.E, room);
+            }
+            if (y_pos == 0 && x_pos == Mathf.RoundToInt(room.size_x / 2))
+            {
+                doorway_dir = GetDoorwayDir(Direction.S, room);
+            }
+            if (y_pos == Mathf.RoundToInt(room.size_y / 2) && x_pos == 0)
+            {
+                doorway_dir = GetDoorwayDir(Direction.W, room);
+            }
+
+            // Gets random template from list of templates
+            int[,] template = templates.GetTemplate(doorway_dir).template;
 
             // Start applying template
             for (int y = 0; y < 5; y++)
@@ -62,9 +91,9 @@ public class GenerateGrid : MonoBehaviour
                 for (int x = 0; x < 5; x++)
                 {
                     //Debug.Log("X:" + (x + x_pos).ToString() + " Y:" + (y + y_pos).ToString());
-                    if (temp_grid[x + x_pos, y + y_pos] == 0 || temp_grid[x + x_pos, y + y_pos] == template[x, y])
+                    if (temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == 0 || temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == template[x, y])
                     {
-                        temp_grid[x + x_pos, y + y_pos] = template[x, y];
+                        temp_grid[x + (x_pos * 3), y + (y_pos * 3)] = template[x, y];
                     }
                 }
             }
@@ -75,11 +104,11 @@ public class GenerateGrid : MonoBehaviour
             if (IsMultipleOf(i, room.size_x))
             {
                 x_pos = 0;
-                y_pos += 3;
+                y_pos++;
             }
             else
             {
-                x_pos += 3;
+                x_pos++;
             }
             yield return null;
         }
@@ -139,15 +168,18 @@ public class GenerateGrid : MonoBehaviour
             {
                 if (!PlaceDoorway(room.exit_dirs[i], Elements.exit, room))
                 {
+                    Debug.Log("FAILED DOOR");
                     Restart(room);
                     yield break;
                 }
                 yield return null;
             }
+            timer_stopped = true;
             GetComponent<GeneratePuzzle>().Generate(room);
         }
         else
         {
+            Debug.Log("FAILED DOOR");
             Restart(room);
         }
     }

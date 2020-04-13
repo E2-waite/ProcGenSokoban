@@ -9,12 +9,23 @@ public class GeneratePuzzle : MonoBehaviour
     int attempts = 0, running = 0;
     List<Pos> button_positions;
     List<Pos> box_positions;
+    public float timer = 0;
+    bool timer_started = false, timer_stopped = false;
     public void Generate(Room room)
     {
+        timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
         room.num_boxes = num_boxes;
         StartCoroutine(PlaceButtons(room));
+    }
+
+    private void Update()
+    {
+        if (timer_started && !timer_stopped)
+        {
+            timer += Time.deltaTime;
+        }
     }
 
     private IEnumerator PlaceButtons(Room room)
@@ -264,7 +275,9 @@ public class GeneratePuzzle : MonoBehaviour
         }
 
         room.stage = Stage.complete;
-        StartCoroutine(CheckSolver(room));
+        room.generated = true;
+        timer_stopped = true;
+        //StartCoroutine(CheckSolver(room));
     }
 
     IEnumerator CheckSolver(Room room)
