@@ -161,27 +161,38 @@ public class GenerateGrid : MonoBehaviour
 
     IEnumerator PlaceDoorways(Room room)
     {
+        // Do not place entrance doorway in first room
         room.exits = new List<Pos>();
-        if (PlaceDoorway(room.entrance_dir, Elements.entrance, room))
+        for (int i = 0; i < room.exit_dirs.Count; i++)
         {
-            for (int i = 0; i < room.exit_dirs.Count; i++)
+            if (!PlaceDoorway(room.exit_dirs[i], Elements.exit, room))
             {
-                if (!PlaceDoorway(room.exit_dirs[i], Elements.exit, room))
-                {
-                    Debug.Log("FAILED DOOR");
-                    Restart(room);
-                    yield break;
-                }
-                yield return null;
+                Restart(room);
+                yield break;
             }
+            yield return null;
+        }
+
+        if (room.first)
+        {
             timer_stopped = true;
             GetComponent<GeneratePuzzle>().Generate(room);
         }
         else
         {
-            Debug.Log("FAILED DOOR");
-            Restart(room);
+            if (PlaceDoorway(room.entrance_dir, Elements.entrance, room))
+            {
+                timer_stopped = true;
+                GetComponent<GeneratePuzzle>().Generate(room);
+            }
+            else
+            {
+                Debug.Log("FAILED DOOR");
+                Restart(room);
+            }
         }
+
+
     }
 
     bool PlaceDoorway(Direction edge, Elements type, Room room)

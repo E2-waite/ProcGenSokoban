@@ -30,9 +30,7 @@ public class GeneratePuzzle : MonoBehaviour
 
     private IEnumerator PlaceButtons(Room room)
     {
-        Debug.Log("PLACING BUTTONS");
         room.grid = empty_grid.Clone() as int[,];
-
         if (attempts > max_attempts)
         {
             NewRoom(room);
@@ -75,8 +73,8 @@ public class GeneratePuzzle : MonoBehaviour
                 StartCoroutine(PlacePlayer(room));
             }
             else
-            {
-                StartCoroutine(CheckPath(room));
+            {              
+                StartCoroutine(CheckPath(room));               
             }
         }
         else
@@ -89,39 +87,9 @@ public class GeneratePuzzle : MonoBehaviour
 
     IEnumerator PlacePlayer(Room room)
     {
-        Pos entrance_pos = new Pos();
-
-        for (int y = 0; y < room.grid.GetLength(1); y++)
-        {
-            for (int x = 0; x < room.grid.GetLength(0); x++)
-            {
-                if (room.grid[x,y] == (int)Elements.entrance)
-                {
-                    entrance_pos = new Pos { x = x, y = y };
-                    break;
-                }
-                yield return null;
-            }
-        }
-
-        if (room.entrance_dir == Direction.N)
-        {
-            room.grid[entrance_pos.x, entrance_pos.y - 1] += (int)Elements.player;
-        }
-        if (room.entrance_dir == Direction.E)
-        {
-            room.grid[entrance_pos.x - 1, entrance_pos.y] += (int)Elements.player;
-        }
-        if (room.entrance_dir == Direction.S)
-        {
-            room.grid[entrance_pos.x, entrance_pos.y + 1] += (int)Elements.player;
-        }
-        if (room.entrance_dir == Direction.W)
-        {
-            room.grid[entrance_pos.x + 1, entrance_pos.y] += (int)Elements.player;
-        }
-
-        StartCoroutine(CheckPath(room));
+        room.grid[Mathf.RoundToInt(room.grid.GetLength(0) / 2), Mathf.RoundToInt(room.grid.GetLength(1) / 2)] += (int)Elements.player;
+        yield return null;
+        room.generated = true;
     }
 
 
@@ -200,6 +168,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 else
                 {
+                    Debug.Log("NOT FLOOR");
                     StartCoroutine(PlaceButtons(room));
                 }
             }
@@ -267,6 +236,7 @@ public class GeneratePuzzle : MonoBehaviour
                 }
                 if (time_checked >= 1)
                 {
+                    Debug.Log("Path Failed");
                     StartCoroutine(PlaceButtons(room));
                     yield break;
                 }

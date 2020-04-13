@@ -15,7 +15,7 @@ public class GenerateMaze : MonoBehaviour
         size = new Vector2(maze_x, maze_y);
         maze.grid = new Cell[(int)size.x, (int)size.y];
         StartCoroutine(LoopCheck(maze));
-        StartCoroutine(StepForward(0, 0, Direction.E, maze));
+        StartCoroutine(StepForward(Mathf.RoundToInt(maze_x / 2), Mathf.RoundToInt(maze_y / 2), Direction.E, maze));
         return maze;
     }
 

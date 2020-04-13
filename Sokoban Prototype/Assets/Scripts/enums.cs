@@ -91,7 +91,7 @@ namespace enums
         E,
         S,
         W,
-        None
+        None,
     }
 
     public enum Elements : int
