@@ -85,11 +85,12 @@ public class GameControl : MonoBehaviour
                 WriteTime();
             }
         }
+    }
 
-        if (level_won)
-        {
-            DeleteLevel();
-        }
+    public void Win()
+    {
+        level_won = true;
+        DeleteLevel();
     }
 
     void WriteTime()

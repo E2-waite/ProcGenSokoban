@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
         // Game is won if player is stood on open trap door
         if (!moving && transform.parent != null && transform.parent.CompareTag("Trapdoor") && transform.parent.GetComponent<DoorAction>().IsOpen())
         {
-            game.level_won = true;
+            game.Win();
         }
     }
 
