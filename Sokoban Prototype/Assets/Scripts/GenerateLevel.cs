@@ -52,6 +52,7 @@ public class GenerateLevel : MonoBehaviour
                 maze.grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].last_room;
             level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].pos = 
                 new Pos { x = level.maze_cells[i].GetPos().x, y = level.maze_cells[i].GetPos().y };
+            level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].num_boxes = (int)Mathf.Ceil((size_x * size_y) / 3.0f);
             GetComponent<GenerateGrid>().StartGenerating(maze.grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y], 
                 level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y]);
             while (!level.room_grid[level.maze_cells[i].GetPos().x, level.maze_cells[i].GetPos().y].generated)

@@ -31,14 +31,14 @@ public class GenerateObjects : MonoBehaviour
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     player = Instantiate(player_prefab, room.object_grid[x, y].transform);
-                    player.transform.position = new Vector3(x + room.offset_x, 0.6f, y + room.offset_y);
+                    player.transform.position = new Vector3(x + room.offset_x, 6, y + room.offset_y);
                     room.parent_level.player = player;
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.box)
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
-                    boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
+                    boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 1, y + room.offset_y);
                     room.parent_level.boxes.Add(boxes[boxes.Count - 1]);
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)
@@ -63,7 +63,7 @@ public class GenerateObjects : MonoBehaviour
                 else if (room.grid[x,y] == (int)Elements.trapdoor + (int)Elements.player)
                 {
                     room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 0.6f, y + room.offset_y),Quaternion.identity);
+                    player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 6, y + room.offset_y),Quaternion.identity);
                     player.transform.parent = room.object_grid[x, y].transform;
                     room.parent_level.player = player;
                 }
@@ -71,7 +71,13 @@ public class GenerateObjects : MonoBehaviour
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
             }
         }
+
         HideWalls(room);
+
+        if (player)
+        {
+            StartCoroutine(player.GetComponent<Player>().FallIn());
+        }
 
         room.room_object.GetComponent<CheckRoom>().StartChecking(room);
         if (!room.first)

@@ -4,7 +4,7 @@ using UnityEngine;
 using enums;
 public class GeneratePuzzle : MonoBehaviour
 {
-    public int num_boxes = 3, min_steps = 8, max_attempts = 10;
+    public int min_steps = 8, max_attempts = 10;
     int[,] empty_grid;
     int attempts = 0, running = 0;
     List<Pos> button_positions;
@@ -20,7 +20,6 @@ public class GeneratePuzzle : MonoBehaviour
         timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
-        room.num_boxes = num_boxes;
         StartCoroutine(PlaceButtons(room));
     }
 
@@ -41,7 +40,7 @@ public class GeneratePuzzle : MonoBehaviour
         }
         button_positions = new List<Pos>();
         // Place buttons in valid floor tile positions
-        while (button_positions.Count < num_boxes)
+        while (button_positions.Count < room.num_boxes)
         {
             int x_pos = Random.Range(1, room.grid.GetLength(0) - 1);
             int y_pos = Random.Range(1, room.grid.GetLength(1) - 1);
@@ -69,7 +68,7 @@ public class GeneratePuzzle : MonoBehaviour
     {
         StopAllCoroutines();
         // If enough boxes have been placed, continue else place next box
-        if (box_positions.Count == num_boxes)
+        if (box_positions.Count == room.num_boxes)
         {
             if (room.first && room.last)
             {

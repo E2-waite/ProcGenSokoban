@@ -29,11 +29,22 @@ public class Player : MonoBehaviour
         if (!moving && transform.parent != null && transform.parent.CompareTag("Trapdoor") && transform.parent.GetComponent<DoorAction>().IsOpen() && !falling)
         {
             falling = true;
-            StartCoroutine(Fall());
+            StartCoroutine(FallOut());
         }
     }
 
-    IEnumerator Fall()
+    public IEnumerator FallIn()
+    {
+        falling = true;
+        target = new Vector3(transform.parent.position.x, 1, transform.parent.position.z);
+        while (transform.position != target)
+        {
+            yield return null;
+        }
+        falling = false;
+    }
+
+    IEnumerator FallOut()
     {
         // Fall into trap door
         target = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
@@ -81,7 +92,7 @@ public class Player : MonoBehaviour
     {
         transform.parent = null;
         transform.parent = tile.transform;
-        target = new Vector3(transform.parent.position.x, 0.6f, transform.parent.position.z);
+        target = new Vector3(transform.parent.position.x, 1, transform.parent.position.z);
         moving = true;
         pos = new Pos() { x = (int)transform.parent.position.x, y = (int)transform.parent.position.y };
         game.UpdateMove();
