@@ -23,7 +23,7 @@ namespace enums
 
     public class Attempt
     {
-        public bool solved = false, failed = false;
+        public bool solved, failed;
     }
 
 

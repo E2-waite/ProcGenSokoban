@@ -62,7 +62,6 @@ public class GameControl : MonoBehaviour
             if (i == 0)
             {
                 game_started = true;
-                StartCoroutine(this_level.player.GetComponent<Player>().FallIn());
                 UpdateMove();
             }
         }

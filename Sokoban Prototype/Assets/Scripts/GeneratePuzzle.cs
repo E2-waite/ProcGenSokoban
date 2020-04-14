@@ -4,6 +4,7 @@ using UnityEngine;
 using enums;
 public class GeneratePuzzle : MonoBehaviour
 {
+    public bool check_solver = true;
     public int min_steps = 8, max_attempts = 10;
     int[,] empty_grid;
     int attempts = 0, running = 0;
@@ -72,7 +73,15 @@ public class GeneratePuzzle : MonoBehaviour
         {
             if (room.first && room.last)
             {
-                room.generated = true;
+                if (check_solver)
+                {
+                    StartCoroutine(CheckSolver(room));
+                }
+                else
+                {
+                    room.generated = true;
+                    timer_stopped = true;
+                }
             }
             else
             {
@@ -237,14 +246,20 @@ public class GeneratePuzzle : MonoBehaviour
             }
         }
 
-        room.generated = true;
-        timer_stopped = true;
-        //StartCoroutine(CheckSolver(room));
+        if (check_solver)
+        {
+            StartCoroutine(CheckSolver(room));
+        }
+        else
+        {
+            room.generated = true;
+            timer_stopped = true;
+        }
     }
 
     IEnumerator CheckSolver(Room room)
     {
-        Attempt attempt = new Attempt();
+        Attempt attempt = new Attempt() { solved = false, failed = false};
         Debug.Log("STARTED SOLVER");
         Solver solver = GetComponent<Solver>();
         solver.StartSolving(room, attempt);
