@@ -5,10 +5,10 @@ using enums;
 public class Player : MonoBehaviour
 {
     public Pos pos;
-    public float move_speed = 5;
+    public float move_speed = 5, fall_speed = 5;
     private GameControl game;
     private Vector3 target;
-    private bool moving = false;
+    private bool moving = false, falling = false;
 
     private void Start()
     {
@@ -22,38 +22,55 @@ public class Player : MonoBehaviour
         if (Input.GetKey("down") && !moving) MovePlayer(0, -1);
         if (Input.GetKey("right") && !moving) MovePlayer(1, 0);
         if (Input.GetKeyUp("z") && !moving) game.StepBack();
-        if (moving) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
+        if (moving || falling) transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * move_speed);
         if (transform.position == target) moving = false;
         
         // Game is won if player is stood on open trap door
-        if (!moving && transform.parent != null && transform.parent.CompareTag("Trapdoor") && transform.parent.GetComponent<DoorAction>().IsOpen())
+        if (!moving && transform.parent != null && transform.parent.CompareTag("Trapdoor") && transform.parent.GetComponent<DoorAction>().IsOpen() && !falling)
         {
-            game.Win();
+            falling = true;
+            StartCoroutine(Fall());
         }
+    }
+
+    IEnumerator Fall()
+    {
+        // Fall into trap door
+        target = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
+        while (transform.position != target)
+        {
+            yield return null;
+        }
+        GetComponent<Renderer>().enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        game.Win();
     }
 
     private void MovePlayer(int x_dir, int y_dir)
     {
-        int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
-        GameObject tile = game.this_level.object_grid[x_pos, y_pos];
-
-        if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()) || tile.CompareTag("Trapdoor"))
+        if (!falling)
         {
-            if (tile.transform.childCount == 0) Move(tile);
-            else
+            int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
+            GameObject tile = game.this_level.object_grid[x_pos, y_pos];
+
+            if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()) || tile.CompareTag("Trapdoor"))
             {
-                if (tile.transform.GetChild(0).CompareTag("Box"))
+                if (tile.transform.childCount == 0) Move(tile);
+                else
                 {
-                    Box box = tile.transform.GetChild(0).GetComponent<Box>();
-                    if (box.Move(x_dir, y_dir)) Move(tile);
-                }
-                else if (tile.transform.GetChild(0).CompareTag("Button"))
-                {
-                    if (tile.transform.childCount == 1) Move(tile);
-                    else
+                    if (tile.transform.GetChild(0).CompareTag("Box"))
                     {
-                        Box box = tile.transform.GetChild(1).GetComponent<Box>();
+                        Box box = tile.transform.GetChild(0).GetComponent<Box>();
                         if (box.Move(x_dir, y_dir)) Move(tile);
+                    }
+                    else if (tile.transform.GetChild(0).CompareTag("Button"))
+                    {
+                        if (tile.transform.childCount == 1) Move(tile);
+                        else
+                        {
+                            Box box = tile.transform.GetChild(1).GetComponent<Box>();
+                            if (box.Move(x_dir, y_dir)) Move(tile);
+                        }
                     }
                 }
             }
