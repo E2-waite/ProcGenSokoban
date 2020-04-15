@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine;
 using System.Linq;
 using System;
 using enums;
@@ -28,7 +27,8 @@ public class Solver : MonoBehaviour
         public DirsChecked[] dirs;
         public bool complete = false, setup = false;
         public Move move;
-        public float distance;
+        public int distance;
+        public int weight = 0;
     }
 
     class DirsChecked
@@ -78,7 +78,7 @@ public class Solver : MonoBehaviour
             }
         }
         SortByDistance(node);
-        StartCoroutine(Step(node, attempt));
+        StartCoroutine(GetDeadCells(node, attempt));
     }
 
     bool SortByDistance(Node node)
@@ -111,7 +111,89 @@ public class Solver : MonoBehaviour
         return true;
     }
 
-    float GetDistance(Node node)
+    IEnumerator GetDeadCells(Node node, Attempt attempt)
+    {
+        List<Pos> corners = new List<Pos>();
+        // If tile is floor and is in a wall corner, it is marked as a dead square
+        for (int y = node.grid.GetLength(1) - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < node.grid.GetLength(0); x++)
+            {
+                if (node.grid[x,y] == (int)Elements.floor && CheckCorner(new Pos { x = x, y = y }, node))
+                {
+                    corners.Add(new Pos { x = x, y = y });
+                    node.grid[x, y] = (int)Elements.dead;
+                }
+                yield return null;
+            }
+        }
+
+        // Checks the space between all parralel corner tiles
+        // If all of the tiles between the corners are next to a wall
+        // All of the tiles between the corners are marked as dead squares
+        for (int i = 0; i < corners.Count; i++)
+        {
+            if (corners.Count > 1)
+            {
+                for (int j = 1; j < corners.Count; j++)
+                {
+                    if (corners[i].x == corners[j].x ||
+                        corners[i].y == corners[j].y)
+                    {
+                        bool fill = true, checking = true;
+                        List<Pos> spaces = new List<Pos>();
+                        Vector2 dir = new Vector2(corners[i].x - corners[j].x, corners[i].y - corners[j].y).normalized;
+                        Pos pos = new Pos { x = corners[i].x, y = corners[i].y };
+
+                        while (checking)
+                        {
+                            pos.x -= (int)dir.x;
+                            pos.y -= (int)dir.y;
+                            if (pos.x == corners[j].x && pos.y == corners[j].y)
+                            {
+                                break;
+                            }
+                            if (!CheckWall(pos, node))
+                            {
+                                fill = false;
+                                break;
+                            }
+
+                            spaces.Add(pos);
+                            yield return null;
+                        }
+
+                        if (fill)
+                        {
+                            Debug.Log("Spaces: " + spaces.Count);
+                            for (int k = 0; k < spaces.Count; k++)
+                            {
+                                node.grid[spaces[k].x, spaces[k].y] = (int)Elements.dead;
+                                yield return null;
+                            }
+                        }
+                    }
+                }
+            }
+            corners.Remove(corners[i]);
+        }
+
+        StartCoroutine(Step(node, attempt));
+    }
+
+    bool CheckWall(Pos pos, Node node)
+    {
+        if (node.grid[pos.x, pos.y + 1] == (int)Elements.wall ||
+            node.grid[pos.x + 1, pos.y] == (int)Elements.wall || 
+            node.grid[pos.x, pos.y - 1] == (int)Elements.wall ||
+            node.grid[pos.x - 1, pos.y] == (int)Elements.wall)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    int GetDistance(Node node)
     {
         int distance = 0;
         for (int i = 0; i < node.box_pos.Length; i++)
@@ -134,7 +216,7 @@ public class Solver : MonoBehaviour
     IEnumerator Step(Node node, Attempt attempt)
     {
         string line = null;
-        for (int y = 0; y < node.grid.GetLength(1); y++)
+        for (int y = node.grid.GetLength(1) - 1; y >= 0; y--)
         {
             for (int x = 0; x < node.grid.GetLength(0); x++)
             {
@@ -152,7 +234,7 @@ public class Solver : MonoBehaviour
                 }
                 else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.button)
                 {
-                    line += "X ";
+                    line += "U ";
                 }
                 else if (node.grid[x, y] == (int)Elements.floor || node.grid[x, y] == (int)Elements.trapdoor)
                 {
@@ -161,6 +243,10 @@ public class Solver : MonoBehaviour
                 else if (node.grid[x, y] == (int)Elements.wall)
                 {
                     line += "0 ";
+                }
+                else if (node.grid[x,y] == (int)Elements.dead)
+                {
+                    line += "X ";
                 }
                 else
                 {
@@ -219,7 +305,7 @@ public class Solver : MonoBehaviour
                         yield return null;
                     }
                 }
-                node.children = node.children.OrderBy(w => w.distance).ToList();
+                node.children = node.children.OrderBy(w => w.weight).ToList();
             }
             for (int i = 0; i < node.children.Count; i++)
             {
@@ -317,9 +403,24 @@ public class Solver : MonoBehaviour
             new_node.grid[new_node.box_pos[num].x, new_node.box_pos[num].y] += (int)Elements.box;
             new_node.grid[new_node.player_pos.x, new_node.player_pos.y] += (int)Elements.player;
             new_node.distance = GetDistance(new_node);
+            // Apply weight based on distance, and remove weight if this move is the same box as the previous turn (only if this node is not on a button)
+            // This will cause the system to prioritise the same box moved on the previous turn, before checking distance
+            new_node.weight += new_node.distance;
+            if (new_node.move.box_num == node.move.box_num)
+            {
+                new_node.weight -= 5;
+            }
+            if (OnButton(num, node))
+            {
+                new_node.weight += 10;
+            }
         }
+
+
         new_node.setup = true;
     }
+
+    
 
     bool CheckPos(Pos pos, Node node)
     {
@@ -332,6 +433,19 @@ public class Solver : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    bool OnButton(int num, Node node)
+    {
+        for (int i = 0; i < node.button_pos.Length; i++)
+        {
+            if (node.box_pos[num].x == node.button_pos[i].x &&
+                node.box_pos[num].y == node.button_pos[i].y)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     bool CheckCorner(Pos pos, Node node)

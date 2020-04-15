@@ -104,6 +104,7 @@ namespace enums
         button = 16,
         entrance = 32,
         exit = 64, 
-        trapdoor = 128
+        trapdoor = 128,
+        dead = 256
     }
 }
