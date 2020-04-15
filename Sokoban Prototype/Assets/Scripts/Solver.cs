@@ -139,31 +139,32 @@ public class Solver : MonoBehaviour
             for (int x = 0; x < node.grid.GetLength(0); x++)
             {
                 if (node.grid[x, y] == (int)Elements.floor + (int)Elements.box ||
+                    node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.box ||
                     node.grid[x, y] == (int)Elements.floor + (int)Elements.box + (int)Elements.button)
                 {
-                    line += "B";
+                    line += "B ";
                 }
                 else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.player ||
                     node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.player ||
                     node.grid[x, y] == (int)Elements.floor + (int)Elements.player + (int)Elements.button)
                 {
-                    line += "P";
+                    line += "P ";
                 }
                 else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.button)
                 {
-                    line += "X";
+                    line += "X ";
                 }
                 else if (node.grid[x, y] == (int)Elements.floor || node.grid[x, y] == (int)Elements.trapdoor)
                 {
-                    line += "  ";                 
+                    line += "   ";                 
                 }
                 else if (node.grid[x, y] == (int)Elements.wall)
                 {
-                    line += "0";
+                    line += "0 ";
                 }
                 else
                 {
-                    line += "?";
+                    line += "? ";
                 }
             }
             line += "\n";
@@ -271,12 +272,7 @@ public class Solver : MonoBehaviour
 
         new_node.move = new Move { box_num = num, dir = dir, pos = to_pos };
 
-        if (node.grid[push_pos.x, push_pos.y] == (int)Elements.wall ||
-            node.grid[push_pos.x, push_pos.y] == (int)Elements.entrance ||
-            node.grid[push_pos.x, push_pos.y] == (int)Elements.exit ||
-            node.grid[to_pos.x, to_pos.y] == (int)Elements.wall ||
-            node.grid[to_pos.x, to_pos.y] == (int)Elements.entrance ||
-            node.grid[to_pos.x, to_pos.y] == (int)Elements.exit ||
+        if (!CheckPos(push_pos, node) || !CheckPos(to_pos, node) ||
             (node.grid[to_pos.x, to_pos.y] == (int)Elements.floor && CheckCorner(to_pos, node)))
         {
             new_node.complete = true;
@@ -314,15 +310,28 @@ public class Solver : MonoBehaviour
                 new_node.box_pos[i] = new Pos { x = node.box_pos[i].x, y = node.box_pos[i].y };
                 yield return null;
             }
-            new_node.grid[new_node.box_pos[num].x, new_node.box_pos[num].y] -= (int)Elements.box;
-            new_node.grid[new_node.player_pos.x, new_node.player_pos.y] -= (int)Elements.player;
+            new_node.grid[node.box_pos[num].x, node.box_pos[num].y] -= (int)Elements.box;
+            new_node.grid[node.player_pos.x, node.player_pos.y] -= (int)Elements.player;
             new_node.player_pos = player_pos;
-            new_node.box_pos[num] = new Pos { x = to_pos.x, y = to_pos.y };
-            new_node.grid[node.box_pos[num].x, new_node.box_pos[num].y] += (int)Elements.box;
-            new_node.grid[node.player_pos.x, node.player_pos.y] += (int)Elements.player;
+            new_node.box_pos[num] = to_pos;
+            new_node.grid[new_node.box_pos[num].x, new_node.box_pos[num].y] += (int)Elements.box;
+            new_node.grid[new_node.player_pos.x, new_node.player_pos.y] += (int)Elements.player;
             new_node.distance = GetDistance(new_node);
         }
         new_node.setup = true;
+    }
+
+    bool CheckPos(Pos pos, Node node)
+    {
+        if (node.grid[pos.x, pos.y] == (int)Elements.wall ||
+            node.grid[pos.x, pos.y] == (int)Elements.entrance ||
+            node.grid[pos.x, pos.y] == (int)Elements.exit ||
+            node.grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.box ||
+            node.grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.box + (int)Elements.button)
+        {
+            return false;
+        }
+        return true;
     }
 
     bool CheckCorner(Pos pos, Node node)
