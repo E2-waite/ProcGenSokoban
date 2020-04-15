@@ -153,21 +153,25 @@ public class Solver : MonoBehaviour
                             {
                                 break;
                             }
-                            if (!CheckWall(pos, node))
+                            if (!CheckWall(pos, node) || 
+                                node.grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.button ||
+                                node.grid[pos.x, pos.y] == (int)Elements.wall)
                             {
                                 fill = false;
                                 break;
                             }
 
-                            spaces.Add(pos);
+                            spaces.Add(new Pos { x = pos.x, y = pos.y });
                             yield return null;
                         }
 
+
                         if (fill)
                         {
-                            Debug.Log("Spaces: " + spaces.Count);
+                            string row = "Row: ";
                             for (int k = 0; k < spaces.Count; k++)
                             {
+                                row += " x:" + spaces[k].x.ToString() + " y:" + spaces[k].y.ToString() + " |";
                                 node.grid[spaces[k].x, spaces[k].y] = (int)Elements.dead;
                                 yield return null;
                             }
@@ -176,6 +180,16 @@ public class Solver : MonoBehaviour
                 }
             }
             corners.Remove(corners[i]);
+        }
+
+        for (int i = 0; i < node.box_pos.Length; i++)
+        {
+            if (node.grid[node.box_pos[i].x, node.box_pos[i].x] == (int)Elements.dead)
+            {
+                attempt.failed = true;
+                Debug.Log("BOX IN DEAD STATE, FAILED");
+                yield break;
+            }
         }
 
         StartCoroutine(Step(node, attempt));
@@ -227,8 +241,9 @@ public class Solver : MonoBehaviour
                     line += "B ";
                 }
                 else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.player ||
-                    node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.player ||
-                    node.grid[x, y] == (int)Elements.floor + (int)Elements.player + (int)Elements.button)
+                         node.grid[x, y] == (int)Elements.dead + (int)Elements.player ||
+                         node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.player ||
+                         node.grid[x, y] == (int)Elements.floor + (int)Elements.player + (int)Elements.button)
                 {
                     line += "P ";
                 }
@@ -358,7 +373,7 @@ public class Solver : MonoBehaviour
 
         new_node.move = new Move { box_num = num, dir = dir, pos = to_pos };
 
-        if (!CheckPos(push_pos, node) || !CheckPos(to_pos, node) ||
+        if (!CheckPos(push_pos, node) || !CheckPos(to_pos, node) || IsDead(to_pos, node) ||
             (node.grid[to_pos.x, to_pos.y] == (int)Elements.floor && CheckCorner(to_pos, node)))
         {
             new_node.complete = true;
@@ -433,6 +448,16 @@ public class Solver : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    bool IsDead(Pos pos, Node node)
+    {
+        if (node.grid[pos.x, pos.y] == (int)Elements.dead ||
+            node.grid[pos.x, pos.y] == (int)Elements.dead + (int)Elements.player)
+        {
+            return true;
+        }
+        return false;
     }
 
     bool OnButton(int num, Node node)
