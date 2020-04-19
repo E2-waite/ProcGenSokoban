@@ -73,38 +73,7 @@ public class Solver : MonoBehaviour
                 yield return null;
             }
         }
-        SortByDistance(node);
         StartCoroutine(GetDeadCells(node, attempt));
-    }
-
-    bool SortByDistance(Node node)
-    {
-        int[] targets = new int[node.box_pos.Length];
-        for (int i = 0; i < node.box_pos.Length; i++)
-        {
-            int dist = 1000;
-            for (int j = 0; j < node.button_pos.Length; j++)
-            {
-                int dist_x = node.box_pos[i].x - node.button_pos[i].x;
-                int dist_y = node.box_pos[i].y - node.button_pos[i].y;
-                if (dist_x < 0)
-                {
-                    dist_x = -dist_x;
-                }
-                if (dist_y < 0)
-                {
-                    dist_y = -dist_y;
-                }
-                int this_dist = dist_x + dist_y;
-                if (this_dist < dist && !targets.Contains(j))
-                {
-                    dist = this_dist;
-                    targets[i] = j;
-                }
-            }
-        }
-        Array.Sort(targets, node.button_pos);
-        return true;
     }
 
     IEnumerator GetDeadCells(Node node, Attempt attempt)
@@ -188,7 +157,7 @@ public class Solver : MonoBehaviour
             }
         }
 
-        StartCoroutine(Solve(node, attempt));
+        Solve(node, attempt);
     }
 
     bool CheckWall(Pos pos, Node node)
@@ -229,18 +198,16 @@ public class Solver : MonoBehaviour
         return distance;
     }
 
-    IEnumerator Solve(Node start_node, Attempt attempt)
+    void Solve(Node start_node, Attempt attempt)
     {
-        List<Node> open_list = new List<Node>();
-        List<Node> closed_list = new List<Node>();
-        open_list.Add(start_node);
+        List<Node> queue = new List<Node>();
+        queue.Add(start_node);
 
-        while (open_list.Count > 0)
+        while (queue.Count > 0)
         {
-            Debug.Log("LOOPING");
-            Node current_node = open_list[0];
-            open_list.Remove(current_node);
-            closed_list.Add(current_node);
+            startloop:
+            Node current_node = queue[0];
+            queue.Remove(current_node);
             int buttons_pressed = 0;
 
             foreach (Pos box_pos in current_node.box_pos)
@@ -276,7 +243,6 @@ public class Solver : MonoBehaviour
                             {
                                 moves.Add(move);
                             }
-                            yield return null;
                         }
                     }
 
@@ -285,19 +251,29 @@ public class Solver : MonoBehaviour
                         // Add cost to current move
                         // Update the queue with new cost and new state
                         // Find heuristics of new state
-                        if (!closed_list.Contains(move))
+                        for (int i = 0; i < queue.Count; i++)
                         {
-                            int dist = GetDistance(move);
-                            current_node.cost += dist;
-                            if (!open_list.Contains(move))
-                            {
-                                open_list.Add(move);
+                            int num_same = 0;
+                            for (int j = 0; j < num_boxes; j++)
+                            { 
+                                if (queue[i].box_pos[j].x == move.box_pos[j].x &&
+                                    queue[i].box_pos[j].y == move.box_pos[j].y)
+                                {
+                                    num_same++;
+                                }
                             }
-                            move.cost = dist;
+                            if (num_same == num_boxes)
+                            {
+                                goto startloop;
+                            }
                         }
+                        int dist = GetDistance(move);
+                        current_node.cost += dist;
+                        queue.Add(move);
+                        move.cost = dist;
                     }
                 }
-                open_list = open_list.OrderBy(w => w.cost).ToList();
+                queue = queue.OrderBy(w => w.cost).ToList();
             }
         }
 
