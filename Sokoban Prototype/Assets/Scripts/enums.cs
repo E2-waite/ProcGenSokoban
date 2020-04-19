@@ -65,6 +65,15 @@ namespace enums
 
     public class Pos
     {
+        public Pos()
+        {
+
+        }
+        public Pos(int x_pos, int y_pos)
+        {
+            x = x_pos;
+            y = y_pos;
+        }
         public int x;
         public int y;
         public bool empty = false;

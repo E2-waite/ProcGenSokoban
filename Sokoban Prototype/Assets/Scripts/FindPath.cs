@@ -41,15 +41,7 @@ public class FindPath
         open_list.Add(start_node);
         
         while (open_list.Count > 0)
-        {
-            // If number of steps exceeds 100, a path probably cannot be found
-            num_steps++;
-            if (num_steps > 100)
-            {
-                path_failed = true;
-                break;
-            }
-
+        { 
             // Looks at node at the bottom of the open list
             Node current_node = open_list[0];
 
@@ -94,6 +86,7 @@ public class FindPath
                 }
             }
         }
+        path_failed = true;
     }
 
     int GetManhattenDistance(Node node_a, Node node_b)

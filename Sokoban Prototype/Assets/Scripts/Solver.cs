@@ -7,28 +7,20 @@ using enums;
 public class Solver : MonoBehaviour
 {
     public int num_moves = 0;
-    public int max_steps;
+    public int max_depth;
+    float max_timeout = 5.0f;
     int num_boxes;
-    class Move
-    {
-        public int box_num;
-        public Direction dir;
-        public Pos pos;
-    }
+    bool started = false;
+    float time;
 
     class Node
     {
-        public List<Node> parents = new List<Node>();
-        public List<Node> children = new List<Node>();
         public int[,] grid;
         public Pos player_pos;
         public Pos[] box_pos;
         public Pos[] button_pos;
-        public DirsChecked[] dirs;
-        public bool complete = false, setup = false;
-        public Move move;
-        public int distance;
-        public int weight = 0;
+        public int cost;
+        public int depth = 0;
     }
 
     class DirsChecked
@@ -36,24 +28,28 @@ public class Solver : MonoBehaviour
         public bool[] _checked = new bool[4];
     }
 
+    private void Update()
+    {
+        if (started)
+        {
+            time += Time.deltaTime;
+        }
+    }
+
     public void StartSolving(Room room, Attempt attempt)
     {
-        Debug.Log("STARTING SOLVER");
+        started = true;
+        time = 0;
         num_boxes = room.num_boxes;
         Node node = new Node { grid = room.grid.Clone() as int[,], player_pos = new Pos { x = room.entrance.x, y = room.entrance.y },
-            box_pos = new Pos[num_boxes], button_pos = new Pos[num_boxes], dirs = new DirsChecked[num_boxes] };
-        node.move = new Move { box_num = 0, dir = Direction.None, pos = new Pos { x = 0, y = 0 } };
-        for (int i = 0; i < node.dirs.Length; i++)
-        {
-            node.dirs[i] = new DirsChecked();
-        }
+            box_pos = new Pos[num_boxes], button_pos = new Pos[num_boxes] };
 
         StartCoroutine(StartStep(node, attempt));
     }
 
     IEnumerator StartStep(Node node, Attempt attempt)
     {
-        max_steps = (int)(Mathf.Sqrt((node.grid.GetLength(0) - 2) * (node.grid.GetLength(1) - 2))) * 10;
+        max_depth = (int)(Mathf.Sqrt((node.grid.GetLength(0) - 2) * (node.grid.GetLength(1) - 2))) * 2;
         int box_num = 0;
         int button_num = 0;
         for (int y = 0; y < node.grid.GetLength(1); y++)
@@ -119,7 +115,7 @@ public class Solver : MonoBehaviour
         {
             for (int x = 0; x < node.grid.GetLength(0); x++)
             {
-                if (node.grid[x,y] == (int)Elements.floor && CheckCorner(new Pos { x = x, y = y }, node))
+                if (node.grid[x,y] == (int)Elements.floor && IsCorner(new Pos { x = x, y = y }, node))
                 {
                     corners.Add(new Pos { x = x, y = y });
                     node.grid[x, y] = (int)Elements.dead;
@@ -192,7 +188,7 @@ public class Solver : MonoBehaviour
             }
         }
 
-        StartCoroutine(Step(node, attempt));
+        StartCoroutine(Solve(node, attempt));
     }
 
     bool CheckWall(Pos pos, Node node)
@@ -209,235 +205,178 @@ public class Solver : MonoBehaviour
 
     int GetDistance(Node node)
     {
-        int distance = 0;
+        int distance = 1000;
         for (int i = 0; i < node.box_pos.Length; i++)
         {
-            int dist_x = node.box_pos[i].x - node.button_pos[i].x;
-            int dist_y = node.box_pos[i].y - node.button_pos[i].y;
-            if (dist_x < 0)
+            for (int j = 0; j < node.button_pos.Length; j++)
             {
-                dist_x = -dist_x;
+                int dist_x = node.box_pos[i].x - node.button_pos[j].x;
+                int dist_y = node.box_pos[i].y - node.button_pos[j].y;
+                if (dist_x < 0)
+                {
+                    dist_x = -dist_x;
+                }
+                if (dist_y < 0)
+                {
+                    dist_y = -dist_y;
+                }
+                if (dist_x + dist_y < distance)
+                {
+                    distance = dist_x + dist_y;
+                }
             }
-            if (dist_y < 0)
-            {
-                dist_y = -dist_y;
-            }
-            distance += dist_x + dist_y;
         }
         return distance;
     }
 
-    IEnumerator Step(Node node, Attempt attempt)
+    IEnumerator Solve(Node start_node, Attempt attempt)
     {
-        string line = null;
-        for (int y = node.grid.GetLength(1) - 1; y >= 0; y--)
+        List<Node> open_list = new List<Node>();
+        List<Node> closed_list = new List<Node>();
+        open_list.Add(start_node);
+
+        while (open_list.Count > 0)
         {
-            for (int x = 0; x < node.grid.GetLength(0); x++)
+            Debug.Log("LOOPING");
+            Node current_node = open_list[0];
+            open_list.Remove(current_node);
+            closed_list.Add(current_node);
+            int buttons_pressed = 0;
+
+            foreach (Pos box_pos in current_node.box_pos)
             {
-                if (node.grid[x, y] == (int)Elements.floor + (int)Elements.box ||
-                    node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.box ||
-                    node.grid[x, y] == (int)Elements.floor + (int)Elements.box + (int)Elements.button)
+                if (current_node.grid[box_pos.x, box_pos.y] == (int)Elements.floor + (int)Elements.button + (int)Elements.box)
                 {
-                    line += "B ";
+                    buttons_pressed++;
                 }
-                else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.player ||
-                         node.grid[x, y] == (int)Elements.dead + (int)Elements.player ||
-                         node.grid[x, y] == (int)Elements.trapdoor + (int)Elements.player ||
-                         node.grid[x, y] == (int)Elements.floor + (int)Elements.player + (int)Elements.button)
+            }
+            if (buttons_pressed == num_boxes)
+            {
+                Debug.Log("SOLVED");
+                attempt.solved = true;
+                break;
+            }
+            else
+            {
+                if (current_node.depth >= max_depth  || Deadlock(current_node))
                 {
-                    line += "P ";
-                }
-                else if (node.grid[x, y] == (int)Elements.floor + (int)Elements.button)
-                {
-                    line += "U ";
-                }
-                else if (node.grid[x, y] == (int)Elements.floor || node.grid[x, y] == (int)Elements.trapdoor)
-                {
-                    line += "   ";                 
-                }
-                else if (node.grid[x, y] == (int)Elements.wall)
-                {
-                    line += "0 ";
-                }
-                else if (node.grid[x,y] == (int)Elements.dead)
-                {
-                    line += "X ";
+                    // If deadlock, or depth > max depth, or time > max time, continue to next solution
+                    continue;
                 }
                 else
                 {
-                    line += "? ";
-                }
-            }
-            line += "\n";
-        }
-
-        
-        Debug.Log(line);
-        int buttons_pressed = 0;
-        for (int i = 0; i < num_boxes; i++)
-        {
-            if (node.grid[node.button_pos[i].x, node.button_pos[i].y] == (int)Elements.floor + (int)Elements.button + (int)Elements.box)
-            {
-                buttons_pressed++;
-            }
-            yield return null;
-        }
-        if (buttons_pressed > 0)
-        {
-            //Debug.Log("Buttons Pressed: " + buttons_pressed.ToString() + " Depth: " + node.parents.Count.ToString());
-        }
-        if (buttons_pressed == num_boxes)
-        {
-            attempt.solved = true;
-            yield break;
-        }
-
-
-        if (node.parents.Count < max_steps)
-        {
-            // If node has no children setup all children and attempt movement
-            if (node.children.Count == 0)
-            {
-                for (int i = 0; i < num_boxes; i++)
-                {
-                    for (Direction j = Direction.N; j < (Direction)4; j++)
+                    // Get valid moves
+                    List<Node> moves = new List<Node>();
+                    for (int i = 0; i < num_boxes; i++)
                     {
-                        node.children.Add(new Node());
-                        StartCoroutine(AttemptMovement(i, j, node, node.children[node.children.Count - 1]));
-                    }
-                }
-
-                int num_setup = 0;
-                while (num_setup != node.children.Count)
-                {
-                    num_setup = 0;
-                    for (int i = 0; i < node.children.Count; i++)
-                    {
-                        if (node.children[i].setup)
+                        for (int j = 0; j < 4; j++)
                         {
-                            num_setup++;
+                            Node move = CanMove(current_node, (Direction)j, i);
+                            if (move != null)
+                            {
+                                moves.Add(move);
+                            }
+                            yield return null;
                         }
-                        yield return null;
+                    }
+
+                    foreach (Node move in moves)
+                    {
+                        // Add cost to current move
+                        // Update the queue with new cost and new state
+                        // Find heuristics of new state
+                        if (!closed_list.Contains(move))
+                        {
+                            int dist = GetDistance(move);
+                            current_node.cost += dist;
+                            if (!open_list.Contains(move))
+                            {
+                                open_list.Add(move);
+                            }
+                            move.cost = dist;
+                        }
                     }
                 }
-                node.children = node.children.OrderBy(w => w.weight).ToList();
-            }
-            for (int i = 0; i < node.children.Count; i++)
-            {
-                if (!node.children[i].complete)
-                {
-                    StartCoroutine(Step(node.children[i], attempt));
-                    yield break;
-                }
+                open_list = open_list.OrderBy(w => w.cost).ToList();
             }
         }
 
-        node.complete = true;
-        if (node.parents.Count > 0)
-        {
-            StartCoroutine(Step(node.parents[node.parents.Count - 1], attempt));
-        }
-        else
+        if (!attempt.solved)
         {
             attempt.failed = true;
         }
     }
 
-    IEnumerator AttemptMovement(int num, Direction dir, Node node, Node new_node)
+    bool Deadlock(Node node)
     {
-        Pos push_pos = null, to_pos = null, player_pos = null;
+        if (FreezeDeadlock(node))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    bool FreezeDeadlock(Node node)
+    {
+        for (int i = 0; i < num_boxes; i++)
+        {
+            if (node.grid[node.box_pos[i].x, node.box_pos[i].y] != (int)Elements.floor + (int)Elements.button + (int)Elements.box &&
+                IsCorner(node.box_pos[i], node))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Node CanMove(Node node, Direction dir, int num)
+    {
+        Pos push_pos = null, to_pos = null;
         if (dir == Direction.N)
         {
             push_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y - 1 };
-            player_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y };
             to_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y + 1 };
         }
         if (dir == Direction.E)
         {
             push_pos = new Pos { x = node.box_pos[num].x - 1, y = node.box_pos[num].y };
-            player_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y };
             to_pos = new Pos { x = node.box_pos[num].x + 1, y = node.box_pos[num].y };
         }
         if (dir == Direction.S)
         {
             push_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y + 1 };
-            player_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y };
             to_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y - 1 };
         }
         if (dir == Direction.W)
         {
             push_pos = new Pos { x = node.box_pos[num].x + 1, y = node.box_pos[num].y };
-            player_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y };
             to_pos = new Pos { x = node.box_pos[num].x - 1, y = node.box_pos[num].y };
         }
 
-        new_node.move = new Move { box_num = num, dir = dir, pos = to_pos };
-
-        if (!CheckPos(push_pos, node) || !CheckPos(to_pos, node) || IsDead(to_pos, node) ||
-            (node.grid[to_pos.x, to_pos.y] == (int)Elements.floor && CheckCorner(to_pos, node)))
+        if (TileFree(push_pos, node) && TileFree(to_pos, node) && !IsCorner(to_pos, node))
         {
-            new_node.complete = true;
-        }
-        yield return null;
-
-
-        if (!new_node.complete)
-        {
-            for (int i = node.parents.Count - 1; i >= 0; i--)
+            Node new_node = new Node
             {
-                if (node.parents[i].move.box_num == num &&
-                    node.parents[i].move.dir == dir &&
-                    node.parents[i].move.pos.x == to_pos.x &&
-                    node.parents[i].move.pos.y == to_pos.y)
-                {
-                    new_node.complete = true;
-                    break;
-                }
-                yield return null;
-            }
-        }
-
-        if (!new_node.complete)
-        {
-            // Move box and player to new position
-            new_node.grid = node.grid.Clone() as int[,];
-            new_node.box_pos = new Pos[num_boxes];
-            new_node.player_pos = new Pos { x = node.player_pos.x, y = node.player_pos.y };
-            new_node.button_pos = node.button_pos;
-            new_node.parents = new List<Node>(node.parents);
-            new_node.parents.Add(node);
-            for (int i = 0; i < num_boxes; i++)
-            {
-                new_node.box_pos[i] = new Pos { x = node.box_pos[i].x, y = node.box_pos[i].y };
-                yield return null;
-            }
-            new_node.grid[node.box_pos[num].x, node.box_pos[num].y] -= (int)Elements.box;
-            new_node.grid[node.player_pos.x, node.player_pos.y] -= (int)Elements.player;
-            new_node.player_pos = player_pos;
+                box_pos = node.box_pos.Clone() as Pos[],
+                button_pos = node.button_pos.Clone() as Pos[],
+                player_pos = new Pos { x = node.box_pos[num].x, y = node.box_pos[num].y },
+                grid = node.grid.Clone() as int[,],
+                depth = node.depth + 1
+            };
             new_node.box_pos[num] = to_pos;
-            new_node.grid[new_node.box_pos[num].x, new_node.box_pos[num].y] += (int)Elements.box;
+            new_node.grid[node.player_pos.x, node.player_pos.y] -= (int)Elements.player;
             new_node.grid[new_node.player_pos.x, new_node.player_pos.y] += (int)Elements.player;
-            new_node.distance = GetDistance(new_node);
-            // Apply weight based on distance, and remove weight if this move is the same box as the previous turn (only if this node is not on a button)
-            // This will cause the system to prioritise the same box moved on the previous turn, before checking distance
-            new_node.weight += new_node.distance;
-            if (new_node.move.box_num == node.move.box_num)
-            {
-                new_node.weight -= 5;
-            }
-            if (OnButton(num, node))
-            {
-                new_node.weight += 10;
-            }
+            new_node.grid[node.box_pos[num].x, node.box_pos[num].y] -= (int)Elements.box;
+            new_node.grid[new_node.box_pos[num].x, new_node.box_pos[num].y] += (int)Elements.box;
+            return new_node;
         }
+        else
+        {
+            return null;
+        }
+    }    
 
-
-        new_node.setup = true;
-    }
-
-    
-
-    bool CheckPos(Pos pos, Node node)
+    bool TileFree(Pos pos, Node node)
     {
         if (node.grid[pos.x, pos.y] == (int)Elements.wall ||
             node.grid[pos.x, pos.y] == (int)Elements.entrance ||
@@ -473,13 +412,38 @@ public class Solver : MonoBehaviour
         return false;
     }
 
-    bool CheckCorner(Pos pos, Node node)
+    bool IsCorner(Pos pos, Node node)
     {
-        // Checks if box is in a corner (dead state)
-        if ((node.grid[pos.x + 1, pos.y] == (int)Elements.wall && node.grid[pos.x, pos.y + 1] == (int)Elements.wall) ||
-            (node.grid[pos.x + 1, pos.y] == (int)Elements.wall && node.grid[pos.x, pos.y - 1] == (int)Elements.wall) ||
-            (node.grid[pos.x - 1, pos.y] == (int)Elements.wall && node.grid[pos.x, pos.y - 1] == (int)Elements.wall) ||
-            (node.grid[pos.x - 1, pos.y] == (int)Elements.wall && node.grid[pos.x, pos.y + 1] == (int)Elements.wall))
+        bool[] blocked = new bool[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Pos new_pos = null;
+            if (i == 0)
+            {
+                new_pos = new Pos(pos.x, pos.y + 1);
+            }
+            if (i == 1)
+            {
+                new_pos = new Pos(pos.x + 1, pos.y);
+            }
+            if (i == 2)
+            {
+                new_pos = new Pos(pos.x, pos.y - 1);
+            }
+            if (i == 3)
+            {
+                new_pos = new Pos(pos.x - 1, pos.y);
+            }
+            if (node.grid[new_pos.x, new_pos.y] == (int)Elements.wall ||
+                node.grid[new_pos.x, new_pos.y] == (int)Elements.floor + (int)Elements.box ||
+                node.grid[new_pos.x, new_pos.y] == (int)Elements.floor + (int)Elements.box + (int)Elements.button ||
+                node.grid[new_pos.x, new_pos.y] == (int)Elements.trapdoor + (int)Elements.box)
+            {
+                blocked[i] = true;
+            }
+        }
+        if ((blocked[0] && blocked[1]) || (blocked[1] && blocked[2]) ||
+            (blocked[2] && blocked[3]) || (blocked[3] && blocked[0]))
         {
             return true;
         }
