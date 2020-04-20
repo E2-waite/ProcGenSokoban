@@ -22,7 +22,7 @@ public class GeneratePuzzle : MonoBehaviour
         timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
-        StartCoroutine(PlaceButtons(room));
+        PlaceButtons(room);
     }
 
     private void Update()
@@ -33,7 +33,7 @@ public class GeneratePuzzle : MonoBehaviour
         }
     }
 
-    private IEnumerator PlaceButtons(Room room)
+    private void PlaceButtons(Room room)
     {
         room.grid = empty_grid.Clone() as int[,];
         if (attempts > max_attempts)
@@ -51,7 +51,6 @@ public class GeneratePuzzle : MonoBehaviour
                 room.grid[x_pos, y_pos] += (int)Elements.button;
                 button_positions.Add(new Pos { x = x_pos, y = y_pos });
             }
-            yield return null;
         }
         GetDeadCells(room, button_positions);
         attempts++;
@@ -112,10 +111,8 @@ public class GeneratePuzzle : MonoBehaviour
 
                         if (fill)
                         {
-                            string row = "Row: ";
                             for (int k = 0; k < spaces.Count; k++)
                             {
-                                row += " x:" + spaces[k].x.ToString() + " y:" + spaces[k].y.ToString() + " |";
                                 room.grid[spaces[k].x, spaces[k].y] = (int)Elements.dead;
                             }
                         }
@@ -147,19 +144,19 @@ public class GeneratePuzzle : MonoBehaviour
             Pos new_pos = null;
             if (i == 0)
             {
-                new_pos = new Pos(pos.x, pos.y + 1);
+                new_pos = new Pos { x = pos.x, y = pos.y + 1 };
             }
             if (i == 1)
             {
-                new_pos = new Pos(pos.x + 1, pos.y);
+                new_pos = new Pos { x = pos.x + 1, y = pos.y };
             }
             if (i == 2)
             {
-                new_pos = new Pos(pos.x, pos.y - 1);
+                new_pos = new Pos { x = pos.x, y = pos.y - 1 };
             }
             if (i == 3)
             {
-                new_pos = new Pos(pos.x - 1, pos.y);
+                new_pos = new Pos { x = pos.x - 1, y = pos.y };
             }
             if (room.grid[new_pos.x, new_pos.y] == (int)Elements.wall ||
                 room.grid[new_pos.x, new_pos.y] == (int)Elements.entrance ||
@@ -187,7 +184,7 @@ public class GeneratePuzzle : MonoBehaviour
             }
             else
             {
-                StartCoroutine(PlaceButtons(room));
+                PlaceButtons(room);
                 return;
             }
         }
@@ -355,7 +352,7 @@ public class GeneratePuzzle : MonoBehaviour
                 if (time_checked >= 1)
                 {
                     Debug.Log("Path Failed");
-                    StartCoroutine(PlaceButtons(room));
+                    PlaceButtons(room);
                     yield break;
                 }
                 yield return null;
@@ -386,7 +383,7 @@ public class GeneratePuzzle : MonoBehaviour
         }
         if (attempt.failed)
         {
-            StartCoroutine(PlaceButtons(room));
+            PlaceButtons(room);
             Debug.Log("FAILED");
         }
         if (attempt.solved)

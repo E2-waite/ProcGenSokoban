@@ -23,7 +23,7 @@ public class GenerateGrid : MonoBehaviour
     public void Restart(Room room)
     {
         // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
-        StartCoroutine(CombineTemplates(room));
+        CombineTemplates(room);
     }
 
     public void StartGenerating(Cell cell, Room room)
@@ -31,7 +31,7 @@ public class GenerateGrid : MonoBehaviour
         room.generated = false;
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
-        StartCoroutine(CombineTemplates(room));
+        CombineTemplates(room);
         timer_started = true;
     }
 
@@ -51,7 +51,7 @@ public class GenerateGrid : MonoBehaviour
         return Direction.None;
     }
 
-    private IEnumerator CombineTemplates(Room room)
+    private void CombineTemplates(Room room)
     {
         Templates templates = GetComponent<Templates>();
         room.grid = new int[room.grid_x, room.grid_y];
@@ -108,7 +108,6 @@ public class GenerateGrid : MonoBehaviour
             {
                 x_pos++;
             }
-            yield return null;
         }
 
         // Place walls around the generated room
@@ -120,7 +119,6 @@ public class GenerateGrid : MonoBehaviour
                 {
                     room.grid[x, y] = 2;
                 }
-                yield return null;
             }
         }
 
@@ -143,7 +141,7 @@ public class GenerateGrid : MonoBehaviour
             {
                 // If all checks are passed continue to next step
                 room.grid = check.FillGaps();
-                StartCoroutine(PlaceDoorways(room));
+                PlaceDoorways(room);
             }
             else
             {
@@ -157,7 +155,7 @@ public class GenerateGrid : MonoBehaviour
     }
 
 
-    IEnumerator PlaceDoorways(Room room)
+    void PlaceDoorways(Room room)
     {
         bool generate = true;
         // Do not place entrance doorway in first room
@@ -169,7 +167,6 @@ public class GenerateGrid : MonoBehaviour
                 generate = false;
                 break;
             }
-            yield return null;
         }
 
         if (room.first)
