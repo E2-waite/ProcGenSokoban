@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 351944b5f1413dd4ab719c9d17dbcdef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  check_solver: 1
+  check_solver: 0
   min_steps: 5
   max_attempts: 10
   timer: 0
@@ -384,4 +384,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   num_moves: 0
-  max_steps: 0
+  max_depth: 0

@@ -67,7 +67,7 @@ public class GameControl : MonoBehaviour
         }
         this_level.instantiated = true;
 
-        next_level = GetComponent<GenerateLevel>().Generate(size_x, size_y, grid_x, grid_y, maze_x, maze_y);
+        //next_level = GetComponent<GenerateLevel>().Generate(size_x, size_y, grid_x, grid_y, maze_x, maze_y);
     }
 
     private void Update()

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using enums;
 public class GeneratePuzzle : MonoBehaviour
 {
@@ -52,141 +53,137 @@ public class GeneratePuzzle : MonoBehaviour
             }
             yield return null;
         }
-        box_positions = new List<Pos>();
-        BoxPlace(room);
+        PlaceBoxes(room, button_positions);
         attempts++;
     }
-    
-    class Node
-    {
-        public Pos pos;
-        public List<Node> children = new List<Node>();
-        public List<Node> stepped = new List<Node>();
-        public bool complete = false;
-    }
 
-    void BoxPlace(Room room)
+    void PlaceBoxes(Room room, List<Pos> buttons)
     {
-        StopAllCoroutines();
-        // If enough boxes have been placed, continue else place next box
-        if (box_positions.Count == room.num_boxes)
+        for (int i = 0; i < room.num_boxes; i++)
         {
-            if (room.first && room.last)
+            Node box = PlaceBox(new Node { pos = new Pos(buttons[i].x, buttons[i].y) }, room);
+            if (box != null && box.depth >= min_steps)
             {
-                if (check_solver)
-                {
-                    StartCoroutine(CheckSolver(room));
-                }
-                else
-                {
-                    room.generated = true;
-                    timer_stopped = true;
-                }
+                room.grid[box.pos.x, box.pos.y] += (int)Elements.box;
             }
             else
             {
-                StartCoroutine(CheckPath(room));
+                StartCoroutine(PlaceButtons(room));
+                return;
+            }
+        }
+        if (room.first && room.last)
+        {
+            if (check_solver)
+            {
+                StartCoroutine(CheckSolver(room));
+            }
+            else
+            {
+                room.generated = true;
+                timer_stopped = true;
             }
         }
         else
         {
-            // If there are still boxes to place, begin checking for next box
-            Node current_node = new Node { pos = button_positions[box_positions.Count] };
-            StartCoroutine(CheckNode(current_node, new Node(), room));
+            StartCoroutine(CheckPath(room));
         }
     }
 
 
-    IEnumerator CheckNode(Node current_node, Node deepest_node, Room room)
+    class Node
     {
-        running++;
-        current_node.stepped.Add(current_node);
-        //Debug.Log("Current: " + current_node.stepped.Count.ToString() + " Deepest: " + deepest_node.stepped.Count.ToString());
-        if (current_node.stepped.Count >  deepest_node.stepped.Count)
+        public Pos pos;
+        public int depth = 0;
+    }
+
+    Node PlaceBox(Node start_node, Room room)
+    {
+        List<Node> open_list = new List<Node>();
+        HashSet<Node> closed_list = new HashSet<Node>();
+        open_list.Add(start_node);
+
+        while (open_list.Count > 0)
         {
-            deepest_node = new Node { };
-        }
-        Direction dir = Direction.N;
-        if (current_node.children.Count == 0)
-        {
-            // Get all valid neighbours, add them to children of current node
-            for (int i = 0; i < 4; i++)
+            Node current_node = open_list[0];
+            open_list.Remove(current_node);
+            closed_list.Add(current_node);
+
+            for (int i = 0; i < 4; i ++)
             {
-                Pos checked_pos = CheckDir(dir, room.grid, current_node.pos);
-                bool stepped = false;
-                if (!checked_pos.empty)
+                Pos pos = IsFree((Direction)i, room.grid, current_node.pos);
+                if (pos != null)
                 {
-                    for (int j = 0; j < current_node.stepped.Count; j++)
-                    {
-                        if (current_node.stepped[j].pos.x == checked_pos.x &&
-                            current_node.stepped[j].pos.y == checked_pos.y)
+                    Node new_node = new Node { pos = pos, depth = current_node.depth + 1 };
+                    bool contains = false;
+                    foreach (Node node in open_list)
+                    { 
+                        if (node.pos.x == new_node.pos.x &&
+                            node.pos.y == new_node.pos.y)
                         {
-                            // if node has been stepped to previously in the tree, do not add as child
-                            stepped = true;
+                            contains = true;
                             break;
                         }
-                        yield return null;
                     }
-                    if (!stepped && room.grid[checked_pos.x, checked_pos.y] != (int)Elements.floor + (int)Elements.button)
+                    if (!contains)
                     {
-                        current_node.children.Add(new Node { pos = checked_pos, stepped = current_node.stepped });
+                        foreach (Node node in closed_list)
+                        {
+                            if (node.pos.x == new_node.pos.x &&
+                                node.pos.y == new_node.pos.y)
+                            {
+                                contains = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!contains)
+                    { 
+                        open_list.Add(new_node);
                     }
                 }
-                if (dir == Direction.W) dir = Direction.N;
-                else dir++;
+            }
+
+            open_list = open_list.OrderByDescending(w => w.depth).ToList();
+        }
+
+        Node deepest_node = null;
+        int node_depth = 0;
+        foreach (Node node in closed_list)
+        {
+            if (node.depth > node_depth)
+            {
+                node_depth = node.depth;
+                deepest_node = node;
             }
         }
 
-        // Check child nodes
-        int num_complete = 0;
-        if (current_node.children.Count > 0)
-        {
-            for (int i = 0; i < current_node.children.Count; i++)
-            {
-                if (current_node.children[i].complete)
-                {
-                    num_complete++;
-                }
-                else
-                {
-                    StartCoroutine(CheckNode(current_node.children[i], deepest_node, room));
-                }
-                yield return null;
-            }
-        }
-        if (num_complete == current_node.children.Count)
-        {
-            current_node.complete = true;
-        }
+        return deepest_node;
+    }
 
-        if (current_node.children.Count == 0 || num_complete == current_node.children.Count)
+    Pos IsFree(Direction dir, int[,] grid, Pos pos)
+    {
+        if (dir == Direction.N && grid[pos.x, pos.y + 1] == (int)Elements.floor &&
+            grid[pos.x, pos.y + 2] == (int)Elements.floor)
         {
-            // If reached end of branch (can't go further) check if enough steps have been made in deepest nod, if they have place box and continue to next
-            if (current_node.stepped.Count >= min_steps)
-            {
-                if (room.grid[current_node.pos.x, current_node.pos.y] == (int)Elements.floor)
-                {
-                    room.grid[current_node.pos.x, current_node.pos.y] += (int)Elements.box;
-                    box_positions.Add(current_node.pos);
-                    BoxPlace(room);
-                }
-                else
-                {
-                    StartCoroutine(PlaceButtons(room));
-                }
-            }
-            else
-            {
-                if (current_node.stepped.Count > 1)
-                {
-                    StartCoroutine(CheckNode(current_node.stepped[current_node.stepped.Count - 2], deepest_node, room));
-                }
-                else
-                {
-                    StartCoroutine(PlaceButtons(room));
-                }
-            }
+            return new Pos { x = pos.x, y = pos.y + 1 };
         }
+        if (dir == Direction.E && grid[pos.x + 1, pos.y] == (int)Elements.floor &&
+            grid[pos.x + 2, pos.y] == (int)Elements.floor)
+        {
+            return new Pos { x = pos.x + 1, y = pos.y };
+        }
+        if (dir == Direction.S && grid[pos.x, pos.y - 1] == (int)Elements.floor &&
+            grid[pos.x, pos.y - 2] == (int)Elements.floor)
+        {
+            return new Pos { x = pos.x, y = pos.y - 1 };
+        }
+        if (dir == Direction.W && grid[pos.x - 1, pos.y] == (int)Elements.floor &&
+            grid[pos.x - 2, pos.y] == (int)Elements.floor)
+        {
+            return new Pos { x = pos.x - 1, y = pos.y };
+        }
+        return null;
     }
 
     void NewRoom(Room room)
