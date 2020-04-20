@@ -19,7 +19,7 @@ public class GenerateObjects : MonoBehaviour
         {
             for (int x = 0; x < room.grid.GetLength(0); x++)
             {
-                if (room.grid[x, y] == (int)Elements.floor)
+                if (room.grid[x, y] == (int)Elements.floor || room.grid[x, y] == (int)Elements.dead)
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                 }

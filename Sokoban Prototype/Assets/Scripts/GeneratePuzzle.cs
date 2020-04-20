@@ -53,8 +53,127 @@ public class GeneratePuzzle : MonoBehaviour
             }
             yield return null;
         }
-        PlaceBoxes(room, button_positions);
+        GetDeadCells(room, button_positions);
         attempts++;
+    }
+
+    void GetDeadCells(Room room, List<Pos> buttons)
+    {
+        List<Pos> corners = new List<Pos>();
+        // If tile is floor and is in a wall corner, it is marked as a dead square
+        for (int y = room.grid.GetLength(1) - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < room.grid.GetLength(0); x++)
+            {
+                if (room.grid[x, y] == (int)Elements.floor && IsCorner(new Pos(x,y), room))
+                {
+                    corners.Add(new Pos { x = x, y = y });
+                    room.grid[x, y] = (int)Elements.dead;
+                }
+            }
+        }
+
+        // Checks the space between all parralel corner tiles
+        // If all of the tiles between the corners are next to a wall
+        // All of the tiles between the corners are marked as dead squares
+        for (int i = 0; i < corners.Count; i++)
+        {
+            if (corners.Count > 1)
+            {
+                for (int j = 1; j < corners.Count; j++)
+                {
+                    if (corners[i].x == corners[j].x ||
+                        corners[i].y == corners[j].y)
+                    {
+                        bool fill = true, checking = true;
+                        List<Pos> spaces = new List<Pos>();
+                        Vector2 dir = new Vector2(corners[i].x - corners[j].x, corners[i].y - corners[j].y).normalized;
+                        Pos pos = new Pos { x = corners[i].x, y = corners[i].y };
+
+                        while (checking)
+                        {
+                            pos.x -= (int)dir.x;
+                            pos.y -= (int)dir.y;
+                            if (pos.x == corners[j].x && pos.y == corners[j].y)
+                            {
+                                break;
+                            }
+                            if (!CheckWall(pos, room) ||
+                                room.grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.button ||
+                                room.grid[pos.x, pos.y] == (int)Elements.wall)
+                            {
+                                fill = false;
+                                break;
+                            }
+
+                            spaces.Add(new Pos { x = pos.x, y = pos.y });
+                        }
+
+
+                        if (fill)
+                        {
+                            string row = "Row: ";
+                            for (int k = 0; k < spaces.Count; k++)
+                            {
+                                row += " x:" + spaces[k].x.ToString() + " y:" + spaces[k].y.ToString() + " |";
+                                room.grid[spaces[k].x, spaces[k].y] = (int)Elements.dead;
+                            }
+                        }
+                    }
+                }
+            }
+            corners.Remove(corners[i]);
+        }
+
+        PlaceBoxes(room, buttons);
+    }
+
+    bool CheckWall(Pos pos, Room room)
+    {
+        if (room.grid[pos.x, pos.y + 1] == (int)Elements.wall ||
+            room.grid[pos.x + 1, pos.y] == (int)Elements.wall ||
+            room.grid[pos.x, pos.y - 1] == (int)Elements.wall ||
+            room.grid[pos.x - 1, pos.y] == (int)Elements.wall)
+        {
+            return true;
+        }
+        return false;
+    }
+    bool IsCorner(Pos pos, Room room)
+    {
+        bool[] blocked = new bool[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Pos new_pos = null;
+            if (i == 0)
+            {
+                new_pos = new Pos(pos.x, pos.y + 1);
+            }
+            if (i == 1)
+            {
+                new_pos = new Pos(pos.x + 1, pos.y);
+            }
+            if (i == 2)
+            {
+                new_pos = new Pos(pos.x, pos.y - 1);
+            }
+            if (i == 3)
+            {
+                new_pos = new Pos(pos.x - 1, pos.y);
+            }
+            if (room.grid[new_pos.x, new_pos.y] == (int)Elements.wall ||
+                room.grid[new_pos.x, new_pos.y] == (int)Elements.entrance ||
+                room.grid[new_pos.x, new_pos.y] == (int)Elements.exit)
+            {
+                blocked[i] = true;
+            }
+        }
+        if ((blocked[0] && blocked[1]) || (blocked[1] && blocked[2]) ||
+            (blocked[2] && blocked[3]) || (blocked[3] && blocked[0]))
+        {
+            return true;
+        }
+        return false;
     }
 
     void PlaceBoxes(Room room, List<Pos> buttons)
