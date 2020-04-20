@@ -24,17 +24,31 @@ public class GameControl : MonoBehaviour
         grid_x = (size_x * 3) + 2;
         grid_y = (size_y * 3) + 2;
         this_level = GetComponent<GenerateLevel>().Generate(size_x, size_y, grid_x, grid_y, maze_x, maze_y);
-        StartCoroutine(GenerateLevel());
+        GenerateLevel(this_level);
     }
 
-    IEnumerator GenerateLevel()
+    void GenerateLevel(Level level)
     {
-        while (this_level.maze_cells.Count == 0)
+        GenerateMaze maze = new GenerateMaze();
+        List<Cell> maze_list = maze.Generate(new Cell[maze_x, maze_y]);
+        level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y] };
+        while (maze_list.Count > 0)
         {
-            yield return null;
+            Cell current_cell = maze_list[0];
+            maze_list.Remove(current_cell);
+            level.room_grid[current_cell.pos.x, current_cell.pos.y] = new Room
+            {
+                pos = current_cell.pos,
+                parent_level = level,
+                room_object = Instantiate(room_prefab, new Vector3(current_cell.pos.x * grid_x, 0, current_cell.pos.y * grid_y), Quaternion.identity),
+                offset_x = grid_x * current_cell.pos.x,
+                offset_y = grid_y * current_cell.pos.y,
+
+            };
+            GenerateGrid generator = new GenerateGrid();
+            generator.Generate(current_cell, level.room_grid[current_cell.pos.x, current_cell.pos.y]);
         }
 
-        this_level.object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y];
 
         // Generate rooms, starting with the first room and continuing through in order of depth
         for (int i = 0; i < this_level.maze_cells.Count; i++)

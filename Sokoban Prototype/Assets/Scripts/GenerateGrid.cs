@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using enums;
-public class GenerateGrid : MonoBehaviour
+public class GenerateGrid
 {
     public float timer = 0;
     bool timer_started = false, timer_stopped = false;
@@ -20,19 +20,13 @@ public class GenerateGrid : MonoBehaviour
         QualitySettings.vSyncCount = 0;
     }
 
-    public void Restart(Room room)
-    {
-        // When restarting pass existing entrance, and exit edges to ensure it matches existing maze layout
-        CombineTemplates(room);
-    }
-
-    public void StartGenerating(Cell cell, Room room)
+    public bool Generate(Cell cell, Room room)
     {
         room.generated = false;
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
-        CombineTemplates(room);
         timer_started = true;
+        return CombineTemplates(room);
     }
 
     Direction GetDoorwayDir(Direction dir, Room room)
@@ -51,9 +45,9 @@ public class GenerateGrid : MonoBehaviour
         return Direction.None;
     }
 
-    private void CombineTemplates(Room room)
+    private bool CombineTemplates(Room room)
     {
-        Templates templates = GetComponent<Templates>();
+        Templates templates = new Templates();
         room.grid = new int[room.grid_x, room.grid_y];
         int[,] temp_grid = new int[room.grid_x, room.grid_y];
         int i = 0, x_pos = 0, y_pos = 0;
@@ -122,7 +116,7 @@ public class GenerateGrid : MonoBehaviour
             }
         }
 
-        CheckGrid(room);
+        return CheckGrid(room);
     }
 
     private bool IsMultipleOf(int x, int n)
@@ -131,31 +125,19 @@ public class GenerateGrid : MonoBehaviour
         return (x % n) == 0;
     }
 
-    private void CheckGrid(Room room)
+    private bool CheckGrid(Room room)
     {
         GridCheck check = new GridCheck(room.grid);
         // If all checks are passed continue to next step, otherwise combine templates into new grid
-        if (check.FloorCount())
+        if (!check.FloorCount() || !check.ContinuousFloor() || !check.FillGaps())
         {
-            if (check.ContinuousFloor())
-            {
-                // If all checks are passed continue to next step
-                room.grid = check.FillGaps();
-                PlaceDoorways(room);
-            }
-            else
-            {
-                Restart(room);
-            }
+            return false;
         }
-        else
-        {
-            Restart(room);
-        }
+        return PlaceDoorways(room);
     }
 
 
-    void PlaceDoorways(Room room)
+    bool PlaceDoorways(Room room)
     {
         bool generate = true;
         // Do not place entrance doorway in first room
@@ -204,6 +186,7 @@ public class GenerateGrid : MonoBehaviour
                 generate = false;
             }
         }
+
         if (generate)
         {
             if (room.last)
@@ -211,13 +194,12 @@ public class GenerateGrid : MonoBehaviour
                 room.grid[room.exits[0].x, room.exits[0].y] = (int)Elements.trapdoor;
             }
             timer_stopped = true;
-            GetComponent<GeneratePuzzle>().Generate(room);
+            return new GeneratePuzzle().Generate(room);
         }
         else
         {
-            Restart(room);
+            return false;
         }
-
     }
 
     bool CheckCentre(Room room)

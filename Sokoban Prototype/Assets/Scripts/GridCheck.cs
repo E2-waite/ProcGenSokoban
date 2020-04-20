@@ -94,7 +94,7 @@ public class GridCheck
         return new Pos { empty = true };
     }
 
-    public int[,] FillGaps()
+    public bool FillGaps()
     {
         // If a floor tile is surrounded by wall tiles (in 3 or more directions) fill in with wall tile
         int max_passes = 8;
@@ -128,6 +128,6 @@ public class GridCheck
                 break;
             }
         }
-        return grid;
+        return true;
     }
 }

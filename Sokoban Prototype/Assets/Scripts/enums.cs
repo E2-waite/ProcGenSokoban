@@ -63,6 +63,17 @@ namespace enums
         public List<Pos> box_pos = new List<Pos>();
     }
 
+    public struct IntVec2
+    {
+        public IntVec2(int in_x, int in_y)
+        {
+            x = in_x;
+            y = in_y;
+        }
+        public int x;
+        public int y;
+    }
+
     public class Pos
     {
         public Pos()

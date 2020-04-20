@@ -7,7 +7,7 @@ public class FindPath
     Node[,] node_grid;
     public List<Pos> final_path = new List<Pos>();
     public bool path_failed = false;
-    public FindPath(int[,] grid, Pos start_pos, Pos end_pos)
+    public FindPath(int[,] grid)
     {
         int grid_x = grid.GetLength(0), grid_y = grid.GetLength(1);
         node_grid = new Node[grid_x, grid_y];
@@ -25,13 +25,11 @@ public class FindPath
                 node_grid[x, y] = new Node(is_obstacle, new Pos { x = x, y = y });
             }
         }
-
-        GeneratePath(start_pos, end_pos);
     }
 
-    void GeneratePath(Pos start_pos, Pos end_pos)
+
+    public bool IsPath(Pos start_pos, Pos end_pos)
     {
-        int num_steps = 0;
         Node start_node = node_grid[start_pos.x, start_pos.y];
         Node end_node = node_grid[end_pos.x, end_pos.y];
 
@@ -61,7 +59,8 @@ public class FindPath
             if (current_node == end_node)
             {
                 // Path has been found
-                GetFinalPath(start_node, end_node);
+                return true;
+                //GetFinalPath(start_node, end_node);
             }
 
             foreach (Node neighbour in GetNeighbourNodes(current_node))
@@ -86,7 +85,7 @@ public class FindPath
                 }
             }
         }
-        path_failed = true;
+        return false;
     }
 
     int GetManhattenDistance(Node node_a, Node node_b)

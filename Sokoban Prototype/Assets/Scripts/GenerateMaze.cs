@@ -1,128 +1,79 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using enums;
-public class GenerateMaze : MonoBehaviour
+public class GenerateMaze
 {
-    Vector2 size;
-    readonly private List<Cell> checked_cells = new List<Cell>();
-    public int junctions = 0, dead_ends = 0;
-    int depth = 0;
-
-    public Maze Generate(int maze_x, int maze_y)
+    public List<Cell> Generate(Cell[,] grid)
     {
-        Maze maze = new Maze();
-        size = new Vector2(maze_x, maze_y);
-        maze.grid = new Cell[(int)size.x, (int)size.y];
-        StartCoroutine(LoopCheck(maze));
-        StartCoroutine(StepForward(Mathf.RoundToInt(maze_x / 2), Mathf.RoundToInt(maze_y / 2), Direction.E, maze));
-        return maze;
-    }
-
-    IEnumerator LoopCheck(Maze maze)
-    {
-        // Starts loop that checks if full grid is filled
-        if (CheckCompletion(maze))
+        List<Cell> maze_list = new List<Cell>();
+        List<Cell> stack = new List<Cell>();
+        IntVec2 start_pos = new IntVec2(Mathf.RoundToInt(grid.GetLength(0) / 2), Mathf.RoundToInt(grid.GetLength(1) / 2));
+        grid[start_pos.x, start_pos.y] = new Cell(start_pos.x, start_pos.y, Direction.None);
+        stack.Add(new Cell(start_pos.x, start_pos.y, Direction.None));
+        while (stack.Count > 0)
         {
-            StopAllCoroutines();
-            dead_ends++;
-        }
-        yield return new WaitForSeconds(0.001f);
-        StartCoroutine(LoopCheck(maze));
-    }
+            Cell current_cell = stack[0];
+            stack.Remove(current_cell);
 
-    IEnumerator StepForward(int x, int y, Direction dir, Maze maze)
-    {
-        depth++;
-        // Adds grid tile to checked tiles list, then check adjascent tiles for clear space
-        maze.grid[x, y] = new Cell(x,y, dir);
-        maze.grid[x, y].depth = depth;
-        checked_cells.Add(maze.grid[x, y]);
-
-        dir = RandomDir();
-        for (int i = 0; i < 4; i++)
-        {
-            Vector2 pos = GetNewPos(dir, x, y);
-            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y, maze))
+            if (grid[current_cell.pos.x, current_cell.pos.y] != null)
             {
-                // If space is clear, continue to next step
-                maze.grid[x, y].exits.Add(dir);
-                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir, maze));
-                yield break;
+                continue;
             }
-            if (dir == Direction.W) dir = Direction.N;
-            else dir++;
-            yield return null;
-        }
-        // Start backtracking if there are no clear space adjascent to current tile (Dead end)
-        dead_ends++;
-        StartCoroutine(StepBack(maze));
-    }
 
-    IEnumerator StepBack(Maze maze)
-    {
-        depth--;
-        // Backtrack through checked cells list
-        checked_cells.Remove(checked_cells[checked_cells.Count - 1]);
-        Cell curr_cell = checked_cells[checked_cells.Count - 1];
+            maze_list.Add(current_cell);
+            grid[current_cell.pos.x, current_cell.pos.x] = current_cell;
+            Direction dir = RandomDir();
 
-        int x = curr_cell.GetPos().x, y = curr_cell.GetPos().y;
-        Direction dir = RandomDir();
-        for (int i = 0; i < 4; i++)
-        {
-            Vector2 pos = GetNewPos(dir, x, y);
-            if (InGrid((int)pos.x, (int)pos.y) && IsEmpty((int)pos.x, (int)pos.y, maze))
+            List<Cell> surrounding_cells = new List<Cell>();
+            for (int i = 0; i < 4; i++)
             {
-                // Check adjacent tiles to cell at top of checked list, move in new direction if space is clear (Junction)
-                junctions++;
-                maze.grid[x, y].exits.Add(dir);
-                StartCoroutine(StepForward((int)pos.x, (int)pos.y, dir, maze));
-                yield break;
-            }
-            if (dir == Direction.W) dir = Direction.N;
-            else dir++;
-            yield return null;
-        }
-        StartCoroutine(StepBack(maze));
-    }
-
-    Vector2 GetNewPos(Direction dir, int x, int y)
-    {
-        if (dir == Direction.N) return new Vector2(x, y + 1);
-        else if (dir == Direction.E) return new Vector2(x + 1, y);
-        else if (dir == Direction.S) return new Vector2(x, y - 1);
-        else if (dir == Direction.W) return new Vector2(x - 1, y);
-        return new Vector2(0, 0);
-    }
-
-    bool IsEmpty(int x, int y, Maze maze)
-    {
-        if (maze.grid[x, y] == null) return true;
-        else return false;
-    }
-
-    bool InGrid(int x, int y)
-    {
-        if (x < 0 || x >= (int)size.x || y < 0 || y >= (int)size.y) return false;
-        else return true;
-    }
-
-    bool CheckCompletion(Maze maze)
-    {
-        for (int x = 0; x < (int)size.x; x++)
-        {
-            for (int y = 0; y < (int)size.y; y++)
-            {
-                if (maze.grid[x, y] == null)
+                Pos new_pos = GetNewPos(dir, current_cell.pos);
+                if (InGrid(new_pos, grid))
                 {
-                    return false;
+                    surrounding_cells.Add(new Cell(new_pos.x, new_pos.y, dir, current_cell));
+                }
+
+                if (dir == Direction.W)
+                {
+                    dir = Direction.N;
+                }
+                else
+                {
+                    dir++;
+                }
+            }
+
+            foreach (Cell cell in surrounding_cells)
+            {
+                if (grid[cell.pos.x, cell.pos.y] != null)
+                {
+                    stack.Insert(0, cell);
                 }
             }
         }
-        Debug.Log("FILLED");
+        maze_list = maze_list.OrderBy(w => w.depth).ToList();
+        foreach (Cell cell in maze_list)
+        {
+            cell.AddParentExit();
+        }
+        return maze_list;
+    }
 
-        maze.complete = true;
-        return true;
+    Pos GetNewPos(Direction dir, Pos pos)
+    {
+        if (dir == Direction.N) return new Pos(pos.x, pos.y + 1);
+        else if (dir == Direction.E) return new Pos(pos.x + 1, pos.y);
+        else if (dir == Direction.S) return new Pos(pos.x, pos.y - 1);
+        else if (dir == Direction.W) return new Pos(pos.x - 1, pos.y);
+        return null;
+    }
+
+    bool InGrid(Pos pos, Cell[,] grid)
+    {
+        if (pos.x < 0 || pos.x >= grid.GetLength(0) || pos.y < 0 || pos.y >= grid.GetLength(1)) return false;
+        else return true;
     }
 
     Direction RandomDir()

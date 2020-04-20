@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using enums;
-public class GeneratePuzzle : MonoBehaviour
+public class GeneratePuzzle
 {
     public bool check_solver = true;
     public int min_steps = 8, max_attempts = 10;
     int[,] empty_grid;
-    int attempts = 0, running = 0;
-    List<Pos> button_positions;
-    List<Pos> box_positions;
+    int attempts = 0;
     public float timer = 0;
     bool timer_started = false, timer_stopped = false;
-    public void Generate(Room room)
+    public bool Generate(Room room)
     {
         if (room.first)
         {
@@ -22,7 +20,7 @@ public class GeneratePuzzle : MonoBehaviour
         timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
-        PlaceButtons(room);
+        return PlaceButtons(room);
     }
 
     private void Update()
@@ -33,30 +31,32 @@ public class GeneratePuzzle : MonoBehaviour
         }
     }
 
-    private void PlaceButtons(Room room)
+    private bool PlaceButtons(Room room)
     {
-        room.grid = empty_grid.Clone() as int[,];
-        if (attempts > max_attempts)
+        for (int i = 0; i < max_attempts; i++)
         {
-            NewRoom(room);
-        }
-        button_positions = new List<Pos>();
-        // Place buttons in valid floor tile positions
-        while (button_positions.Count < room.num_boxes)
-        {
-            int x_pos = Random.Range(1, room.grid.GetLength(0) - 1);
-            int y_pos = Random.Range(1, room.grid.GetLength(1) - 1);
-            if (room.grid[x_pos, y_pos] == (int)Elements.floor)
+            room.grid = empty_grid.Clone() as int[,];
+            List<Pos> buttons = new List<Pos>();
+            // Place buttons in valid floor tile positions
+            while (buttons.Count < room.num_boxes)
             {
-                room.grid[x_pos, y_pos] += (int)Elements.button;
-                button_positions.Add(new Pos { x = x_pos, y = y_pos });
+                int x_pos = Random.Range(1, room.grid.GetLength(0) - 1);
+                int y_pos = Random.Range(1, room.grid.GetLength(1) - 1);
+                if (room.grid[x_pos, y_pos] == (int)Elements.floor)
+                {
+                    room.grid[x_pos, y_pos] += (int)Elements.button;
+                    buttons.Add(new Pos { x = x_pos, y = y_pos });
+                }
+            }
+            if (GetDeadCells(room, buttons))
+            {
+                return true;
             }
         }
-        GetDeadCells(room, button_positions);
-        attempts++;
+        return false;
     }
 
-    void GetDeadCells(Room room, List<Pos> buttons)
+    bool GetDeadCells(Room room, List<Pos> buttons)
     {
         List<Pos> corners = new List<Pos>();
         // If tile is floor and is in a wall corner, it is marked as a dead square
@@ -122,7 +122,7 @@ public class GeneratePuzzle : MonoBehaviour
             corners.Remove(corners[i]);
         }
 
-        PlaceBoxes(room, buttons);
+        return PlaceBoxes(room, buttons);
     }
 
     bool CheckWall(Pos pos, Room room)
@@ -173,7 +173,7 @@ public class GeneratePuzzle : MonoBehaviour
         return false;
     }
 
-    void PlaceBoxes(Room room, List<Pos> buttons)
+    bool PlaceBoxes(Room room, List<Pos> buttons)
     {
         for (int i = 0; i < room.num_boxes; i++)
         {
@@ -184,25 +184,17 @@ public class GeneratePuzzle : MonoBehaviour
             }
             else
             {
-                PlaceButtons(room);
-                return;
+                return false;
             }
         }
+
         if (room.first && room.last)
         {
-            if (check_solver)
-            {
-                StartCoroutine(CheckSolver(room));
-            }
-            else
-            {
-                room.generated = true;
-                timer_stopped = true;
-            }
+            return true;
         }
         else
         {
-            StartCoroutine(CheckPath(room));
+            return CheckPath(room);
         }
     }
 
@@ -302,12 +294,6 @@ public class GeneratePuzzle : MonoBehaviour
         return null;
     }
 
-    void NewRoom(Room room)
-    {
-        StopAllCoroutines();
-        GetComponent<GenerateGrid>().Restart(room);
-    }
-
     private Direction RandomDir() { return (Direction)Random.Range(0, 4); }
     private Pos CheckDir(Direction dir, int[,] grid, Pos pos)
     {
@@ -335,61 +321,16 @@ public class GeneratePuzzle : MonoBehaviour
         return new Pos { empty = true };
     }
 
-    IEnumerator CheckPath(Room room)
+    bool CheckPath(Room room)
     {
         for (int i = 0; i < room.exits.Count; i++)
         {
-            float time_checked = 0;
-            FindPath path = new FindPath(room.grid, room.entrance, room.exits[i]);
-            bool checking = true;
-            while (checking)
+            FindPath path = new FindPath(room.grid);
+            if (!path.IsPath(room.entrance, room.exits[i]))
             {
-                time_checked += Time.deltaTime;
-                if (path.final_path.Count > 0)
-                {
-                    checking = false;
-                }
-                if (time_checked >= 1)
-                {
-                    Debug.Log("Path Failed");
-                    PlaceButtons(room);
-                    yield break;
-                }
-                yield return null;
+                return false;
             }
         }
-
-        if (check_solver)
-        {
-            StartCoroutine(CheckSolver(room));
-        }
-        else
-        {
-            room.generated = true;
-            timer_stopped = true;
-        }
-    }
-
-    IEnumerator CheckSolver(Room room)
-    {
-        Attempt attempt = new Attempt() { solved = false, failed = false};
-        Debug.Log("STARTED SOLVER");
-        Solver solver = GetComponent<Solver>();
-        solver.StartSolving(room, attempt);
-        // Wait until solver has failed or succeeded in solving the puzzle
-        while (!attempt.failed && !attempt.solved)
-        {
-            yield return null;
-        }
-        if (attempt.failed)
-        {
-            PlaceButtons(room);
-            Debug.Log("FAILED");
-        }
-        if (attempt.solved)
-        {
-            Debug.Log("SOLVED");
-            room.generated = true;
-        }
+        return true;
     }
 }

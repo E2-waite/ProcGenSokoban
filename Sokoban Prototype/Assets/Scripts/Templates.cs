@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using enums;
-public partial class Templates : MonoBehaviour
+public partial class Templates
 {
     public List<Template> templates = new List<Template>()
     {
