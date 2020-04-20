@@ -72,7 +72,6 @@
     <Compile Include="Assets\Scripts\FindPath.cs" />
     <Compile Include="Assets\Scripts\GameControl.cs" />
     <Compile Include="Assets\Scripts\GenerateGrid.cs" />
-    <Compile Include="Assets\Scripts\GenerateLevel.cs" />
     <Compile Include="Assets\Scripts\GenerateMaze.cs" />
     <Compile Include="Assets\Scripts\GenerateObjects.cs" />
     <Compile Include="Assets\Scripts\GeneratePuzzle.cs" />

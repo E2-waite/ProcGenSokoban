@@ -4,29 +4,19 @@ using UnityEngine;
 using enums;
 public class GenerateGrid
 {
-    public float timer = 0;
-    bool timer_started = false, timer_stopped = false;
-    private void Update()
-    {
-        if (Input.GetKeyUp("escape")) Application.Quit();
-        if (timer_started && !timer_stopped)
-        {
-            timer += Time.deltaTime;
-        }
-    }
-
-    private void Start()
-    {
-        QualitySettings.vSyncCount = 0;
-    }
-
-    public bool Generate(Cell cell, Room room)
+    public void Generate(Cell cell, Room room)
     {
         room.generated = false;
         room.entrance_dir = cell.entrance;
         room.exit_dirs = cell.exits;
-        timer_started = true;
-        return CombineTemplates(room);
+        bool finished = false;
+        while (!finished)
+        {
+            if (CombineTemplates(room))
+            {
+                finished = true;
+            }
+        }
     }
 
     Direction GetDoorwayDir(Direction dir, Room room)
@@ -193,7 +183,6 @@ public class GenerateGrid
             {
                 room.grid[room.exits[0].x, room.exits[0].y] = (int)Elements.trapdoor;
             }
-            timer_stopped = true;
             return new GeneratePuzzle().Generate(room);
         }
         else

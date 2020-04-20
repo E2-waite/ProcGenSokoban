@@ -10,10 +10,11 @@ public class GenerateMaze
         List<Cell> maze_list = new List<Cell>();
         List<Cell> stack = new List<Cell>();
         IntVec2 start_pos = new IntVec2(Mathf.RoundToInt(grid.GetLength(0) / 2), Mathf.RoundToInt(grid.GetLength(1) / 2));
-        grid[start_pos.x, start_pos.y] = new Cell(start_pos.x, start_pos.y, Direction.None);
         stack.Add(new Cell(start_pos.x, start_pos.y, Direction.None));
+        Debug.Log(stack.Count.ToString());
         while (stack.Count > 0)
         {
+            Debug.Log("LOOPING MAZE");
             Cell current_cell = stack[0];
             stack.Remove(current_cell);
 
@@ -30,7 +31,19 @@ public class GenerateMaze
             for (int i = 0; i < 4; i++)
             {
                 Pos new_pos = GetNewPos(dir, current_cell.pos);
-                if (InGrid(new_pos, grid))
+                bool contains = false;
+
+                foreach (Cell cell in maze_list)
+                {
+                    if (cell.pos.x == new_pos.x &&
+                        cell.pos.y == new_pos.y)
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+                
+                if (!contains && InGrid(new_pos, grid))
                 {
                     surrounding_cells.Add(new Cell(new_pos.x, new_pos.y, dir, current_cell));
                 }
@@ -47,7 +60,8 @@ public class GenerateMaze
 
             foreach (Cell cell in surrounding_cells)
             {
-                if (grid[cell.pos.x, cell.pos.y] != null)
+                Debug.Log("SURROUNDING CELL");
+                if (!maze_list.Contains(cell) && !stack.Contains(cell) && grid[cell.pos.x, cell.pos.y] != null)
                 {
                     stack.Insert(0, cell);
                 }

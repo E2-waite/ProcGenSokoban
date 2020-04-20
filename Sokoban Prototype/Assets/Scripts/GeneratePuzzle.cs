@@ -9,26 +9,15 @@ public class GeneratePuzzle
     public int min_steps = 8, max_attempts = 10;
     int[,] empty_grid;
     int attempts = 0;
-    public float timer = 0;
-    bool timer_started = false, timer_stopped = false;
     public bool Generate(Room room)
     {
         if (room.first)
         {
             room.grid[room.entrance.x, room.entrance.y] += (int)Elements.player;
         }
-        timer_started = true;
         attempts = 0;
         empty_grid = room.grid.Clone() as int[,];
         return PlaceButtons(room);
-    }
-
-    private void Update()
-    {
-        if (timer_started && !timer_stopped)
-        {
-            timer += Time.deltaTime;
-        }
     }
 
     private bool PlaceButtons(Room room)
