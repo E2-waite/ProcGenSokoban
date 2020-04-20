@@ -106,7 +106,7 @@ public class GenerateGrid
             }
         }
 
-        return CheckGrid(room);
+        return PlaceDoorways(room);
     }
 
     private bool IsMultipleOf(int x, int n)

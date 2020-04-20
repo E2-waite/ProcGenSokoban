@@ -228,6 +228,7 @@ GameObject:
   - component: {fileID: 1734988047}
   - component: {fileID: 1734988048}
   - component: {fileID: 1734988049}
+  - component: {fileID: 1734988045}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Grid
@@ -235,6 +236,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1734988045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734988044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fd4859c34a52054a9a420ee41504d29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1734988047
 Transform:
   m_ObjectHideFlags: 0
@@ -263,8 +276,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  maze_x: 1
-  maze_y: 1
+  maze_x: 5
+  maze_y: 5
   game_started: 0
   seconds: 0
   room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,

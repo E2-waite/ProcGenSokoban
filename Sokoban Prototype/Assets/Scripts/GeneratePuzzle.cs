@@ -39,6 +39,7 @@ public class GeneratePuzzle
             }
             if (GetDeadCells(room, buttons))
             {
+                room.generated = true;
                 return true;
             }
         }

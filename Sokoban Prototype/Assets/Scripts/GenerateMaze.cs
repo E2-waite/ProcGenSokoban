@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using enums;
-public class GenerateMaze
+public class GenerateMaze : MonoBehaviour
 {
-    public List<Cell> Generate(Cell[,] grid)
+    public void StartGenerating(Cell[,] grid, Maze maze)
     {
+        StartCoroutine(Generate(grid, maze));
+    }
+    IEnumerator Generate(Cell[,] grid, Maze maze)
+    {
+        Debug.Log("GENERATING MAZE");
         List<Cell> maze_list = new List<Cell>();
         List<Cell> stack = new List<Cell>();
         IntVec2 start_pos = new IntVec2(Mathf.RoundToInt(grid.GetLength(0) / 2), Mathf.RoundToInt(grid.GetLength(1) / 2));
         stack.Add(new Cell(start_pos.x, start_pos.y, Direction.None));
-        Debug.Log(stack.Count.ToString());
         while (stack.Count > 0)
         {
-            Debug.Log("LOOPING MAZE");
             Cell current_cell = stack[0];
             stack.Remove(current_cell);
 
@@ -41,6 +44,7 @@ public class GenerateMaze
                         contains = true;
                         break;
                     }
+                    yield return null;
                 }
                 
                 if (!contains && InGrid(new_pos, grid))
@@ -60,19 +64,21 @@ public class GenerateMaze
 
             foreach (Cell cell in surrounding_cells)
             {
-                Debug.Log("SURROUNDING CELL");
-                if (!maze_list.Contains(cell) && !stack.Contains(cell) && grid[cell.pos.x, cell.pos.y] != null)
+                if (!maze_list.Contains(cell) && !stack.Contains(cell) && grid[cell.pos.x, cell.pos.y] == null)
                 {
                     stack.Insert(0, cell);
                 }
+                yield return null;
             }
         }
         maze_list = maze_list.OrderBy(w => w.depth).ToList();
+        maze_list[0].first_room = true;
+        maze_list[maze_list.Count - 1].last_room = true;
         foreach (Cell cell in maze_list)
         {
             cell.AddParentExit();
         }
-        return maze_list;
+        maze.cells = maze_list;
     }
 
     Pos GetNewPos(Direction dir, Pos pos)

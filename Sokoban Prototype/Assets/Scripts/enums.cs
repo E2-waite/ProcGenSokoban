@@ -12,7 +12,7 @@ namespace enums
         public GameObject[,] object_grid;
         public int offset_x, offset_y;
         public int num_templates, size_x, size_y, grid_x, grid_y, num_boxes;
-        public bool solved, generated, first = false, last = false;
+        public bool solved, generated = false, first = false, last = false, instantiated = false;
         public Direction entrance_dir;
         public List<Direction> exit_dirs;
         public Pos entrance;
@@ -53,7 +53,7 @@ namespace enums
 
     public class Maze
     {
-        public Cell[,] grid;
+        public List<Cell> cells = new List<Cell>();
         public bool complete;
     }
 

@@ -82,8 +82,9 @@ public class GenerateObjects : MonoBehaviour
         room.room_object.GetComponent<CheckRoom>().StartChecking(room);
         if (!room.first)
         {
-            room.room_object.SetActive(false);
+            //room.room_object.SetActive(false);
         }
+        room.instantiated = true;
         return room.object_grid;
     }
 
