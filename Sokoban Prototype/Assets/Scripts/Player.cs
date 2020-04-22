@@ -64,6 +64,8 @@ public class Player : MonoBehaviour
             int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
             GameObject tile = game.this_level.object_grid[x_pos, y_pos];
 
+            Debug.Log(x_pos.ToString() + " " + y_pos.ToString());
+
             if (tile.CompareTag("Floor") || (tile.CompareTag("Doorway") && tile.GetComponent<DoorAction>().IsOpen()) || tile.CompareTag("Trapdoor"))
             {
                 if (tile.transform.childCount == 0) Move(tile);

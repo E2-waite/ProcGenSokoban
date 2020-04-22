@@ -22,12 +22,12 @@ public class GameControl : MonoBehaviour
     {
         grid_x = (size_x * 3) + 2;
         grid_y = (size_y * 3) + 2;
-        StartCoroutine(GenerateLevel(this_level));
+        StartCoroutine(GenerateLevel());
     }
 
-    IEnumerator GenerateLevel(Level level)
+    IEnumerator GenerateLevel()
     {
-        if (level != null && level.room_grid != null)
+        if (this_level != null && this_level.room_grid != null)
         {
             for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
             {
@@ -48,16 +48,16 @@ public class GameControl : MonoBehaviour
             yield return null;
         }
         Debug.Log("MAZE GENERATED");
-        level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y] };
+        this_level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y] };
         Debug.Log(maze.cells.Count.ToString());
         while (maze.cells.Count > 0)
         {
             Cell current_cell = maze.cells[0];
             maze.cells.Remove(current_cell);
-            level.room_grid[current_cell.pos.x, current_cell.pos.y] = new Room
+            this_level.room_grid[current_cell.pos.x, current_cell.pos.y] = new Room
             {
                 pos = current_cell.pos,
-                parent_level = level,
+                parent_level = this_level,
                 room_object = Instantiate(room_prefab, new Vector3(current_cell.pos.x * grid_x, 0, current_cell.pos.y * grid_y), Quaternion.identity),
                 offset_x = grid_x * current_cell.pos.x,
                 offset_y = grid_y * current_cell.pos.y,
@@ -72,28 +72,18 @@ public class GameControl : MonoBehaviour
             };
 
             GenerateGrid generator = new GenerateGrid();
-            generator.Generate(current_cell, level.room_grid[current_cell.pos.x, current_cell.pos.y]);
-            while (!level.room_grid[current_cell.pos.x, current_cell.pos.y].generated)
+            generator.Generate(current_cell, this_level.room_grid[current_cell.pos.x, current_cell.pos.y]);
+            while (!this_level.room_grid[current_cell.pos.x, current_cell.pos.y].generated)
             {
                 yield return null;
             }
 
-            GetComponent<GenerateObjects>().Generate(level.room_grid[current_cell.pos.x, current_cell.pos.y]);
-            while (!level.room_grid[current_cell.pos.x, current_cell.pos.y].instantiated)
+            GetComponent<GenerateObjects>().Generate(this_level.room_grid[current_cell.pos.x, current_cell.pos.y], this_level);
+            while (!this_level.room_grid[current_cell.pos.x, current_cell.pos.y].instantiated)
             {
                 yield return null;
             }
 
-            //for (int y = 0; y < grid_y; y++)
-            //{
-            //    for (int x = 0; x < grid_x; x++)
-            //    {
-            //        Pos pos = new Pos(current_cell.pos.x, y = current_cell.pos.y);
-            //        level.object_grid[x + (pos.x * grid_x), y + (pos.y * grid_y)] = level.room_grid[pos.x, pos.y].object_grid[x, y];
-            //        level.object_grid[x + (pos.x * grid_x), y + (pos.y * grid_y)].name = (x + (pos.x * grid_x)).ToString() + " " + (y + (current_cell.pos.y * grid_y)).ToString();
-            //        yield return null;
-            //    }
-            //}
             if (!game_started)
             {
                 game_started = true;
@@ -136,7 +126,7 @@ public class GameControl : MonoBehaviour
     void DeleteLevel()
     {
         level_won = false;
-        StartCoroutine(GenerateLevel(this_level));
+        StartCoroutine(GenerateLevel());
     }
 
     public void UpdateMove()

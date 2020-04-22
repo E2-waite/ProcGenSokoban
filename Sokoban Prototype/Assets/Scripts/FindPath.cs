@@ -7,7 +7,7 @@ public class FindPath
     Node[,] node_grid;
     public List<Pos> final_path = new List<Pos>();
     public bool path_failed = false;
-    public FindPath(int[,] grid)
+    public FindPath(int[,] grid, Elements obstacle)
     {
         int grid_x = grid.GetLength(0), grid_y = grid.GetLength(1);
         node_grid = new Node[grid_x, grid_y];
@@ -18,7 +18,7 @@ public class FindPath
             for (int x = 0; x < grid_x; x++)
             {
                 bool is_obstacle = false;
-                if (grid[x, y] == (int)Elements.wall || grid[x,y] == (int)Elements.floor + (int)Elements.button)
+                if (grid[x, y] == (int)Elements.wall || grid[x,y] == (int)Elements.floor + (int)obstacle)
                 {
                     is_obstacle = true;
                 }

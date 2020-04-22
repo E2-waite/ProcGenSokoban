@@ -276,8 +276,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  maze_x: 5
-  maze_y: 5
+  maze_x: 1
+  maze_y: 1
   game_started: 0
   seconds: 0
   room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,

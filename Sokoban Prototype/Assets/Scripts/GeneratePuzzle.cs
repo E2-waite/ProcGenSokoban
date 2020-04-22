@@ -192,6 +192,7 @@ public class GeneratePuzzle
     class Node
     {
         public Pos pos;
+        public Pos player_pos;
         public int depth = 0;
     }
 
@@ -209,23 +210,16 @@ public class GeneratePuzzle
 
             for (int i = 0; i < 4; i ++)
             {
-                Pos pos = IsFree((Direction)i, room.grid, current_node.pos);
-                if (pos != null)
+                Pos box_pos = BoxPos((Direction)i, room.grid, current_node.pos);
+                Pos push_pos = PushPos((Direction)i, room.grid, current_node.pos);
+                if (box_pos != null && push_pos != null)
                 {
-                    Node new_node = new Node { pos = pos, depth = current_node.depth + 1 };
-                    bool contains = false;
-                    foreach (Node node in open_list)
-                    { 
-                        if (node.pos.x == new_node.pos.x &&
-                            node.pos.y == new_node.pos.y)
-                        {
-                            contains = true;
-                            break;
-                        }
-                    }
-                    if (!contains)
+                    FindPath path = new FindPath(room.grid, Elements.box);
+                    if (current_node.player_pos == null || path.IsPath(current_node.player_pos, push_pos))
                     {
-                        foreach (Node node in closed_list)
+                        Node new_node = new Node { pos = box_pos, depth = current_node.depth + 1, player_pos = push_pos };
+                        bool contains = false;
+                        foreach (Node node in open_list)
                         {
                             if (node.pos.x == new_node.pos.x &&
                                 node.pos.y == new_node.pos.y)
@@ -234,10 +228,22 @@ public class GeneratePuzzle
                                 break;
                             }
                         }
-                    }
-                    if (!contains)
-                    { 
-                        open_list.Add(new_node);
+                        if (!contains)
+                        {
+                            foreach (Node node in closed_list)
+                            {
+                                if (node.pos.x == new_node.pos.x &&
+                                    node.pos.y == new_node.pos.y)
+                                {
+                                    contains = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!contains)
+                        {
+                            open_list.Add(new_node);
+                        }
                     }
                 }
             }
@@ -259,27 +265,50 @@ public class GeneratePuzzle
         return deepest_node;
     }
 
-    Pos IsFree(Direction dir, int[,] grid, Pos pos)
+    Pos BoxPos(Direction dir, int[,] grid, Pos pos)
     {
-        if (dir == Direction.N && grid[pos.x, pos.y + 1] == (int)Elements.floor &&
-            grid[pos.x, pos.y + 2] == (int)Elements.floor)
+        if (dir == Direction.N && grid[pos.x, pos.y + 1] == (int)Elements.floor)
         {
             return new Pos { x = pos.x, y = pos.y + 1 };
         }
-        if (dir == Direction.E && grid[pos.x + 1, pos.y] == (int)Elements.floor &&
-            grid[pos.x + 2, pos.y] == (int)Elements.floor)
+        if (dir == Direction.E && grid[pos.x + 1, pos.y] == (int)Elements.floor)
         {
             return new Pos { x = pos.x + 1, y = pos.y };
         }
-        if (dir == Direction.S && grid[pos.x, pos.y - 1] == (int)Elements.floor &&
-            grid[pos.x, pos.y - 2] == (int)Elements.floor)
+        if (dir == Direction.S && grid[pos.x, pos.y - 1] == (int)Elements.floor)
         {
             return new Pos { x = pos.x, y = pos.y - 1 };
         }
-        if (dir == Direction.W && grid[pos.x - 1, pos.y] == (int)Elements.floor &&
-            grid[pos.x - 2, pos.y] == (int)Elements.floor)
+        if (dir == Direction.W && grid[pos.x - 1, pos.y] == (int)Elements.floor)
         {
             return new Pos { x = pos.x - 1, y = pos.y };
+        }
+        return null;
+    }
+
+    Pos PushPos(Direction dir, int[,] grid, Pos pos)
+    {
+        Pos new_pos = null;
+        if (dir == Direction.N)
+        {
+            new_pos = new Pos { x = pos.x, y = pos.y + 2 };
+        }
+        if (dir == Direction.E)
+        {
+            new_pos = new Pos { x = pos.x + 2, y = pos.y };
+        }
+        if (dir == Direction.S)
+        {
+            new_pos = new Pos { x = pos.x, y = pos.y - 2 };
+        }
+        if (dir == Direction.W)
+        {
+            new_pos = new Pos { x = pos.x - 2, y = pos.y };
+        }
+        if (new_pos.x >= 0 && new_pos.x < grid.GetLength(0) && new_pos.y >= 0 && new_pos.y < grid.GetLength(1) &&
+            grid[new_pos.x, new_pos.y] == (int)Elements.floor)
+        {
+            return new_pos;
         }
         return null;
     }
@@ -315,7 +344,7 @@ public class GeneratePuzzle
     {
         for (int i = 0; i < room.exits.Count; i++)
         {
-            FindPath path = new FindPath(room.grid);
+            FindPath path = new FindPath(room.grid, Elements.button);
             if (!path.IsPath(room.entrance, room.exits[i]))
             {
                 return false;

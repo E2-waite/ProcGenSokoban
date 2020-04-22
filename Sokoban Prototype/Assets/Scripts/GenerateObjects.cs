@@ -10,7 +10,7 @@ public class GenerateObjects : MonoBehaviour
     List<GameObject> boxes = new List<GameObject>();
 
     // Start is called before the first frame update
-    public GameObject[,] Generate(Room room)
+    public GameObject[,] Generate(Room room, Level level)
     {
         room.buttons = new List<GameObject>();
         room.parent_level.boxes = new List<GameObject>();
@@ -22,10 +22,12 @@ public class GenerateObjects : MonoBehaviour
                 if (room.grid[x, y] == (int)Elements.floor || room.grid[x, y] == (int)Elements.dead)
                 {
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.wall)
                 {
                     room.object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.player)
                 {
@@ -33,6 +35,7 @@ public class GenerateObjects : MonoBehaviour
                     player = Instantiate(player_prefab, room.object_grid[x, y].transform);
                     player.transform.position = new Vector3(x + room.offset_x, 6, y + room.offset_y);
                     room.parent_level.player = player;
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.box)
                 {
@@ -40,6 +43,7 @@ public class GenerateObjects : MonoBehaviour
                     boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
                     boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 1, y + room.offset_y);
                     room.parent_level.boxes.Add(boxes[boxes.Count - 1]);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)
                 {
@@ -47,18 +51,22 @@ public class GenerateObjects : MonoBehaviour
                     buttons.Add(Instantiate(button_prefab, room.object_grid[x, y].transform));
                     buttons[buttons.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
                     room.buttons.Add(buttons[buttons.Count - 1]);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.entrance)
                 {
                     room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.exit)
                 {
                     room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x,y ] == (int)Elements.trapdoor)
                 {
                     room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x,y] == (int)Elements.trapdoor + (int)Elements.player)
                 {
@@ -66,6 +74,7 @@ public class GenerateObjects : MonoBehaviour
                     player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 6, y + room.offset_y),Quaternion.identity);
                     player.transform.parent = room.object_grid[x, y].transform;
                     room.parent_level.player = player;
+                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();
