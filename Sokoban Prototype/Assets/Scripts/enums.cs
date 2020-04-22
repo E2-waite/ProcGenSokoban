@@ -51,12 +51,6 @@ namespace enums
         public List<Move> moves = new List<Move>();
     }
 
-    public class Maze
-    {
-        public List<Cell> cells = new List<Cell>();
-        public bool complete;
-    }
-
     public class Move
     {
         public Pos player_pos;

@@ -19,11 +19,11 @@ public class Cell
         if (dir == Direction.S) entrance = Direction.N;
         if (dir == Direction.W) entrance = Direction.E;
     }
-    public void AddParentExit()
+    public void AddParentExit(Direction dir)
     {
-        if (entrance == Direction.N) parent.exits.Add(Direction.S);
-        if (entrance == Direction.E) parent.exits.Add(Direction.W);
-        if (entrance == Direction.S) parent.exits.Add(Direction.N);
-        if (entrance == Direction.W) parent.exits.Add(Direction.E);
+        if (dir == Direction.N) exits.Add(Direction.S);
+        if (dir == Direction.E) exits.Add(Direction.W);
+        if (dir == Direction.S) exits.Add(Direction.N);
+        if (dir == Direction.W) exits.Add(Direction.E);
     }
 }
