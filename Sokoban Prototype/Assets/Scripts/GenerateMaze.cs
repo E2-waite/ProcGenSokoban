@@ -5,53 +5,45 @@ using System.Linq;
 using enums;
 public class GenerateMaze : MonoBehaviour
 {
-    public void StartGenerating(Cell[,] grid, Maze maze)
+    public List<Cell> GetMaze(Cell[,] grid)
     {
-        StartCoroutine(Generate(grid, maze));
-    }
-    IEnumerator Generate(Cell[,] grid, Maze maze)
-    {
-        Debug.Log("GENERATING MAZE");
-        List<Cell> maze_list = new List<Cell>();
-        List<Cell> stack = new List<Cell>();
         IntVec2 start_pos = new IntVec2(Mathf.RoundToInt(grid.GetLength(0) / 2), Mathf.RoundToInt(grid.GetLength(1) / 2));
-        stack.Add(new Cell(start_pos.x, start_pos.y, Direction.None));
-        while (stack.Count > 0)
+        List<Cell> cells = new List<Cell>();
+        Cell first_cell = new Cell(start_pos.x, start_pos.y, Direction.None) { first_room = true };
+        cells.Add(first_cell);
+        return Step(cells, grid);
+    }
+
+    List<Cell> Step (List<Cell> cells, Cell[,] grid)
+    {
+        // If any cells are not filled, continue else return list of cells
+        for (int y = 0; y < grid.GetLength(1); y++)
         {
-            Cell current_cell = stack[0];
-            stack.Remove(current_cell);
-
-            if (grid[current_cell.pos.x, current_cell.pos.y] != null)
+            for (int x = 0; x < grid.GetLength(0); x++)
             {
-                continue;
+                if (grid[x,y] == null)
+                {
+                    goto step;
+                }
             }
+        }
+        return cells;
 
-            maze_list.Add(current_cell);
-            grid[current_cell.pos.x, current_cell.pos.x] = current_cell;
+    step:
+        bool placed = false;
+        Cell current_cell = cells[cells.Count - 1];
+        while (!placed)
+        {
             Direction dir = RandomDir();
-
-            List<Cell> surrounding_cells = new List<Cell>();
             for (int i = 0; i < 4; i++)
             {
-                Pos new_pos = GetNewPos(dir, current_cell.pos);
-                bool contains = false;
-
-                foreach (Cell cell in maze_list)
+                Pos pos = GetNewPos((Direction)i, current_cell.pos);
+                if (InGrid(pos, grid) && grid[pos.x, pos.y] == null)
                 {
-                    if (cell.pos.x == new_pos.x &&
-                        cell.pos.y == new_pos.y)
-                    {
-                        contains = true;
-                        break;
-                    }
-                    yield return null;
+                    grid[pos.x, pos.y] = new Cell(pos.x, pos.y, dir, current_cell);
+                    cells.Add(grid[pos.x, pos.y]);
+                    return Step(cells, grid);
                 }
-                
-                if (!contains && InGrid(new_pos, grid))
-                {
-                    surrounding_cells.Add(new Cell(new_pos.x, new_pos.y, dir, current_cell));
-                }
-
                 if (dir == Direction.W)
                 {
                     dir = Direction.N;
@@ -61,24 +53,9 @@ public class GenerateMaze : MonoBehaviour
                     dir++;
                 }
             }
-
-            foreach (Cell cell in surrounding_cells)
-            {
-                if (!maze_list.Contains(cell) && !stack.Contains(cell) && grid[cell.pos.x, cell.pos.y] == null)
-                {
-                    stack.Insert(0, cell);
-                }
-                yield return null;
-            }
+            current_cell = current_cell.parent;
         }
-        maze_list = maze_list.OrderBy(w => w.depth).ToList();
-        maze_list[0].first_room = true;
-        maze_list[maze_list.Count - 1].last_room = true;
-        foreach (Cell cell in maze_list)
-        {
-            cell.AddParentExit();
-        }
-        maze.cells = maze_list;
+        return null;
     }
 
     Pos GetNewPos(Direction dir, Pos pos)

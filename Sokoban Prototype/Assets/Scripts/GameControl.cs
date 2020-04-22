@@ -41,19 +41,12 @@ public class GameControl : MonoBehaviour
 
         game_started = false;
         GenerateMaze maze_generator = GetComponent<GenerateMaze>();
-        Maze maze = new Maze();
-        maze_generator.StartGenerating(new Cell[maze_x, maze_y], maze);
-        while (maze.cells.Count == 0)
-        {
-            yield return null;
-        }
-        Debug.Log("MAZE GENERATED");
+        List<Cell> cells = maze_generator.GetMaze(new Cell[maze_x, maze_y]);
         this_level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y] };
-        Debug.Log(maze.cells.Count.ToString());
-        while (maze.cells.Count > 0)
+        while (cells.Count > 0)
         {
-            Cell current_cell = maze.cells[0];
-            maze.cells.Remove(current_cell);
+            Cell current_cell = cells[0];
+            cells.Remove(current_cell);
             this_level.room_grid[current_cell.pos.x, current_cell.pos.y] = new Room
             {
                 pos = current_cell.pos,
