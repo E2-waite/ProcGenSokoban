@@ -106,7 +106,7 @@ public class GenerateGrid
             }
         }
 
-        return PlaceDoorways(room);
+        return CheckGrid(room);
     }
 
     private bool IsMultipleOf(int x, int n)
@@ -117,9 +117,9 @@ public class GenerateGrid
 
     private bool CheckGrid(Room room)
     {
-        GridCheck check = new GridCheck(room.grid);
-        // If all checks are passed continue to next step, otherwise combine templates into new grid
-        if (!check.FloorCount() || !check.ContinuousFloor() || !check.FillGaps())
+        GridCheck check = new GridCheck();
+        int num_floors = check.FloorCount(room.grid);
+        if (num_floors < (room.grid.GetLength(0) * room.grid.GetLength(1)) / 4 || !check.ContinuousFloor(room.grid, num_floors))
         {
             return false;
         }

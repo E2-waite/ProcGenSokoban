@@ -241,10 +241,10 @@ public class GeneratePuzzle
             {
                 Pos box_pos = BoxPos((Direction)i, room.grid, current_node.pos);
                 Pos push_pos = PushPos((Direction)i, room.grid, current_node.pos);
-                if (box_pos != null && push_pos != null)
+                if (box_pos != null && push_pos != null && !IsCorner(push_pos, room))
                 {
                     FindPath path = new FindPath(room.grid, Elements.box);
-                    if (current_node.player_pos == null || path.IsPath(current_node.player_pos, push_pos))
+                    if (path.IsPath(current_node.player_pos, push_pos) )
                     {
                         Node new_node = new Node { pos = box_pos, depth = current_node.depth + 1, player_pos = push_pos };
                         bool contains = false;

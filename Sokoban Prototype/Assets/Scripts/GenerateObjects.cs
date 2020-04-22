@@ -13,7 +13,6 @@ public class GenerateObjects : MonoBehaviour
     public GameObject[,] Generate(Room room, Level level)
     {
         room.buttons = new List<GameObject>();
-        room.parent_level.boxes = new List<GameObject>();
         room.object_grid = new GameObject[room.grid.GetLength(0), room.grid.GetLength(1)];
         for (int y = 0; y < room.grid.GetLength(1); y++)
         {
@@ -42,7 +41,7 @@ public class GenerateObjects : MonoBehaviour
                     room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
                     boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
                     boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 1, y + room.offset_y);
-                    room.parent_level.boxes.Add(boxes[boxes.Count - 1]);
+                    level.boxes.Add(boxes[boxes.Count - 1]);
                     level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
                 }
                 else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)

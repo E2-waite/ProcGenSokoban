@@ -37,11 +37,9 @@ public class GenerateMaze : MonoBehaviour
         Direction dir = RandomDir();
         for (int i = 0; i < 4; i++)
         {
-            Pos pos = GetNewPos(dir, current.pos);
+            Pos pos = current.pos.GetNewPos(dir);
             if (InGrid(pos, grid) && grid[pos.x, pos.y] == null)
             {
-                Debug.Log(current.pos.x.ToString() + " " + current.pos.y.ToString());
-                Debug.Log(dir + " Pos " + pos.x.ToString() + " " + pos.y.ToString());
                 grid[pos.x, pos.y] = new Cell(pos.x, pos.y, dir, current);
                 cells.Add(grid[pos.x, pos.y]);
                 current.exits.Add(dir);
@@ -56,18 +54,9 @@ public class GenerateMaze : MonoBehaviour
                 dir++;
             }
         }
-        Debug.Log("STEPPING BACK");
         return Step(cells, grid, current.parent);
     }
 
-    Pos GetNewPos(Direction dir, Pos pos)
-    {
-        if (dir == Direction.N) return new Pos(pos.x, pos.y + 1);
-        else if (dir == Direction.E) return new Pos(pos.x + 1, pos.y);
-        else if (dir == Direction.S) return new Pos(pos.x, pos.y - 1);
-        else if (dir == Direction.W) return new Pos(pos.x - 1, pos.y);
-        return null;
-    }
 
     bool InGrid(Pos pos, Cell[,] grid)
     {

@@ -144,6 +144,7 @@ public class GameControl : MonoBehaviour
             this_level.player.transform.parent = this_level.object_grid[pos.x, pos.y].transform;
             this_level.player.transform.position = new Vector3(pos.x, 0.6f, pos.y);
 
+            Debug.Log(this_level.boxes.Count.ToString());
             for (int i = 0; i < this_level.boxes.Count; i++)
             {
                 if (this_level.moves[this_level.moves.Count - 1].box_pos.Count > i)

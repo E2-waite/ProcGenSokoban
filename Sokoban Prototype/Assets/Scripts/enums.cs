@@ -74,6 +74,15 @@ namespace enums
         {
 
         }
+        public Pos GetNewPos(Direction dir)
+        {
+            if (dir == Direction.N) return new Pos(x, y + 1);
+            else if (dir == Direction.E) return new Pos(x + 1, y);
+            else if (dir == Direction.S) return new Pos(x, y - 1);
+            else if (dir == Direction.W) return new Pos(x - 1, y);
+            return null;
+        }
+
         public Pos(int x_pos, int y_pos)
         {
             x = x_pos;

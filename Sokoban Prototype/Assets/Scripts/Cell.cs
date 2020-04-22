@@ -10,6 +10,7 @@ public class Cell
     public bool first_room = false;
     public bool last_room = false;
     public int depth = 0;
+    public bool stepped = false;
     public Cell(int x, int y, Direction dir, Cell parent_cell = null)
     {
         parent = parent_cell;
