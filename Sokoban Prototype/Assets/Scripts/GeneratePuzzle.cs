@@ -165,12 +165,14 @@ public class GeneratePuzzle
 
     bool PlaceBoxes(Room room, List<Pos> buttons)
     {
+        Pos player_pos = GetPlayerPos(room);
         for (int i = 0; i < room.num_boxes; i++)
         {
-            Node box = PlaceBox(new Node { pos = new Pos(buttons[i].x, buttons[i].y) }, room);
+            Node box = PlaceBox(new Node { pos = new Pos(buttons[i].x, buttons[i].y), player_pos = player_pos }, room);
             if (box != null && box.depth >= min_steps)
             {
                 room.grid[box.pos.x, box.pos.y] += (int)Elements.box;
+                player_pos = box.player_pos;
             }
             else
             {
@@ -188,6 +190,33 @@ public class GeneratePuzzle
         }
     }
 
+    Pos GetPlayerPos(Room room)
+    {
+        if (room.first)
+        {
+            return new Pos(room.entrance.x, room.entrance.y);
+        }
+        else
+        {
+            if (room.entrance_dir == Direction.N)
+            {
+                return new Pos(room.entrance.x, room.entrance.y - 1);
+            }
+            if (room.entrance_dir == Direction.E)
+            {
+                return new Pos(room.entrance.x - 1, room.entrance.y);
+            }
+            if (room.entrance_dir == Direction.S)
+            {
+                return new Pos(room.entrance.x, room.entrance.y + 1);
+            }
+            if (room.entrance_dir == Direction.W)
+            {
+                return new Pos(room.entrance.x + 1, room.entrance.y);
+            }
+        }
+        return null;
+    }
 
     class Node
     {
