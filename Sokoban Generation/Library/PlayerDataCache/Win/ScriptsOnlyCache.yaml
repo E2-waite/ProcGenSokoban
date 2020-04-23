@@ -4,6 +4,7 @@ ScriptsOnlyBuild:
     - Box
     - CamFollow
     - CheckRoom
+    - DisplaySlider
     - DoorAction
     - GameControl
     - GenerateMaze
@@ -18,7 +19,6 @@ ScriptsOnlyBuild:
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
-    - UnityEditor.TestTools.TestRunner.TestListCacheData
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
@@ -26,7 +26,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.CanvasScaler
     - UnityEngine.UI.GraphicRaycaster
     - UnityEngine.UI.Image
-    - UnityEngine.UI.InputField
+    - UnityEngine.UI.Slider
     - UnityEngine.UI.Text
   sceneClasses:
     Assets/Scenes/LevelGeneration.unity:
@@ -59,35 +59,37 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9682}
     - Class: 114
-      Script: {instanceID: 9732}
+      Script: {instanceID: 9714}
     - Class: 114
-      Script: {instanceID: 9804}
+      Script: {instanceID: 9734}
     - Class: 114
-      Script: {instanceID: 9846}
+      Script: {instanceID: 9806}
     - Class: 114
-      Script: {instanceID: 10152}
+      Script: {instanceID: 9848}
     - Class: 114
-      Script: {instanceID: 10214}
+      Script: {instanceID: 10154}
     - Class: 114
-      Script: {instanceID: 10536}
+      Script: {instanceID: 10216}
     - Class: 114
-      Script: {instanceID: 10562}
+      Script: {instanceID: 10538}
     - Class: 114
-      Script: {instanceID: 10746}
+      Script: {instanceID: 10564}
     - Class: 114
-      Script: {instanceID: 10818}
+      Script: {instanceID: 10820}
     - Class: 114
-      Script: {instanceID: 10926}
+      Script: {instanceID: 10928}
     - Class: 114
-      Script: {instanceID: 11010}
+      Script: {instanceID: 11012}
     - Class: 114
-      Script: {instanceID: 11042}
+      Script: {instanceID: 11044}
     - Class: 114
-      Script: {instanceID: 11118}
+      Script: {instanceID: 11120}
     - Class: 114
-      Script: {instanceID: 11334}
+      Script: {instanceID: 11336}
     - Class: 114
-      Script: {instanceID: 11360}
+      Script: {instanceID: 11362}
+    - Class: 114
+      Script: {instanceID: 11394}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -117,7 +119,7 @@ ScriptsOnlyBuild:
     className: TMP_SelectionCaret
   - hash:
       serializedVersion: 2
-      Hash: b5123d3e11c666ebbee36e012f26967e
+      Hash: 5c6a953691a781dece5e8c3bc537457c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameControl
@@ -133,6 +135,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_Dropdown
+  - hash:
+      serializedVersion: 2
+      Hash: 1028c39545bcfa841aaab54121e69a47
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: DisplaySlider
   - hash:
       serializedVersion: 2
       Hash: 995830750068cc869adc1440276cbb2c
@@ -477,7 +485,7 @@ ScriptsOnlyBuild:
     className: GenerateMaze
   - hash:
       serializedVersion: 2
-      Hash: 5793bb301e9a7df8fbe18a750034e5ce
+      Hash: cee5f66c7bde4dc7f07a33ab3972ab3e
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Menu

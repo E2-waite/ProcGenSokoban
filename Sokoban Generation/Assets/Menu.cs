@@ -6,10 +6,11 @@ public class Menu : MonoBehaviour
 {
     public GameObject controller;
     GameControl game_control;
-    public Text room_text, maze_text;
+    public List<Text> text_list = new List<Text>();
+    public List<Image> backgrounds = new List<Image>();
     public Button gen_button, open_button, close_button;
-    public InputField room_x, room_y, maze_x, maze_y;
-    public Image open_bg, room_bg, maze_bg, closed_bg;
+    public Slider room_x, room_y, maze_x, maze_y, max_depth, steps_back, max_rooms;
+    public Image closed_bg;
     public int min = 1, max = 5;
     bool active = true;
     // Start is called before the first frame update
@@ -28,40 +29,57 @@ public class Menu : MonoBehaviour
         {
             active = true;
         }
+        foreach(Text text in text_list)
+        {
+            text.gameObject.SetActive(active);
+        }
+        foreach(Image background in backgrounds)
+        {
+            background.gameObject.SetActive(active);
+        }
         gen_button.gameObject.SetActive(active);
         room_x.gameObject.SetActive(active);
         room_y.gameObject.SetActive(active);
         maze_x.gameObject.SetActive(active);
         maze_y.gameObject.SetActive(active);
-        room_text.gameObject.SetActive(active);
-        maze_text.gameObject.SetActive(active);
+        max_depth.gameObject.SetActive(active);
+        steps_back.gameObject.SetActive(active);
+        max_rooms.gameObject.SetActive(active);
         close_button.gameObject.SetActive(active);
-        open_bg.gameObject.SetActive(active);
-        maze_bg.gameObject.SetActive(active);
-        room_bg.gameObject.SetActive(active);
         closed_bg.gameObject.SetActive(!active);
         open_button.gameObject.SetActive(!active);
     }
 
 
     private void Update()
-    {
-        int out_i;
-        if (int.TryParse(room_x.text, out out_i))
+    { 
+        if (game_control.size_x != (int)room_x.value)
         {
-            game_control.size_x = Mathf.Clamp(int.Parse(room_x.text), min, max);
+            game_control.size_x = (int)room_x.value;
         }
-        if (int.TryParse(room_y.text, out out_i))
+        if (game_control.size_y != (int)room_y.value)
         {
-            game_control.size_y = Mathf.Clamp(int.Parse(room_y.text), min, max);
+            game_control.size_y = (int)room_y.value;
         }
-        if (int.TryParse(maze_x.text, out out_i))
+        if (game_control.maze_x != (int)maze_x.value)
         {
-            game_control.maze_x = Mathf.Clamp(int.Parse(maze_x.text), min, max);
+            game_control.maze_x = (int)maze_x.value;
         }
-        if (int.TryParse(maze_y.text, out out_i))
+        if (game_control.maze_y != (int)maze_y.value)
         {
-            game_control.maze_y = Mathf.Clamp(int.Parse(maze_y.text), min, max);
+            game_control.maze_y = (int)maze_y.value;
+        }
+        if (game_control.max_depth != (int)max_depth.value)
+        {
+            game_control.max_depth = (int)max_depth.value;
+        }
+        if (game_control.steps_back != (int)steps_back.value)
+        {
+            game_control.steps_back = (int)steps_back.value;
+        }
+        if (game_control.max_rooms != (int)max_rooms.value)
+        {
+            game_control.max_rooms = (int)max_rooms.value;
         }
     }
 }

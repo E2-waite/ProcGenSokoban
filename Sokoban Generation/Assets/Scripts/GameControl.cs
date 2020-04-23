@@ -5,20 +5,19 @@ using UnityEditor;
 using enums;
 public class GameControl : MonoBehaviour
 {
-    public int size_x = 3, size_y = 3, maze_x = 3, maze_y = 3;
+    public int size_x = 3, size_y = 3, maze_x = 3, maze_y = 3, max_depth, steps_back, max_rooms;
     int grid_x { get { return (size_x * 3) + 2; } }
     int grid_y { get { return (size_y * 3) + 2; } }
     public bool show_dead_squares = false;
     public bool game_started = false;
     public float seconds = 0;
     public GameObject room_prefab;
-
     bool time_written = false;
     float time = 0;
     public Level this_level;
     public bool level_won = false;
     public bool generating = false;
-    public bool PlayWhileGenerating = false;
+    public bool PlayWhileGenerating = false, hide_rooms = false;
     private void Start()
     {
         Generate();
@@ -35,21 +34,16 @@ public class GameControl : MonoBehaviour
     public IEnumerator GenerateLevel()
     {
         generating = true;
-        if (this_level != null && this_level.room_grid != null)
-        {
-            for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
-            {
-                for (int x = 0; x < this_level.room_grid.GetLength(0); x++)
-                {
-                    Destroy(this_level.room_grid[x, y].room_object);
-                }
-            }
-        }
-        
         game_started = false;
+        if (this_level != null && this_level.level_object != null)
+        {
+            Destroy(this_level.level_object);
+        }
+        GameObject level_object = new GameObject();
+        level_object.name = "Level";
         GenerateMaze maze_generator = GetComponent<GenerateMaze>();
-        List<Cell> cells = maze_generator.GetMaze(new Cell[maze_x, maze_y]);
-        this_level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y] };
+        List<Cell> cells = maze_generator.GetMaze(new Cell[maze_x, maze_y], max_depth, steps_back, max_rooms);
+        this_level = new Level { room_grid = new Room[maze_x, maze_y], object_grid = new GameObject[maze_x * grid_x, maze_y * grid_y], level_object = level_object };
         while (cells.Count > 0)
         {
             Cell current_cell = cells[0];
@@ -70,11 +64,12 @@ public class GameControl : MonoBehaviour
                 grid_x = grid_x,
                 grid_y = grid_y
             };
+            this_level.room_grid[current_cell.pos.x, current_cell.pos.y].room_object.transform.parent = this_level.level_object.transform;
 
             GenerateGrid generator = new GenerateGrid();
             generator.Generate(current_cell, this_level.room_grid[current_cell.pos.x, current_cell.pos.y]);
 
-            GetComponent<GenerateObjects>().Generate(this_level.room_grid[current_cell.pos.x, current_cell.pos.y], this_level, show_dead_squares);
+            GetComponent<GenerateObjects>().Generate(this_level.room_grid[current_cell.pos.x, current_cell.pos.y], this_level, show_dead_squares, hide_rooms);
 
             if (!game_started)
             {
@@ -129,7 +124,7 @@ public class GameControl : MonoBehaviour
             this_level.moves.RemoveAt(this_level.moves.Count - 1);
             Pos pos = this_level.moves[this_level.moves.Count - 1].player_pos;
             this_level.player.transform.parent = this_level.object_grid[pos.x, pos.y].transform;
-            this_level.player.transform.position = new Vector3(pos.x, 0.6f, pos.y);
+            this_level.player.transform.position = new Vector3(pos.x, 1, pos.y);
 
             Debug.Log(this_level.boxes.Count.ToString());
             for (int i = 0; i < this_level.boxes.Count; i++)
@@ -138,7 +133,7 @@ public class GameControl : MonoBehaviour
                 {
                     pos = this_level.moves[this_level.moves.Count - 1].box_pos[i];
                     this_level.boxes[i].transform.parent = this_level.object_grid[pos.x, pos.y].transform;
-                    this_level.boxes[i].transform.position = new Vector3(pos.x, 0.5f, pos.y);
+                    this_level.boxes[i].transform.position = new Vector3(pos.x, 1, pos.y);
                 }
             }
         }

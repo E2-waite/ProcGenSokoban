@@ -40,6 +40,7 @@ namespace enums
 
     public class Level
     {
+        public GameObject level_object;
         public int[,] grid;
         public Room[,] room_grid;
         public GameObject[,] object_grid;

@@ -10,7 +10,7 @@ public class GenerateObjects : MonoBehaviour
     List<GameObject> boxes = new List<GameObject>();
 
     // Start is called before the first frame update
-    public GameObject[,] Generate(Room room, Level level, bool dead_cross)
+    public GameObject[,] Generate(Room room, Level level, bool dead_cross, bool hide_rooms)
     {
         room.buttons = new List<GameObject>();
         room.object_grid = new GameObject[room.grid.GetLength(0), room.grid.GetLength(1)];
@@ -100,9 +100,9 @@ public class GenerateObjects : MonoBehaviour
         }
 
         room.room_object.GetComponent<CheckRoom>().StartChecking(room);
-        if (!room.first)
+        if (!room.first && hide_rooms)
         {
-            //room.room_object.SetActive(false);
+            room.room_object.SetActive(false);
         }
         room.instantiated = true;
         return room.object_grid;
@@ -133,7 +133,7 @@ public class GenerateObjects : MonoBehaviour
             {
                 wall_dirs++;
             }
-            if (pos.x + 1 >= room.object_grid.GetLength(1) || pos.y + 1 >= room.object_grid.GetLength(1) || 
+            if (pos.x + 1 >= room.object_grid.GetLength(0) || pos.y + 1 >= room.object_grid.GetLength(1) || 
                 room.object_grid[pos.x + 1, pos.y + 1].CompareTag("Wall"))
             {
                 wall_dirs++;
