@@ -17,14 +17,24 @@ public class GameControl : MonoBehaviour
     float time = 0;
     public Level this_level;
     public bool level_won = false;
-
+    public bool generating = false;
+    public bool PlayWhileGenerating = false;
     private void Start()
     {
-        GenerateLevel();
+        Generate();
     }
 
-    public void GenerateLevel()
+    public void Generate()
     {
+        if (!generating)
+        {
+            StartCoroutine(GenerateLevel());
+        }
+    }
+
+    public IEnumerator GenerateLevel()
+    {
+        generating = true;
         if (this_level != null && this_level.room_grid != null)
         {
             for (int y = 0; y < this_level.room_grid.GetLength(1); y++)
@@ -71,7 +81,10 @@ public class GameControl : MonoBehaviour
                 game_started = true;
                 UpdateMove();
             }
+            yield return null;
         }
+        yield return new WaitForSeconds(1);
+        generating = false;
     }
 
     private void Update()
@@ -93,7 +106,7 @@ public class GameControl : MonoBehaviour
     void DeleteLevel()
     {
         level_won = false;
-        GenerateLevel();
+        Generate();
     }
 
     public void UpdateMove()

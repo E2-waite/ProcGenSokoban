@@ -5,6 +5,7 @@ using System.Linq;
 using enums;
 public class GenerateMaze : MonoBehaviour
 {
+    public int max_depth = 5;
     public List<Cell> GetMaze(Cell[,] grid)
     {
         IntVec2 start_pos = new IntVec2(Mathf.RoundToInt(grid.GetLength(0) / 2), Mathf.RoundToInt(grid.GetLength(1) / 2));
@@ -35,26 +36,39 @@ public class GenerateMaze : MonoBehaviour
     step:
 
         Direction dir = RandomDir();
-        for (int i = 0; i < 4; i++)
+        Debug.Log(current.depth.ToString());
+        if (current.depth <= max_depth)
         {
-            Pos pos = current.pos.GetNewPos(dir);
-            if (InGrid(pos, grid) && grid[pos.x, pos.y] == null)
+            for (int i = 0; i < 4; i++)
             {
-                grid[pos.x, pos.y] = new Cell(pos.x, pos.y, dir, current);
-                cells.Add(grid[pos.x, pos.y]);
-                current.exits.Add(dir);
-                return Step(cells, grid, grid[pos.x, pos.y]);
-            }
-            if (dir == Direction.W)
-            {
-                dir = Direction.N;
-            }
-            else
-            {
-                dir++;
+                Pos pos = current.pos.GetNewPos(dir);
+                if (InGrid(pos, grid) && grid[pos.x, pos.y] == null)
+                {
+                    grid[pos.x, pos.y] = new Cell(pos.x, pos.y, dir, current) { depth = current.depth + 1};
+                    cells.Add(grid[pos.x, pos.y]);
+                    current.exits.Add(dir);
+                    return Step(cells, grid, grid[pos.x, pos.y]);
+                }
+                if (dir == Direction.W)
+                {
+                    dir = Direction.N;
+                }
+                else
+                {
+                    dir++;
+                }
             }
         }
-        return Step(cells, grid, current.parent);
+        if (current.parent == null)
+        {
+            cells = cells.OrderBy(w => w.depth).ToList();
+            cells[cells.Count - 1].last_room = true;
+            return cells;
+        }
+        else
+        {
+            return Step(cells, grid, current.parent);
+        }
     }
 
 

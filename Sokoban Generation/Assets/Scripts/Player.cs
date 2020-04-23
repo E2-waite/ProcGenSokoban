@@ -59,7 +59,7 @@ public class Player : MonoBehaviour
 
     private void MovePlayer(int x_dir, int y_dir)
     {
-        if (!falling)
+        if (!falling && !(game.generating && !game.PlayWhileGenerating))
         {
             int x_pos = (int)(transform.position.x + x_dir), y_pos = (int)(transform.position.z + y_dir);
             GameObject tile = game.this_level.object_grid[x_pos, y_pos];
