@@ -35,7 +35,7 @@ public class GameControl : MonoBehaviour
                 }
             }
         }
-
+        
         game_started = false;
         GenerateMaze maze_generator = GetComponent<GenerateMaze>();
         List<Cell> cells = maze_generator.GetMaze(new Cell[maze_x, maze_y]);
@@ -69,8 +69,8 @@ public class GameControl : MonoBehaviour
             if (!game_started)
             {
                 game_started = true;
+                UpdateMove();
             }
-
         }
     }
 

@@ -8,6 +8,7 @@ ScriptsOnlyBuild:
     - GameControl
     - GenerateMaze
     - GenerateObjects
+    - Menu
     - Player
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
@@ -18,6 +19,15 @@ ScriptsOnlyBuild:
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
+    UnityEngine.UI.dll:
+    - UnityEngine.EventSystems.EventSystem
+    - UnityEngine.EventSystems.StandaloneInputModule
+    - UnityEngine.UI.Button
+    - UnityEngine.UI.CanvasScaler
+    - UnityEngine.UI.GraphicRaycaster
+    - UnityEngine.UI.Image
+    - UnityEngine.UI.InputField
+    - UnityEngine.UI.Text
   sceneClasses:
     Assets/Scenes/LevelGeneration.unity:
     - Class: 1
@@ -45,24 +55,52 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
+      Script: {instanceID: 9650}
+    - Class: 114
       Script: {instanceID: 9682}
     - Class: 114
       Script: {instanceID: 9732}
     - Class: 114
+      Script: {instanceID: 9804}
+    - Class: 114
+      Script: {instanceID: 9846}
+    - Class: 114
       Script: {instanceID: 10152}
     - Class: 114
+      Script: {instanceID: 10214}
+    - Class: 114
       Script: {instanceID: 10536}
+    - Class: 114
+      Script: {instanceID: 10562}
+    - Class: 114
+      Script: {instanceID: 10746}
     - Class: 114
       Script: {instanceID: 10818}
     - Class: 114
       Script: {instanceID: 10926}
     - Class: 114
+      Script: {instanceID: 11010}
+    - Class: 114
       Script: {instanceID: 11042}
     - Class: 114
-      Script: {instanceID: 11332}
+      Script: {instanceID: 11118}
+    - Class: 114
+      Script: {instanceID: 11334}
+    - Class: 114
+      Script: {instanceID: 11360}
     - Class: 115
       Script: {instanceID: 0}
+    - Class: 128
+      Script: {instanceID: 0}
     - Class: 157
+      Script: {instanceID: 0}
+    - Class: 213
+      Script: {instanceID: 0}
+    - Class: 222
+      Script: {instanceID: 0}
+    - Class: 223
+      Script: {instanceID: 0}
+    - Class: 224
       Script: {instanceID: 0}
   scriptHashData:
   - hash:
@@ -437,6 +475,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GenerateMaze
+  - hash:
+      serializedVersion: 2
+      Hash: 5793bb301e9a7df8fbe18a750034e5ce
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Menu
   - hash:
       serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb

@@ -6,8 +6,10 @@ public class Menu : MonoBehaviour
 {
     public GameObject controller;
     GameControl game_control;
-    public Button gen_button;
+    public Text room_text, maze_text;
+    public Button gen_button, open_button, close_button;
     public InputField room_x, room_y, maze_x, maze_y;
+    public Image open_bg, room_bg, maze_bg, closed_bg;
     public int min = 1, max = 5;
     bool active = true;
     // Start is called before the first frame update
@@ -31,6 +33,14 @@ public class Menu : MonoBehaviour
         room_y.gameObject.SetActive(active);
         maze_x.gameObject.SetActive(active);
         maze_y.gameObject.SetActive(active);
+        room_text.gameObject.SetActive(active);
+        maze_text.gameObject.SetActive(active);
+        close_button.gameObject.SetActive(active);
+        open_bg.gameObject.SetActive(active);
+        maze_bg.gameObject.SetActive(active);
+        room_bg.gameObject.SetActive(active);
+        closed_bg.gameObject.SetActive(!active);
+        open_button.gameObject.SetActive(!active);
     }
 
 
