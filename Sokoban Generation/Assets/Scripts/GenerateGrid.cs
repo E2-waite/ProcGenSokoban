@@ -38,8 +38,8 @@ public class GenerateGrid
     private bool CombineTemplates(Room room)
     {
         Templates templates = new Templates();
-        room.grid = new int[room.grid_x, room.grid_y];
-        int[,] temp_grid = new int[room.grid_x, room.grid_y];
+        room.grid = new Elements[room.grid_x, room.grid_y];
+        Elements[,] temp_grid = new Elements[room.grid_x, room.grid_y];
         int i = 0, x_pos = 0, y_pos = 0;
         while (i < room.num_templates)
         {
@@ -73,9 +73,9 @@ public class GenerateGrid
                 for (int x = 0; x < 5; x++)
                 {
                     //Debug.Log("X:" + (x + x_pos).ToString() + " Y:" + (y + y_pos).ToString());
-                    if (temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == 0 || temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == template[x, y])
+                    if (temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == 0 || temp_grid[x + (x_pos * 3), y + (y_pos * 3)] == (Elements)template[x, y])
                     {
-                        temp_grid[x + (x_pos * 3), y + (y_pos * 3)] = template[x, y];
+                        temp_grid[x + (x_pos * 3), y + (y_pos * 3)] = (Elements)template[x, y];
                     }
                 }
             }
@@ -101,7 +101,7 @@ public class GenerateGrid
             {
                 if (x == 0 || x == room.grid_x - 1 || y == 0 || y == room.grid_y - 1)
                 {
-                    room.grid[x, y] = 2;
+                    room.grid[x, y] = Elements.wall;
                 }
             }
         }
@@ -181,7 +181,7 @@ public class GenerateGrid
         {
             if (room.last)
             {
-                room.grid[room.exits[0].x, room.exits[0].y] = (int)Elements.trapdoor;
+                room.grid[room.exits[0].x, room.exits[0].y] = Elements.trapdoor;
             }
             return new GeneratePuzzle().Generate(room);
         }
@@ -193,7 +193,7 @@ public class GenerateGrid
 
     bool CheckCentre(Room room)
     {
-        if (room.grid[Mathf.RoundToInt(room.grid.GetLength(0) / 2), Mathf.RoundToInt(room.grid.GetLength(1) / 2)] == (int)Elements.wall)
+        if (room.grid[Mathf.RoundToInt(room.grid.GetLength(0) / 2), Mathf.RoundToInt(room.grid.GetLength(1) / 2)] == Elements.wall)
         {
             return false;
         }
@@ -209,8 +209,8 @@ public class GenerateGrid
                 {
                     x = (int)(room.grid.GetLength(0) / 2); 
                     y = room.grid.GetLength(1) - 1;
-                    room.grid[x, y] = (int)type;
-                    if (room.grid[x, y - 1] == (int)Elements.wall)
+                    room.grid[x, y] = type;
+                    if (room.grid[x, y - 1] == Elements.wall)
                     {
                         return false;
                     }
@@ -220,8 +220,8 @@ public class GenerateGrid
                 {
                     x = room.grid.GetLength(0) - 1;
                     y = (int)(room.grid.GetLength(1) / 2);
-                    room.grid[x, y] = (int)type;
-                    if (room.grid[x - 1, y] == (int)Elements.wall)
+                    room.grid[x, y] = type;
+                    if (room.grid[x - 1, y] == Elements.wall)
                     {
                         return false;
                     }
@@ -231,8 +231,8 @@ public class GenerateGrid
                 {
                     x = (int)(room.grid.GetLength(0) / 2); 
                     y = 0;
-                    room.grid[x, y] = (int)type;
-                    if (room.grid[x, y + 1] == (int)Elements.wall)
+                    room.grid[x, y] = type;
+                    if (room.grid[x, y + 1] == Elements.wall)
                     {
                         return false;
                     }
@@ -242,8 +242,8 @@ public class GenerateGrid
                 {
                     x = 0;
                     y = (int)(room.grid.GetLength(1) / 2);
-                    room.grid[x, y] = (int)type;
-                    if (room.grid[x + 1, y] == (int)Elements.wall)
+                    room.grid[x, y] = type;
+                    if (room.grid[x + 1, y] == Elements.wall)
                     {
                         return false;
                     }

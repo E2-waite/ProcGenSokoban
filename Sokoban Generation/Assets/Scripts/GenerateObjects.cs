@@ -18,74 +18,89 @@ public class GenerateObjects : MonoBehaviour
         {
             for (int x = 0; x < room.grid.GetLength(0); x++)
             {
-                if (room.grid[x, y] == (int)Elements.floor)
+                switch (room.grid[x, y])
                 {
-                    room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x,y] == (int)Elements.dead)
-                {
-                    if (dead_cross)
-                    {
-                        room.object_grid[x, y] = Instantiate(dead_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    }
-                    else
-                    {
-                        room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    }
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.wall)
-                {
-                    room.object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.player)
-                {
-                    room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    player = Instantiate(player_prefab, room.object_grid[x, y].transform);
-                    player.transform.position = new Vector3(x + room.offset_x, 6, y + room.offset_y);
-                    room.parent_level.player = player;
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.box)
-                {
-                    room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
-                    boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 1, y + room.offset_y);
-                    level.boxes.Add(boxes[boxes.Count - 1]);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.floor + (int)Elements.button)
-                {
-                    room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    buttons.Add(Instantiate(button_prefab, room.object_grid[x, y].transform));
-                    buttons[buttons.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
-                    room.buttons.Add(buttons[buttons.Count - 1]);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.entrance)
-                {
-                    room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x, y] == (int)Elements.exit)
-                {
-                    room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x,y ] == (int)Elements.trapdoor)
-                {
-                    room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
-                }
-                else if (room.grid[x,y] == (int)Elements.trapdoor + (int)Elements.player)
-                {
-                    room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
-                    player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 6, y + room.offset_y),Quaternion.identity);
-                    player.transform.parent = room.object_grid[x, y].transform;
-                    room.parent_level.player = player;
-                    level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                    case Elements.floor:
+                        {
+                            room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.dead:
+                        {
+                            if (dead_cross)
+                            {
+                                room.object_grid[x, y] = Instantiate(dead_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            }
+                            else
+                            {
+                                room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            }
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.wall:
+                        {
+                            room.object_grid[x, y] = Instantiate(wall_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.floor | Elements.player:
+                        {
+                            room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            player = Instantiate(player_prefab, room.object_grid[x, y].transform);
+                            player.transform.position = new Vector3(x + room.offset_x, 6, y + room.offset_y);
+                            room.parent_level.player = player;
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.floor | Elements.box:
+                        {
+                            room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            boxes.Add(Instantiate(box_prefab, room.object_grid[x, y].transform));
+                            boxes[boxes.Count - 1].transform.position = new Vector3(x + room.offset_x, 1, y + room.offset_y);
+                            level.boxes.Add(boxes[boxes.Count - 1]);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.floor | Elements.button:
+                        {
+                            room.object_grid[x, y] = Instantiate(floor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            buttons.Add(Instantiate(button_prefab, room.object_grid[x, y].transform));
+                            buttons[buttons.Count - 1].transform.position = new Vector3(x + room.offset_x, 0.5f, y + room.offset_y);
+                            room.buttons.Add(buttons[buttons.Count - 1]);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.entrance:
+                        {
+                            room.object_grid[x, y] = Instantiate(entrance_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.exit:
+                        {
+                            room.object_grid[x, y] = Instantiate(exit_prefab, new Vector3(x + room.offset_x, 1, y + room.offset_y), Quaternion.identity);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.trapdoor:
+                        {
+                            room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+                    case Elements.trapdoor | Elements.player:
+                        {
+                            room.object_grid[x, y] = Instantiate(trapdoor_prefab, new Vector3(x + room.offset_x, 0, y + room.offset_y), Quaternion.identity);
+                            player = Instantiate(player_prefab, new Vector3(x + room.offset_x, 6, y + room.offset_y), Quaternion.identity);
+                            player.transform.parent = room.object_grid[x, y].transform;
+                            room.parent_level.player = player;
+                            level.object_grid[x + room.offset_x, y + room.offset_y] = room.object_grid[x, y];
+                            break;
+                        }
+
+                
                 }
                 room.object_grid[x, y].transform.parent = room.room_object.transform;
                 room.object_grid[x, y].name = x.ToString() + " " + y.ToString();

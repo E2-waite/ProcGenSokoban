@@ -8,7 +8,7 @@ namespace enums
         public Level parent_level;
         public Pos pos;
         public GameObject room_object;
-        public int[,] grid;
+        public Elements[,] grid;
         public GameObject[,] object_grid;
         public int offset_x, offset_y;
         public int num_templates, size_x, size_y, grid_x, grid_y, num_boxes;
@@ -41,7 +41,7 @@ namespace enums
     public class Level
     {
         public GameObject level_object;
-        public int[,] grid;
+        public Elements[,] grid;
         public Room[,] room_grid;
         public GameObject[,] object_grid;
         public List<Cell> maze_cells = new List<Cell>();
@@ -117,7 +117,7 @@ namespace enums
         W,
         None,
     }
-
+    
     public enum Elements : int
     {
         empty = 0,

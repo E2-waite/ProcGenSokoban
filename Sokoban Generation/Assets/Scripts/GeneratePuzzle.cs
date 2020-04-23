@@ -27,16 +27,16 @@ public class GeneratePuzzle
     {
         for (int i = 0; i < max_attempts; i++)
         {
-            room.grid = empty_grid.Clone() as int[,];
+            room.grid = empty_grid.Clone() as Elements[,];
             List<Pos> buttons = new List<Pos>();
             // Place buttons in valid floor tile positions
             while (buttons.Count < room.num_boxes)
             {
                 int x_pos = Random.Range(1, room.grid.GetLength(0) - 1);
                 int y_pos = Random.Range(1, room.grid.GetLength(1) - 1);
-                if (room.grid[x_pos, y_pos] == (int)Elements.floor)
+                if (room.grid[x_pos, y_pos] == Elements.floor)
                 {
-                    room.grid[x_pos, y_pos] += (int)Elements.button;
+                    room.grid[x_pos, y_pos] = room.grid[x_pos, y_pos] | Elements.button;
                     buttons.Add(new Pos { x = x_pos, y = y_pos });
                 }
             }
@@ -57,10 +57,10 @@ public class GeneratePuzzle
         {
             for (int x = 0; x < room.grid.GetLength(0); x++)
             {
-                if (room.grid[x, y] == (int)Elements.floor && IsCorner(new Pos(x,y), room))
+                if (room.grid[x, y] == Elements.floor && IsCorner(new Pos(x,y), room))
                 {
                     corners.Add(new Pos { x = x, y = y });
-                    room.grid[x, y] = (int)Elements.dead;
+                    room.grid[x, y] = Elements.dead;
                 }
             }
         }
@@ -91,8 +91,8 @@ public class GeneratePuzzle
                                 break;
                             }
                             if (!CheckWall(pos, room) ||
-                                room.grid[pos.x, pos.y] == (int)Elements.floor + (int)Elements.button ||
-                                room.grid[pos.x, pos.y] == (int)Elements.wall)
+                                room.grid[pos.x, pos.y] == (Elements.floor | Elements.button) ||
+                                room.grid[pos.x, pos.y] == Elements.wall)
                             {
                                 fill = false;
                                 break;
@@ -106,7 +106,7 @@ public class GeneratePuzzle
                         {
                             for (int k = 0; k < spaces.Count; k++)
                             {
-                                room.grid[spaces[k].x, spaces[k].y] = (int)Elements.dead;
+                                room.grid[spaces[k].x, spaces[k].y] = Elements.dead;
                             }
                         }
                     }
@@ -120,10 +120,10 @@ public class GeneratePuzzle
 
     bool CheckWall(Pos pos, Room room)
     {
-        if (room.grid[pos.x, pos.y + 1] == (int)Elements.wall ||
-            room.grid[pos.x + 1, pos.y] == (int)Elements.wall ||
-            room.grid[pos.x, pos.y - 1] == (int)Elements.wall ||
-            room.grid[pos.x - 1, pos.y] == (int)Elements.wall)
+        if (room.grid[pos.x, pos.y + 1] == Elements.wall ||
+            room.grid[pos.x + 1, pos.y] == Elements.wall ||
+            room.grid[pos.x, pos.y - 1] == Elements.wall ||
+            room.grid[pos.x - 1, pos.y] == Elements.wall)
         {
             return true;
         }
@@ -151,9 +151,9 @@ public class GeneratePuzzle
             {
                 new_pos = new Pos { x = pos.x - 1, y = pos.y };
             }
-            if (room.grid[new_pos.x, new_pos.y] == (int)Elements.wall ||
-                room.grid[new_pos.x, new_pos.y] == (int)Elements.entrance ||
-                room.grid[new_pos.x, new_pos.y] == (int)Elements.exit)
+            if (room.grid[new_pos.x, new_pos.y] == Elements.wall ||
+                room.grid[new_pos.x, new_pos.y] == Elements.entrance ||
+                room.grid[new_pos.x, new_pos.y] == Elements.exit)
             {
                 blocked[i] = true;
             }
@@ -296,28 +296,28 @@ public class GeneratePuzzle
         return deepest_node;
     }
 
-    Pos BoxPos(Direction dir, int[,] grid, Pos pos)
+    Pos BoxPos(Direction dir, Elements[,] grid, Pos pos)
     {
-        if (dir == Direction.N && grid[pos.x, pos.y + 1] == (int)Elements.floor)
+        if (dir == Direction.N && grid[pos.x, pos.y + 1] == Elements.floor)
         {
             return new Pos { x = pos.x, y = pos.y + 1 };
         }
-        if (dir == Direction.E && grid[pos.x + 1, pos.y] == (int)Elements.floor)
+        if (dir == Direction.E && grid[pos.x + 1, pos.y] == Elements.floor)
         {
             return new Pos { x = pos.x + 1, y = pos.y };
         }
-        if (dir == Direction.S && grid[pos.x, pos.y - 1] == (int)Elements.floor)
+        if (dir == Direction.S && grid[pos.x, pos.y - 1] == Elements.floor)
         {
             return new Pos { x = pos.x, y = pos.y - 1 };
         }
-        if (dir == Direction.W && grid[pos.x - 1, pos.y] == (int)Elements.floor)
+        if (dir == Direction.W && grid[pos.x - 1, pos.y] == Elements.floor)
         {
             return new Pos { x = pos.x - 1, y = pos.y };
         }
         return null;
     }
 
-    Pos PushPos(Direction dir, int[,] grid, Pos pos)
+    Pos PushPos(Direction dir, Elements[,] grid, Pos pos)
     {
         Pos new_pos = null;
         if (dir == Direction.N)
@@ -337,7 +337,7 @@ public class GeneratePuzzle
             new_pos = new Pos { x = pos.x - 2, y = pos.y };
         }
         if (new_pos.x >= 0 && new_pos.x < grid.GetLength(0) && new_pos.y >= 0 && new_pos.y < grid.GetLength(1) &&
-            grid[new_pos.x, new_pos.y] == (int)Elements.floor)
+            grid[new_pos.x, new_pos.y] == Elements.floor)
         {
             return new_pos;
         }

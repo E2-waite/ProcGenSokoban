@@ -2,14 +2,14 @@
 using enums;
 public class GridCheck
 {
-    public int FloorCount(int[,] grid)
+    public int FloorCount(Elements[,] grid)
     {
         int num_floors = 0;
         for (int y = 0; y < grid.GetLength(1); y++)
         {
             for (int x = 0; x < grid.GetLength(0); x++)
             {
-                if (grid[x, y] == (int)Elements.floor || grid[x,y] == (int)Elements.floor + (int)Elements.button)
+                if (grid[x, y] == Elements.floor || grid[x,y] == (Elements.floor | Elements.button))
                 {
                     num_floors++;
                 }
@@ -20,13 +20,13 @@ public class GridCheck
         return num_floors;
     }
 
-    public bool ContinuousFloor(int[,] grid, int num_floors)
+    public bool ContinuousFloor(Elements[,] grid, int num_floors)
     {
         for (int y = 0; y < grid.GetLength(1); y++)
         {
             for (int x = 0; x < grid.GetLength(0); x++)
             {
-                if (grid[x, y] == (int)Elements.floor)
+                if (grid[x, y] == Elements.floor)
                 {
                     return CheckContinuous(grid, new Pos(x, y), num_floors);
                 }
@@ -35,7 +35,7 @@ public class GridCheck
         return false;
     }
 
-    public bool CheckContinuous(int[,] grid, Pos start, int num_floors)
+    public bool CheckContinuous(Elements[,] grid, Pos start, int num_floors)
     {
         List<Pos> open_list = new List<Pos>();
         List<Pos> closed_list = new List<Pos>();
@@ -72,7 +72,7 @@ public class GridCheck
                         }
                     }
                 }
-                if (!contains && grid[position.x, position.y] == (int)Elements.floor)
+                if (!contains && grid[position.x, position.y] == Elements.floor)
                 {
                     open_list.Add(position);
                 }
