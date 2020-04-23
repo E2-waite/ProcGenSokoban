@@ -19,6 +19,15 @@ public class CamFollow : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player");
         }
 
+        if (game.generating && !game.PlayWhileGenerating)
+        {
+            height = 80;
+        }
+        else
+        {
+            height = 10;
+        }
+
         if (player == null)
         {
             transform.position = new Vector3(5, height * 5, 5);

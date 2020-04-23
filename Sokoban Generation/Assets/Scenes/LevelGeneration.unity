@@ -455,7 +455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a8aae0f3573f1143ad8323c5fa691bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 10
+  height: 25
 --- !u!1 &381168076
 GameObject:
   m_ObjectHideFlags: 0
@@ -2397,6 +2397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fd4859c34a52054a9a420ee41504d29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  max_depth: 4
 --- !u!4 &1734988047
 Transform:
   m_ObjectHideFlags: 0
@@ -2425,14 +2426,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size_x: 3
   size_y: 3
-  maze_x: 3
-  maze_y: 3
+  maze_x: 7
+  maze_y: 7
   show_dead_squares: 0
   game_started: 0
   seconds: 0
   room_prefab: {fileID: 8744511831243225635, guid: 5929994861dc2314da7a09854fc5d908,
     type: 3}
   level_won: 0
+  generating: 0
+  PlayWhileGenerating: 0
 --- !u!114 &1734988049
 MonoBehaviour:
   m_ObjectHideFlags: 0
